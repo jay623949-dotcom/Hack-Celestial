@@ -2,202 +2,262 @@
 
 > **SINGLE SOURCE OF TRUTH (FRONTEND UI & UX)**  
 > **Location**: `/docs/design.md`  
-> This document specifies the exact visual identity, tokens, component conventions, interaction patterns, and design rules implemented in the **RESORT 360** landing page and command center.  
+> This document specifies the exact visual identity, tokens, component conventions, interaction patterns, and design rules implemented in the **RESORT 360** public landing page and future command center modules.  
 > Future AI coding assistants and developers **MUST** read this file before creating or modifying any frontend page or component.
 
 ---
 
-## 1. Brand Identity & Philosophy
+## 1. Brand Identity
+Resort 360 is an **AI-powered resort operations platform**. It connects operational context across departments (Front Desk, Housekeeping, Maintenance, and Revenue Management), lets specialized AI agents reason together, and gives managers one clear action plan to approve and execute.
 
-Resort 360 is an **AI-powered resort operations command center**.  
-It bridges operational silos across Front Desk, Housekeeping, Maintenance, and Revenue Management.
-
-### 1.1 The Aesthetic Equation
+### The Aesthetic Equation
 $$\text{Premium Hospitality} + \text{Enterprise Operations} + \text{Modern AI} + \text{Calm Intelligence}$$
 
-- **Target Persona**: Hotel General Managers, Front Desk Supervisors, Executive Housekeepers, Chief Engineers.
+- **Target Persona**: Hotel General Managers, Front Desk Supervisors, Executive Housekeepers, Chief Engineers, and Resort Directors.
 - **Tone**: Calm, authoritative, restrained, intentional, and trustworthy.
 - **Anti-Patterns**:
   - ❌ **NOT** an AI startup landing page with purple gradients or floating blobs.
   - ❌ **NOT** a high-frequency trading crypto terminal with flashing lights.
   - ❌ **NOT** a sci-fi cyberpunk HUD or toy-like cartoon interface.
+  - ❌ **NOT** a dashboard dumped into the landing page too early.
 
 ---
 
-## 2. Color System & Design Tokens
-
-Resort 360 implements a dual-theme architecture driven by CSS custom properties in `frontend/app/globals.css` and mapped via `frontend/tailwind.config.js`.
-
-### 2.1 The Primary Brand Accent: Teal
-**Teal is the SOLE primary brand accent.**  
-Green is strictly forbidden as a brand color and is reserved solely for semantic success states.
-
-| Token | Light Mode Hex | Dark Mode Hex | Purpose |
-| :--- | :--- | :--- | :--- |
-| `primary` | `#0F766E` | `#14B8A6` | Primary action buttons, brand badges, active links |
-| `primary-hover` | `#0D9488` | `#2DD4BF` | Hover state on primary elements |
-| `primary-light` | `#F0FDFA` | `#062326` | Highlight banner fills, consensus card surfaces |
-| `primary-border` | `#99F6E4` | `#115E59` | Subtle borders for highlighted consensus cards |
-
-### 2.2 Backgrounds, Surfaces & Text
-- **Light Theme**: Warm White Atmosphere
-  - Background: `#FBFBFA`
-  - Surfaces (Cards): `#FFFFFF`
-  - Secondary Surface: `#F5F5F3`
-  - Hover Surface: `#ECECE8`
-  - Primary Text: `#1E293B` (Charcoal Slate)
-  - Muted Text: `#64748B`
-  - Borders: `#E2E8F0`
-- **Dark Theme**: Deep Bluish Charcoal (Operations Deck)
-  - Background: `#07111F` (Deep bluish, NEVER pure black)
-  - Primary Surface: `#0B1626`
-  - Secondary Surface: `#0F1C2E`
-  - Hover Surface: `#16263D`
-  - Primary Text: `#F1F5F9` (Soft crisp white)
-  - Muted Text: `#94A3B8`
-  - Borders: `#1E2E45`
-
-### 2.3 Semantic Status System
-Status indicators are distinct from the brand accent:
-
-| Semantic State | Light Hex | Dark Hex | Role | Pair With |
-| :--- | :--- | :--- | :--- | :--- |
-| **Success** | `#15803D` | `#22C55E` | Ready, Cleaned, Completed | Checkmark icon + explicit text |
-| **Warning / Pending** | `#B45309` | `#F59E0B` | Analyzing, Delay, Pending Approval | Clock / pulse dot + explicit text |
-| **Critical / Danger** | `#DC2626` | `#EF4444` | Breakdown, Emergency, Rejected | Alert icon + explicit text |
-
-> **Accessibility Rule**: Never communicate status through color alone. Always combine **Color + Icon + Explicit Label**.
+## 2. Light Theme
+- **Background**: `#FBFBFA` (Warm white)
+- **Surface**: `#FFFFFF` (Pure white card surfaces)
+- **Surface Secondary**: `#F5F5F3`
+- **Surface Hover**: `#ECECE8`
+- **Foreground / Text**: `#1E293B` (Refined charcoal slate)
+- **Muted Foreground**: `#64748B`
+- **Borders**: `#E2E8F0`
+- **Primary Teal**: `#0F766E`
+- **Primary Hover**: `#0D9488`
+- **Primary Light Surface**: `#F0FDFA`
+- **Primary Border**: `#99F6E4`
 
 ---
 
-## 3. Theme Switching Rules
-
-- Managed by `ThemeProvider.jsx` wrapping the Next.js App Router root layout.
-- State persisted in `localStorage` under `resort360_theme`.
-- Automatically respects `prefers-color-scheme: dark` on first visit.
-- Uses `class="dark"` toggled on the `<html>` root with `suppressHydrationWarning` to eliminate FOUC (flash of unstyled content).
-- **Rule**: Never build separate duplicate components for light and dark modes. Every component consumes token utility classes (`bg-surface`, `text-foreground`, `border-border`).
-
----
-
-## 4. Typography System
-
-Powered by modern sans-serif typography (`Inter`, system UI font fallback). Font weights are used strictly to define hierarchy, not as visual decoration.
-
-| Style Role | Tailwind Hierarchy | Usage |
-| :--- | :--- | :--- |
-| **Display Hero** | `text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12]` | Landing hero headline |
-| **Page Header (H1)** | `text-3xl sm:text-4xl font-extrabold tracking-tight` | Major page / command center titles |
-| **Section Header (H2)**| `text-2xl sm:text-3xl font-bold tracking-tight` | Landing page section headings |
-| **Card Header (H3)** | `text-lg sm:text-xl font-bold` | Feature titles, consensus action plan headers |
-| **Subhead (H4)** | `text-base font-bold` | Agent names, scenario titles |
-| **Body Text** | `text-sm sm:text-base text-muted-foreground leading-relaxed` | Descriptions, operational trade-off explanations |
-| **Mono Metadata** | `text-xs font-mono font-bold uppercase tracking-wider` | Incident codes, telemetry timestamps, department tags |
-| **Metric Value** | `text-2xl sm:text-3xl font-extrabold font-mono tracking-tight` | Quantifiable numbers (Occupancy, Signals) |
+## 3. Dark Theme
+- **Background**: `#07111F` (Deep bluish charcoal, NEVER pure `#000000`)
+- **Surface**: `#0B1626` (Primary container background)
+- **Surface Secondary**: `#0F1C2E`
+- **Surface Hover**: `#16263D`
+- **Foreground / Text**: `#F8FAFC` (Soft crisp white)
+- **Muted Foreground**: `#94A3B8`
+- **Borders**: `#1E2E45`
+- **Primary Teal**: `#14B8A6`
+- **Primary Hover**: `#2DD4BF`
+- **Primary Light Surface**: `#062326`
+- **Primary Border**: `#115E59`
 
 ---
 
-## 5. Spacing, Geometry & Radius
-
-### 5.1 Spacing Scale
-- Major Landing Sections: `py-20 md:py-28`
-- Interior Card Padding: `p-5 sm:p-7`
-- Control Gaps: `gap-2` (badges), `gap-3` (sub-cards), `gap-6` (major 4-column grids)
-
-### 5.2 Border Radius Scale
-- Small Badges & Filter Pills: `rounded-full`
-- Buttons & Input Controls: `rounded-lg` (8px)
-- Cards & Telemetry Blocks: `rounded-xl` (12px)
-- Large Feature Blocks & Modals: `rounded-2xl` (16px)
-- Hero Terminal & Outer Command Shell: `rounded-3xl` (24px)
+## 4. Primary Teal
+Teal is the **SOLE** primary brand accent.
+- Dark theme: `#14B8A6` (Hover: `#2DD4BF`)
+- Light theme: `#0F766E` (Hover: `#0D9488`)
+- Green is strictly reserved for semantic success states (`#22C55E` / `#15803D`) and never used as a brand theme color.
 
 ---
 
-## 6. Shadows & Depth
+## 5. Dark Bluish Background
+- Root dark background: `#07111F`
+- Dark card surface: `#0B1626`
+- Dark elevation secondary: `#0F1C2E`
+- This ensures an atmospheric, deep oceanic/operations feel rather than a stark, flat black background.
 
-- **Light Mode**: Multi-layer ambient drop shadows:
+---
+
+## 6. Typography
+- Modern sans-serif stack: `Inter`, system UI font fallback (`-apple-system`, `BlinkMacSystemFont`, `"Segoe UI"`, `Roboto`, `sans-serif`).
+- Weights are used strictly to define hierarchy:
+  - Extra Bold (`font-extrabold` / 800) for hero and section titles.
+  - Bold (`font-bold` / 700) for card titles, agent titles, and badges.
+  - Medium (`font-medium` / 500) for navigation links and status copy.
+  - Regular (`font-normal` / 400) for descriptions and trade-off narratives.
+- Monospace font (`font-mono`) is reserved for timestamps, department tags, incident numbers (`#8092`), and operational telemetry badges.
+
+---
+
+## 7. Font Scale
+- **Display Hero**: `text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12]`
+- **Section Headers (H2)**: `text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight`
+- **Card / Feature Headers (H3)**: `text-lg sm:text-xl font-bold`
+- **Subheads (H4)**: `text-sm sm:text-base font-bold`
+- **Body Text**: `text-sm sm:text-base text-muted-foreground leading-relaxed`
+- **Caption / Meta**: `text-xs text-muted-foreground`
+- **Micro Badges**: `text-[10px]` or `text-[11px] font-mono font-bold uppercase tracking-wider`
+
+---
+
+## 8. Spacing
+- Major section vertical padding: `py-20 md:py-28`
+- Large CTA section padding: `py-24 md:py-32`
+- Container max-width: `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`
+- Hero & CTA text width: `max-w-4xl` or `max-w-3xl mx-auto`
+- Card internal padding: `p-5 sm:p-6` or `p-6 sm:p-8`
+- Component gaps: `gap-2.5` to `gap-4` for badge grids, `gap-6` for card grids.
+
+---
+
+## 9. Border Radius
+- Small pills, status dots, and badges: `rounded-full`
+- Buttons & input controls: `rounded-xl` (12px)
+- Cards & intermediate containers: `rounded-2xl` (16px)
+- Major product visualization frames & command shells: `rounded-3xl` (24px)
+
+---
+
+## 10. Shadows
+- **Light Mode**:
   - `shadow-soft`: `0 2px 12px -2px rgba(7, 17, 31, 0.04), 0 1px 3px -1px rgba(7, 17, 31, 0.02)`
   - `shadow-elevated`: `0 16px 36px -8px rgba(7, 17, 31, 0.1), 0 4px 12px -2px rgba(7, 17, 31, 0.03)`
-- **Dark Mode**: Elevated depth is achieved through **border definition (`border-border`)** and surface elevation steps (`bg-surface` vs `bg-surface-secondary`) rather than black drop shadows.
+- **Dark Mode**: Elevated depth is achieved primarily through **border definition (`border border-border`)** and surface elevation stepping (`bg-surface` vs `bg-surface-secondary`) rather than harsh drop shadows.
 
 ---
 
-## 7. Component Conventions & Layouts
-
-### 7.1 Sticky Navbar (`components/navbar/Navbar.jsx`)
-- Height: 64px (`h-16`).
-- Sticky at top: `sticky top-0 z-50 backdrop-blur-md bg-surface/90 border-b border-border/70`.
-- Left: Monogram `360` badge + `RESORT 360` title + descriptor `AI-Powered Resort Operations`.
-- Center: Pill capsule navigation (`Overview`, `Operations`, `AI Agents`, `How It Works`).
-- Right: Theme toggle + `Open Command Center` primary CTA.
-
-### 7.2 Hero & Real Command Center (`components/hero/Hero.jsx`)
-- Headline: *"Turn Resort Chaos Into Coordinated Action."*
-- Subtitle: Clearly articulates cross-department context and multi-agent consensus.
-- Mockup: Integrated command terminal (`shadow-elevated`) simulating the 10:40 AM VIP arrival + AC breakdown, 4 agent status indicators, and synthesized action plan review.
-
-### 7.3 Departmental AI Agents (`components/agents/AgentSection.jsx`)
-- 4 Specialized Modules:
-  - `Front Desk`: Guest relations, VIP loyalty, wait-time mitigation.
-  - `Housekeeping`: Hygiene, room readiness, staff routing, turn-around ETAs.
-  - `Maintenance`: Asset failure severity, technician dispatch, part availability.
-  - `Revenue`: Category ADR, upsell value, group booking locks.
-- Rendered as operational modules with clear scope checklists and sample recommendations, **never as chatbot conversation bubbles**.
-
-### 7.4 Multi-Agent Consensus (`components/consensus/MultiAgentConsensus.jsx`)
-- Illustrates 4 distinct perspectives converging via an animated downward arrow into the **Resort 360 Consensus Engine**.
-- Highlights the chosen action: `Move VIP → Room 505`.
-- Features an explicit **Explainable Rationale** section detailing why the decision was chosen over alternatives.
-
-### 7.5 Human Control (`components/operations/HumanControl.jsx`)
-- Core Headline: *"AI recommends. Managers decide."*
-- 4 Stages: AI Recommendation $\rightarrow$ Manager Review $\rightarrow$ Approve / Modify / Reject $\rightarrow$ Controlled Execution.
-- Emphasizes zero autonomous execution of room changes or work orders without human authorization.
-
-### 7.6 Live Execution Timeline (`components/execution/LiveExecution.jsx`)
-- Visual sequence connecting decision approval to staff work order fulfillment:
-  - `10:42 AM` Room 505 prep started
-  - `10:43 AM` Housekeeping assigned
-  - `10:44 AM` Tech assigned to 401
-  - `10:45 AM` Front Desk updated
-  - `10:46 AM` Guest notified
-  - `10:48 AM` Room 505 ready
+## 11. Buttons
+- **Primary CTA**:
+  `px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs sm:text-sm shadow-soft transition-all duration-150`
+- **Secondary Action**:
+  `px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl border border-border bg-surface hover:bg-surface-secondary text-foreground font-semibold text-xs sm:text-sm transition-colors`
+- **Navbar Sign Up Button**:
+  `px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs transition-all shadow-soft`
+- **Navbar Sign In Link**:
+  `px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors`
 
 ---
 
-## 8. Animation & Motion Rules
-
-- **Restraint First**: Animations must communicate status, not show off technical capability.
-- **Pulse Indicators**: `animate-pulse` reserved exclusively for live telemetry channel dots.
-- **Transitions**: `transition-all duration-150` on interactive buttons and navigation links.
-- **Theme Transitions**: `transition-colors duration-200` on body and card surfaces.
-- **Prohibited**: Floating 3D orbs, infinite spinning logos, aggressive parallax scroll, and decorative confetti.
-
----
-
-## 9. Responsiveness Matrix
-
-| Viewport | Breakpoint | Layout Strategy |
-| :--- | :--- | :--- |
-| **Desktop** | $\ge 1024\text{px}$ | Full 4-column agent grid, integrated terminal preview, side-by-side problem comparison. |
-| **Tablet** | $768\text{px} - 1023\text{px}$ | 2-column agent layout, responsive navigation capsule, stacked consensus plan. |
-| **Mobile** | $< 768\text{px}$ | Collapsible hamburger drawer, single-column stacked triage cards, prioritized incident & action buttons. |
+## 12. Navbar
+- Sticky position: `sticky top-0 z-50 w-full backdrop-blur-md bg-surface/90 border-b border-border/70`
+- Height: `h-16` (64px)
+- Left: Monogram `360` badge + `RESORT 360` + subtitle `AI-Powered Resort Operations`
+- Center: Capsule navigation links (`Overview`, `How It Works`, `AI Agents`, `Operations`)
+- Right: Visible `Sign In` text link, `Sign Up →` primary button, divider line, and `ThemeToggle`
+- Mobile: Accessible hamburger drawer with all navigation links and authentication buttons clearly laid out.
 
 ---
 
-## 10. Design Do's & Don'ts
+## 13. Hero
+- Generous whitespace and restrained composition.
+- Micro-copy label: `AI-POWERED RESORT OPERATIONS` in subtle pill.
+- Dominant headline: `"Turn Resort Chaos Into Coordinated Action."`
+- Supporting copy explains cross-department context, AI agent reasoning, and manager approval.
+- Primary CTA: `Open Command Center →` (routes to `/sign-up` or `/dashboard`).
+- Secondary CTA: `See How It Works` (smooth scroll to `#how-it-works`).
+- Refined product visualization: An active incident box showing 10:40 AM Room 401 AC failure, 4 agent status indicators (`Front Desk ✓`, `Housekeeping •`, `Maintenance •`, `Revenue ✓`), and a subtle proposal preview. **Supports the hero instead of overpowering it.**
 
-### DO:
-- ✅ Use **Teal** as the single primary brand accent.
-- ✅ Use pure **JavaScript (`.js` / `.jsx`)**.
-- ✅ Use the deep bluish dark palette (`#07111F`, `#0B1626`).
-- ✅ Combine Color + Icon + Label for all status indicators.
-- ✅ Keep copy realistic, operational, and hospitality-focused.
+---
 
-### DO NOT:
-- ❌ Do not use green as a brand color.
-- ❌ Do not introduce TypeScript (`.ts` / `.tsx`).
-- ❌ Do not use pure `#000000` black for dark mode backgrounds.
-- ❌ Do not display fake customer logos, fake reviews, or fake adoption statistics.
-- ❌ Do not hardcode hex values inside individual React components.
-- ❌ Do not present AI agents as casual conversational chatbots.
+## 14. Cards
+- Styling: `border border-border bg-surface rounded-2xl p-6 shadow-soft hover:border-primary/40 transition-colors`
+- Internal hierarchy:
+  - Top meta: mono badge, phase number, or status icon.
+  - Title: Bold, clear heading.
+  - Body: Concise, realistic hospitality explanation.
+  - Bottom meta: Subtle footer line with timing or responsibility.
+
+---
+
+## 15. Product Visualizations
+- Never use generic AI robots or glowing glass orbs.
+- Use structured operational telemetry:
+  - Incident number (`#8092`)
+  - Timestamp (`10:40 AM`)
+  - Guest loyalty tier (`Alexander Vance - Diamond VIP`)
+  - Real room numbers (`Suite 401`, `Suite 505`)
+  - Clear checkmarks (`✓ Guest experience protected`)
+
+---
+
+## 16. Section Spacing
+- Every section is rhythmically separated with `py-20 md:py-28`.
+- Alternating subtle background transitions: `bg-background` and `bg-surface-secondary/40 border-y border-border`.
+- No adjacent sections share the exact same card layout pattern.
+
+---
+
+## 17. Icon Style
+- Use `lucide-react` icons exclusively.
+- Icon stroke: Default (2px).
+- Sizing:
+  - Button icons: `w-3.5 h-3.5` or `w-4 h-4`
+  - Card header icons: `w-4 h-4` or `w-5 h-5` inside a `p-2` or `p-2.5` rounded container (`bg-primary/10 text-primary` or `bg-surface-secondary`).
+
+---
+
+## 18. Status Colors
+- **Success**: `#22C55E` (Dark), `#15803D` (Light) — Ready, Inspected, Completed
+- **Warning / Progress**: `#F59E0B` (Dark), `#B45309` (Light) — In Progress, Analyzing
+- **Critical / Danger**: `#EF4444` (Dark), `#DC2626` (Light) — Out of Order, Breakdown
+- **Accessibility Rule**: Always combine **Color + Icon + Explicit Text** (never color alone).
+
+---
+
+## 19. Animation Rules
+- Animations must feel calm, intentional, and expensive.
+- `animate-pulse` is strictly reserved for live status indicators and telemetry dots.
+- `transition-all duration-150` for interactive button hover effects.
+- `transition-colors duration-200` for light/dark theme shifts.
+- No bouncing bouncy castles, no spinning 3D cubes, no confetti.
+
+---
+
+## 20. Responsive Rules
+- **Desktop ($\ge 1024\text{px}$)**: Full horizontal 6-step flow, 4-column agent and differentiator grids, side-by-side hero composition.
+- **Tablet ($768\text{px} - 1023\text{px}$)**: 2-column grids for agents and use cases; horizontal scroll or stacked stages.
+- **Mobile ($< 768\text{px}$)**: Full-width stacked cards, sticky navbar with mobile drawer, accessible Sign Up and Sign In buttons.
+
+---
+
+## 21. Accessibility
+- All text meets WCAG AA contrast ratio against surfaces.
+- Interactive elements possess clear hover and active focus rings.
+- Images and icons carry descriptive text or `aria-hidden` attributes.
+- Theme switching is announced without screen reader disruption.
+
+---
+
+## 22. Component Conventions
+- **JavaScript Only**: All components are written in pure `.js` and `.jsx`. Never create `.ts` or `.tsx`.
+- Reusable UI primitives in `components/ui/` (`ThemeToggle.jsx`, `ThemeProvider.jsx`).
+- Landing page sections in `components/sections/` and `components/hero/`, `components/navbar/`, `components/footer/`.
+- All styling through Tailwind classes referencing custom CSS properties.
+
+---
+
+## 23. Theme Tokens Reference Table
+
+| Tailwind Class | Light Hex | Dark Hex | Role |
+| :--- | :--- | :--- | :--- |
+| `bg-background` | `#FBFBFA` | `#07111F` | Root background |
+| `bg-surface` | `#FFFFFF` | `#0B1626` | Card & container fill |
+| `bg-surface-secondary`| `#F5F5F3` | `#0F1C2E` | Secondary container fill |
+| `bg-surface-hover` | `#ECECE8` | `#16263D` | Interactive card hover |
+| `text-foreground` | `#1E293B` | `#F8FAFC` | Primary text |
+| `text-muted-foreground`| `#64748B` | `#94A3B8` | Subtitle & descriptive text |
+| `border-border` | `#E2E8F0` | `#1E2E45` | Structural borders |
+| `bg-primary` | `#0F766E` | `#14B8A6` | Primary action buttons |
+| `bg-primary-hover` | `#0D9488` | `#2DD4BF` | Hover state |
+| `bg-primary-light` | `#F0FDFA` | `#062326` | Highlight banner fill |
+| `border-primary/40` | `#99F6E4` | `#115E59` | Highlight banner border |
+
+---
+
+## 24. Design DO's
+- ✅ Keep the landing page strictly focused on introducing the product and convincing operators.
+- ✅ Use the deep bluish dark palette (`#07111F`) and warm white light palette (`#FBFBFA`).
+- ✅ Maintain visible `Sign In` and `Sign Up` buttons in the navbar on desktop.
+- ✅ Use real hospitality situations (VIP arrivals, AC failures, housekeeping turnaround, wedding blocks).
+- ✅ Let future pages (e.g. Operations, Command Center, Reports) import and use these exact design tokens.
+
+---
+
+## 25. Design DON'Ts
+- ❌ Do NOT dump an entire live interactive dashboard into the landing page.
+- ❌ Do NOT use fake customer logos, fake testimonials, or fake metrics.
+- ❌ Do NOT make every section `[Heading] + [Paragraph] + [3 Cards]`.
+- ❌ Do NOT use generic startup phrases like "The future of hospitality."
+- ❌ Do NOT use TypeScript.
+- ❌ Do NOT use green as a brand color.

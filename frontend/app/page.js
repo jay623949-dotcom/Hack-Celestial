@@ -3,72 +3,56 @@
 import React from 'react';
 import Navbar from '../components/navbar/Navbar';
 import Hero from '../components/hero/Hero';
-import OperationalStrip from '../components/analytics/OperationalStrip';
-import CoreProblem from '../components/operations/CoreProblem';
-import ProductExplanation from '../components/operations/ProductExplanation';
-import AgentSection from '../components/agents/AgentSection';
-import MultiAgentConsensus from '../components/consensus/MultiAgentConsensus';
-import LiveIncidentSection from '../components/incidents/LiveIncidentSection';
-import HumanControl from '../components/operations/HumanControl';
-import LiveExecution from '../components/execution/LiveExecution';
-import HowItWorks from '../components/operations/HowItWorks';
-import OperationalUseCases from '../components/operations/OperationalUseCases';
-import WhyResort360 from '../components/operations/WhyResort360';
-import FAQ from '../components/faq/FAQ';
-import FinalCTA from '../components/cta/FinalCTA';
+import ProblemSection from '../components/sections/ProblemSection';
+import ProcessFlow from '../components/sections/ProcessFlow';
+import AgentsSection from '../components/sections/AgentsSection';
+import CoreScenarioSection from '../components/sections/CoreScenarioSection';
+import HumanControlSection from '../components/sections/HumanControlSection';
+import ExecutionTimeline from '../components/sections/ExecutionTimeline';
+import UseCasesGrid from '../components/sections/UseCasesGrid';
+import WhySection from '../components/sections/WhySection';
+import CtaSection from '../components/sections/CtaSection';
 import Footer from '../components/footer/Footer';
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-primary">
-      {/* 01. Sticky Minimal Navbar */}
+      {/* 01. Minimal Sticky Navbar */}
       <Navbar />
 
       <main className="flex-1">
-        {/* 02. Hero with Integrated Real Command Center Mockup */}
+        {/* 02. Hero with Large Whitespace & Subtle Product Visualization */}
         <Hero />
 
-        {/* 03. Trust / Context Operational Capabilities Strip */}
-        <OperationalStrip />
+        {/* 03. Section 2: The Real Problem (Four Streams Converging) */}
+        <ProblemSection />
 
-        {/* 04. The Core Problem: Departmental Fragmentation */}
-        <CoreProblem />
+        {/* 04. Section 3: What Resort 360 Does (Horizontal 6-Step Flow) */}
+        <ProcessFlow />
 
-        {/* 05. Product Explanation: Signals to Decision */}
-        <ProductExplanation />
+        {/* 05. Section 4: Multi-Agent Intelligence (Four Perspectives → Consensus) */}
+        <AgentsSection />
 
-        {/* 06. Specialized AI Agents */}
-        <AgentSection />
+        {/* 06. Section 5: The Core Product Moment (10:40 AM VIP incident → Move VIP to 505) */}
+        <CoreScenarioSection />
 
-        {/* 07. Multi-Agent Consensus */}
-        <MultiAgentConsensus />
+        {/* 07. Section 6: Human Control (AI recommends. Managers decide.) */}
+        <HumanControlSection />
 
-        {/* 08. Live Incident Command Center Simulation */}
-        <LiveIncidentSection />
+        {/* 08. Section 7: Real-Time Execution (10:42 to 10:48 Timeline) */}
+        <ExecutionTimeline />
 
-        {/* 09. Human Control: AI Recommends. Managers Decide. */}
-        <HumanControl />
+        {/* 09. Section 8: Realistic Hospitality Use Cases (Editorial Grid) */}
+        <UseCasesGrid />
 
-        {/* 10. Real-Time Execution Timeline */}
-        <LiveExecution />
+        {/* 10. Section 9: Why Resort 360 (Four Differentiators) */}
+        <WhySection />
 
-        {/* 11. Six-Stage Operational Pipeline: How It Works */}
-        <HowItWorks />
-
-        {/* 12. Real-World Hospitality Use Cases */}
-        <OperationalUseCases />
-
-        {/* 13. Four Principles: Why Resort 360 */}
-        <WhyResort360 />
-
-        {/* 14. Frequently Asked Questions */}
-        <FAQ />
-
-        {/* 15. Final Restrained Call to Action */}
-        <FinalCTA />
+        {/* 11. Section 10: Final Large Minimal CTA */}
+        <CtaSection />
       </main>
 
-      {/* 16. Enterprise Footer */}
+      {/* 12. Minimal Premium Footer */}
       <Footer />
     </div>
   );

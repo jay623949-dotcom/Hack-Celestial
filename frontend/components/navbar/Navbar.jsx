@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
 
 export default function Navbar() {
@@ -27,48 +27,55 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Navigation Middle */}
+          {/* Navigation Center */}
           <nav className="hidden md:flex items-center gap-1 bg-surface-secondary/70 px-3 py-1.5 rounded-full border border-border/80 text-xs font-medium">
             <a
               href="#overview"
-              className="px-3 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
+              className="px-3.5 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
             >
               Overview
             </a>
             <a
-              href="#operations"
-              className="px-3 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
+              href="#how-it-works"
+              className="px-3.5 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
             >
-              Operations
+              How It Works
             </a>
             <a
               href="#agents"
-              className="px-3 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
+              className="px-3.5 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
             >
               AI Agents
             </a>
             <a
-              href="#how-it-works"
-              className="px-3 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
+              href="#operations"
+              className="px-3.5 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
             >
-              How It Works
+              Operations
             </a>
           </nav>
 
-          {/* Actions Right */}
-          <div className="hidden sm:flex items-center gap-2.5">
-            <ThemeToggle />
-            <a
-              href="#command-center"
+          {/* Actions Right: Sign In, Sign Up (Primary), Theme Toggle */}
+          <div className="hidden sm:flex items-center gap-3">
+            <Link
+              href="/sign-in"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/sign-up"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs transition-all shadow-soft"
             >
-              <span>Open Command Center</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </a>
+              <span>Sign Up</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <div className="h-4 w-px bg-border mx-0.5" />
+            <ThemeToggle />
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 sm:hidden">
             <ThemeToggle />
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -83,7 +90,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="md:hidden border-b border-border bg-surface px-4 py-4 space-y-3">
+        <div className="sm:hidden border-b border-border bg-surface px-4 py-4 space-y-3">
           <nav className="flex flex-col space-y-1.5 text-sm font-medium">
             <a
               href="#overview"
@@ -93,11 +100,11 @@ export default function Navbar() {
               Overview
             </a>
             <a
-              href="#operations"
+              href="#how-it-works"
               onClick={() => setMobileOpen(false)}
               className="px-3 py-2 rounded-lg hover:bg-surface-secondary text-foreground"
             >
-              Operations
+              How It Works
             </a>
             <a
               href="#agents"
@@ -107,21 +114,28 @@ export default function Navbar() {
               AI Agents
             </a>
             <a
-              href="#how-it-works"
+              href="#operations"
               onClick={() => setMobileOpen(false)}
               className="px-3 py-2 rounded-lg hover:bg-surface-secondary text-foreground"
             >
-              How It Works
+              Operations
             </a>
           </nav>
-          <div className="pt-2 border-t border-border">
-            <a
-              href="#command-center"
+          <div className="pt-3 border-t border-border flex flex-col gap-2">
+            <Link
+              href="/sign-in"
               onClick={() => setMobileOpen(false)}
-              className="w-full text-center block py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold"
+              className="w-full text-center py-2 rounded-lg border border-border bg-surface text-foreground text-xs font-semibold"
             >
-              Open Command Center
-            </a>
+              Sign In
+            </Link>
+            <Link
+              href="/sign-up"
+              onClick={() => setMobileOpen(false)}
+              className="w-full text-center py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold"
+            >
+              Sign Up →
+            </Link>
           </div>
         </div>
       )}
