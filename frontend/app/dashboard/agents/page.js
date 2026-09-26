@@ -81,15 +81,7 @@ function AgentSwarmPageContent() {
     setToasts((prev) => [newToast, ...prev].slice(0, 4));
   };
 
-<<<<<<< HEAD
-  const handleServerEvent = useCallback((event) => {
-    setStreamEvents((prev) => [event, ...prev].slice(0, 100));
-    const eventName = event.event || event.event_type || 'SYSTEM_EVENT';
-    const payload = event.payload || event.data || {};
-    addToast(`Event: ${eventName}`, payload.reason || payload.message || payload.description || 'Payload received', 'info');
-=======
   const [isConnected, setIsConnected] = useState(false);
-
 
   useEffect(() => {
     const socket = getSocket();
@@ -122,7 +114,6 @@ function AgentSwarmPageContent() {
       socket.off('disconnect', handleDisconnect);
       socket.offAny(handleAny);
     };
->>>>>>> 00f776105b598c149978b85fdff0a302606a0568
   }, []);
 
 
