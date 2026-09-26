@@ -75,7 +75,7 @@ export default function OdooHero() {
         {/* Animated Typing Text */}
         <div className="mt-8 text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto h-12 flex items-center justify-center">
           <span>Manage your... </span>
-          <span className="font-accent text-odoo-teal text-2xl sm:text-3xl font-bold ml-2 underline decoration-dashed decoration-odoo-purple/40">
+          <span className="font-caveat font-accent text-2xl sm:text-3xl font-bold ml-2 underline decoration-dashed decoration-odoo-purple/40 bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-blue-600 inline-block">
             {displayedText}
           </span>
           <span className="w-0.5 h-6 bg-odoo-teal ml-1 animate-pulse" />

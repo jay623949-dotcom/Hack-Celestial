@@ -52,8 +52,9 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'Roboto', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-        accent: ['Caveat', 'Kalam', 'cursive'],
-        handwritten: ['Caveat', 'Kalam', 'cursive'],
+        accent: ['Caveat', 'Kalam', 'Shadows Into Light', 'cursive'],
+        caveat: ['Caveat', 'Kalam', 'Shadows Into Light', 'cursive'],
+        handwritten: ['Caveat', 'Kalam', 'Shadows Into Light', 'cursive'],
       },
       borderRadius: {
         '2xl': '16px',

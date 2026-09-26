@@ -174,7 +174,7 @@ export default function ModuleGrid() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-            All your resort apps. <span className="font-accent text-odoo-purple text-3xl font-normal">One intelligent platform.</span>
+            All your resort apps. <span className="font-caveat font-accent text-3xl font-normal bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-blue-600 inline-block">One intelligent platform.</span>
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
             Click any module to launch into the operational workspace

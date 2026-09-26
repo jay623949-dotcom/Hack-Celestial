@@ -124,7 +124,7 @@ export default function LoginPage() {
 
           {/* Playful Marker Accent Text floating near button */}
           <div className="text-center pt-1">
-            <span className="font-accent text-lg font-bold text-odoo-purple block">
+            <span className="font-caveat font-accent text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-blue-600 block">
               ⚡ Instant Single Sign-On for Operations Managers
             </span>
           </div>
