@@ -44,7 +44,7 @@ export default function OdooHero() {
     <section className="pt-12 pb-10 md:pt-16 md:pb-14 bg-background overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Micro Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-odoo-teal/30 bg-odoo-teal/10 text-odoo-teal text-xs font-semibold tracking-wide mb-6">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-odoo-purple/30 bg-odoo-purple/10 text-odoo-purple text-xs font-semibold tracking-wide mb-6">
           <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
           <span>AI-Powered Resort Operations Platform</span>
         </div>
@@ -56,7 +56,7 @@ export default function OdooHero() {
             <span className="relative z-10 text-odoo-purple">Coordinated Intelligence</span>
             {/* SVG Marker Scribble Underline */}
             <svg
-              className="absolute -bottom-3 left-0 w-full h-5 text-odoo-teal overflow-visible pointer-events-none"
+              className="absolute -bottom-3 left-0 w-full h-5 text-odoo-purple overflow-visible pointer-events-none"
               viewBox="0 0 300 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -75,10 +75,10 @@ export default function OdooHero() {
         {/* Animated Typing Text */}
         <div className="mt-8 text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto h-12 flex items-center justify-center">
           <span>Manage your... </span>
-          <span className="font-caveat font-accent text-2xl sm:text-3xl font-bold ml-2 underline decoration-dashed decoration-odoo-purple/40 bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-blue-600 inline-block">
+          <span className="font-caveat font-accent text-2xl sm:text-3xl font-bold ml-2 underline decoration-dashed decoration-odoo-purple/40 bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-purple-600 inline-block">
             {displayedText}
           </span>
-          <span className="w-0.5 h-6 bg-odoo-teal ml-1 animate-pulse" />
+          <span className="w-0.5 h-6 bg-odoo-purple ml-1 animate-pulse" />
         </div>
 
         {/* Subtext description */}
@@ -90,7 +90,7 @@ export default function OdooHero() {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/sign-up"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-odoo-teal hover:bg-odoo-teal-hover text-white font-semibold text-base shadow-odoo hover:shadow-odoo-hover transition-all duration-200 hover:-translate-y-0.5"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-odoo-purple hover:bg-odoo-purple-hover text-white font-semibold text-base shadow-odoo hover:shadow-odoo-hover transition-all duration-200 hover:-translate-y-0.5"
           >
             <span>Register Your Resort</span>
             <ArrowRight className="w-4 h-4" />

@@ -46,27 +46,27 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-slate-600">
               <li>
-                <a href="#overview" className="hover:text-odoo-teal transition-colors">
+                <a href="#overview" className="hover:text-odoo-purple transition-colors">
                   Product Overview
                 </a>
               </li>
               <li>
-                <a href="#how-it-works" className="hover:text-odoo-teal transition-colors">
+                <a href="#how-it-works" className="hover:text-odoo-purple transition-colors">
                   How It Works
                 </a>
               </li>
               <li>
-                <a href="#agents" className="hover:text-odoo-teal transition-colors">
+                <a href="#agents" className="hover:text-odoo-purple transition-colors">
                   AI Agents Swarm
                 </a>
               </li>
               <li>
-                <a href="#operations" className="hover:text-odoo-teal transition-colors">
+                <a href="#operations" className="hover:text-odoo-purple transition-colors">
                   Incident Resolution
                 </a>
               </li>
               <li>
-                <Link href="/dashboard/consensus" className="hover:text-odoo-teal transition-colors">
+                <Link href="/dashboard/consensus" className="hover:text-odoo-purple transition-colors">
                   Consensus Engine
                 </Link>
               </li>
@@ -80,31 +80,31 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-slate-600">
               <li>
-                <Link href="/dashboard/rooms" className="hover:text-odoo-teal transition-colors flex items-center justify-between">
+                <Link href="/dashboard/rooms" className="hover:text-odoo-purple transition-colors flex items-center justify-between">
                   <span>Rooms Hub</span>
                   <span className="text-[10px] font-mono text-slate-400">45 Rooms</span>
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard/guests" className="hover:text-odoo-teal transition-colors flex items-center justify-between">
+                <Link href="/dashboard/guests" className="hover:text-odoo-purple transition-colors flex items-center justify-between">
                   <span>Guest Directory</span>
                   <span className="text-[10px] font-mono text-slate-400">VIP Priority</span>
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard/staff" className="hover:text-odoo-teal transition-colors flex items-center justify-between">
+                <Link href="/dashboard/staff" className="hover:text-odoo-purple transition-colors flex items-center justify-between">
                   <span>Staff Rostering</span>
                   <span className="text-[10px] font-mono text-slate-400">On Duty</span>
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard/revenue" className="hover:text-odoo-teal transition-colors flex items-center justify-between">
+                <Link href="/dashboard/revenue" className="hover:text-odoo-purple transition-colors flex items-center justify-between">
                   <span>Revenue Analytics</span>
                   <span className="text-[10px] font-mono text-slate-400">82% Yield</span>
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard/execution" className="hover:text-odoo-teal transition-colors">
+                <Link href="/dashboard/execution" className="hover:text-odoo-purple transition-colors">
                   Live Execution
                 </Link>
               </li>
@@ -118,12 +118,12 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-slate-600">
               <li>
-                <Link href="/dashboard" className="hover:text-odoo-teal transition-colors">
+                <Link href="/dashboard" className="hover:text-odoo-purple transition-colors">
                   Operations Console
                 </Link>
               </li>
               <li>
-                <a href="#how-it-works" className="hover:text-odoo-teal transition-colors">
+                <a href="#how-it-works" className="hover:text-odoo-purple transition-colors">
                   Architecture Overview
                 </a>
               </li>

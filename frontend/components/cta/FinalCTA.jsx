@@ -8,11 +8,11 @@ export default function FinalCTA() {
   return (
     <section className="py-20 md:py-28 relative overflow-hidden bg-slate-900 text-white">
       {/* Subtle background glow */}
-      <div className="absolute inset-0 bg-radial-gradient from-teal-500/10 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-radial-gradient from-odoo-purple/20 via-transparent to-transparent pointer-events-none" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-teal-300 text-xs font-semibold mb-6">
-          <Sparkles className="w-3.5 h-3.5" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-purple-300 text-xs font-semibold mb-6">
+          <Sparkles className="w-3.5 h-3.5 text-purple-300" />
           <span>Operational Intelligence for Modern Hospitality</span>
         </div>
 
@@ -27,7 +27,7 @@ export default function FinalCTA() {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <Link
             href="/sign-up"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-odoo-teal hover:bg-odoo-teal-hover text-white font-bold text-sm shadow-md transition-all duration-150 transform hover:-translate-y-0.5"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-odoo-purple hover:bg-odoo-purple-hover text-white font-bold text-sm shadow-md transition-all duration-150 transform hover:-translate-y-0.5"
           >
             <span>Register Your Resort</span>
             <ArrowRight className="w-4 h-4" />
@@ -41,7 +41,7 @@ export default function FinalCTA() {
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
-          <ShieldCheck className="w-4 h-4 text-odoo-teal" />
+          <ShieldCheck className="w-4 h-4 text-purple-400" />
           <span>Human-in-the-Loop Governance • Seamless PMS Coexistence</span>
         </div>
       </div>

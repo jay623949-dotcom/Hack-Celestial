@@ -69,7 +69,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@atria.ai"
-                className="w-full bg-transparent border-b-2 border-gray-200 focus:border-odoo-teal focus:outline-none py-2.5 text-base text-foreground font-medium transition-colors placeholder:text-gray-400"
+                className="w-full bg-transparent border-b-2 border-gray-200 focus:border-odoo-purple focus:outline-none py-2.5 text-base text-foreground font-medium transition-colors placeholder:text-gray-400"
               />
             </div>
           </div>
@@ -80,7 +80,7 @@ export default function LoginPage() {
               <label className="text-xs font-bold text-foreground uppercase font-mono tracking-wider block">
                 Password
               </label>
-              <a href="#reset" className="text-xs text-odoo-teal hover:underline font-semibold">
+              <a href="#reset" className="text-xs text-odoo-purple hover:underline font-semibold">
                 Forgot password?
               </a>
             </div>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b-2 border-gray-200 focus:border-odoo-teal focus:outline-none py-2.5 text-base text-foreground font-medium transition-colors"
+                className="w-full bg-transparent border-b-2 border-gray-200 focus:border-odoo-purple focus:outline-none py-2.5 text-base text-foreground font-medium transition-colors"
               />
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 rounded-2xl bg-odoo-teal hover:bg-odoo-teal/90 text-white font-bold text-base shadow-md transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+            className="w-full py-3.5 rounded-2xl bg-odoo-purple hover:bg-odoo-purple/90 text-white font-bold text-base shadow-md transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
           >
             {isLoading ? (
               <span>Authenticating...</span>
@@ -148,7 +148,7 @@ export default function LoginPage() {
 
         {/* Card Footer Security Badge */}
         <div className="pt-2 border-t border-gray-100 flex items-center justify-center gap-2 text-xs text-muted-foreground font-mono">
-          <ShieldCheck className="w-4 h-4 text-odoo-teal" />
+          <ShieldCheck className="w-4 h-4 text-odoo-purple" />
           <span>Atria Intelligence Enterprise Auth v2.4</span>
         </div>
       </div>

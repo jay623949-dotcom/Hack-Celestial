@@ -73,7 +73,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/sign-up"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-odoo-teal hover:bg-odoo-teal-hover text-white font-bold text-sm transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-odoo-purple hover:bg-odoo-purple-hover text-white font-bold text-sm transition-all shadow-xs"
             >
               <span>Register Your Resort</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -137,7 +137,7 @@ export default function Navbar() {
             <Link
               href="/sign-up"
               onClick={() => setMobileOpen(false)}
-              className="w-full text-center py-2.5 rounded-xl bg-odoo-teal text-white text-sm font-bold shadow-xs"
+              className="w-full text-center py-2.5 rounded-xl bg-odoo-purple text-white text-sm font-bold shadow-xs"
             >
               Register Your Resort →
             </Link>

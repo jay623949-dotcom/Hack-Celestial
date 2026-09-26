@@ -17,7 +17,7 @@ import Footer from '../components/footer/Footer';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-odoo-teal/20 selection:text-odoo-teal">
+    <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-odoo-purple/20 selection:text-odoo-purple">
       <main className="flex-1">
         {/* 01. Odoo-Style Hero with SVG Marker Scribble & Typing Animation: "Turn Resort Complexity Into Coordinated Intelligence" */}
         <OdooHero />
