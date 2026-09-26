@@ -256,5 +256,31 @@ A feature or task is **DONE** only when:
 4. **No Premature Feature Creep**:
    - Focus exclusively on the end-to-end loop: Incident → Context → 4 Agents → Consensus → Manager Approval → Task Dispatch → Real-time Execution → Incident Resolution.
 
+---
+
+## 14. Failure Handling, Resilience & Demo Safety Rules
+
+1. **Never Show False Success**:
+   - State changes in the UI must represent confirmed backend transitions, not optimistic user intent. Never mark a task or incident as completed if the backend or database mutation failed.
+2. **Backend Confirmation Required Before State Changes**:
+   - Only update local UI and operational dashboards upon receiving a 2xx HTTP response or confirmed Socket.IO broadcast event.
+3. **Database is the Single Source of Truth**:
+   - Frontend and in-memory caches must resynchronize against authoritative database state on load, tab switch, and socket reconnect.
+4. **Strict AI Schema Validation**:
+   - Every AI response must pass AJV JSON schema validation before entering operational state. Invalid JSON or missing required fields must be rejected immediately.
+5. **Invalid AI Output Must Never Reach Execution**:
+   - If an AI model outputs unparseable text or violates schema contracts, the system must trigger deterministic fallback consensus or flag for manual manager review.
+6. **AI Failure Must Never Crash the Application**:
+   - Network timeouts, rate limits (429), or capacity spikes (503) must be caught by per-agent error boundaries and timeout guards (`Promise.race`), keeping the server and frontend running.
+7. **Retry Transient Failures Only**:
+   - Automatically retry transient network or capacity errors once or twice with exponential backoff. Never automatically retry validation errors (400), authentication failures (401/403), or not found errors (404).
+8. **Socket Reconnect Must Reconcile with Backend State**:
+   - When a client reconnects after network disconnection or server restart, it must immediately fetch fresh operational records via REST API to ensure no missed events leave the UI stale.
+9. **Distinguish EMPTY from ERROR**:
+   - Components must render clear, friendly empty states when zero records match a query, rather than throwing or displaying generic error banners.
+10. **Global React Error Boundaries**:
+    - Unexpected rendering exceptions in dashboard sections must be caught by an `ErrorBoundary`, rendering an isolated section error card with `[Try Again]` and `[Reload Page]` actions while keeping global navigation fully functional.
+
+
 
 

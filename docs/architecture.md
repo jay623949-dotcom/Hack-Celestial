@@ -639,5 +639,44 @@ INCIDENT RESOLVED (INC-401-AC: open → in_progress → resolved)
 EXECUTION COMPLETE (Progress: 100%, timeline closed, full audit trail persisted)
 ```
 
+---
+
+## 12. Failure Handling, Resilience & Demo Safety Architecture
+
+Resort 360 is engineered to maintain operational integrity under common failure conditions:
+
+### 12.1 Standardized API Error Handling
+All backend endpoints funnel through centralized middleware (`errorHandler.js`), guaranteeing a deterministic JSON error contract:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "DATABASE_UNAVAILABLE | VALIDATION_ERROR | AI_TIMEOUT | STATE_CONFLICT",
+    "message": "Human-readable failure explanation without leaked credentials",
+    "details": [...],
+    "timestamp": "2026-09-27T01:30:00.000Z",
+    "path": "/api/v1/..."
+  }
+}
+```
+
+### 12.2 Multi-Agent AI Timeout & Error Isolation
+- External AI calls (Gemini / OpenAI / Local) are guarded by a 45-second `Promise.race` timeout, preventing connection hangs.
+- Each domain agent executes inside an isolated error boundary. If a single agent (e.g. Maintenance) encounters a timeout or rate limit, its status is tagged as `unavailable`.
+- The remaining active agents continue deliberation, and the `ConsensusService` synthesizes a valid operational consensus with explicit notification of missing inputs.
+
+### 12.3 Deterministic Rule-Based Consensus Fallback
+If the entire AI synthesis engine encounters a network partition, `ConsensusService.buildFallbackConsensus()` engages deterministic operational rules to produce a schema-valid action plan that prioritizes VIP guest recovery and marks `requires_human_approval: true`.
+
+### 12.4 Frontend React Error Boundary & Multi-Endpoint Resilience
+- Component crashes are intercepted by `<ErrorBoundary>`, rendering an isolated error card with `[Try Again]` and `[Reload Page]` actions while keeping global navigation and the header intact.
+- The Executive Dashboard fetches resources using `Promise.allSettled`, preventing a single degraded endpoint from crashing the entire operational console.
+- `fetchFromApi` enforces a 25-second `AbortController` timeout and validates JSON content types.
+
+### 12.5 Real-Time Socket.IO Reconnection & State Reconciliation
+- The header displays a live connection status pill (`Live` vs. `Reconnecting...`).
+- When network reconnects, clients immediately resynchronize with the authoritative REST endpoints and re-subscribe to their active action plan execution rooms.
+
+
 
 

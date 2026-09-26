@@ -4,23 +4,60 @@
  */
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
+/**
+ * Resilient API fetcher with timeout protection, safe non-JSON error handling,
+ * and structured error normalization.
+ */
 async function fetchFromApi(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const timeoutMs = options.timeoutMs || 25000; // 25s default timeout
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      signal: controller.signal,
       ...options,
     });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data?.error?.message || `API request failed with status ${response.status}`);
+    clearTimeout(timeoutId);
+
+    // Safely parse JSON or text response
+    let data = null;
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = { error: { message: text || `HTTP ${response.status}` } };
     }
+
+    if (!response.ok) {
+      const errorMsg = data?.error?.message || `API request failed with status ${response.status}`;
+      const err = new Error(errorMsg);
+      err.status = response.status;
+      err.code = data?.error?.code || (response.status === 404 ? 'RESOURCE_NOT_FOUND' : 'API_ERROR');
+      err.details = data?.error?.details || null;
+      throw err;
+    }
+
     return data;
   } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error.name === 'AbortError') {
+      const timeoutErr = new Error(`Request to ${endpoint} timed out after ${timeoutMs / 1000}s. Please check backend connection.`);
+      timeoutErr.code = 'REQUEST_TIMEOUT';
+      timeoutErr.status = 504;
+      console.warn(`[API Timeout] ${endpoint}`);
+      throw timeoutErr;
+    }
+
     console.error(`[API Error] ${endpoint}:`, error.message);
     throw error;
   }

@@ -1,14 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Menu, Bell, ChevronDown, LogOut, RefreshCw } from 'lucide-react';
 import { useRole, DEMO_ROLES } from '../../lib/roleContext';
+import { getSocket } from '../../lib/socket';
 
 export default function Header({ onMenuClick = () => {} }) {
   const { role, roleData, setRole, clearRole } = useRole();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    if (socket.connected) {
+      setSocketConnected(true);
+    }
+
+    const onConnect = () => setSocketConnected(true);
+    const onDisconnect = () => setSocketConnected(false);
+    const onError = () => setSocketConnected(false);
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('connect_error', onError);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('connect_error', onError);
+    };
+  }, []);
 
   const switchRole = () => {
     setMenuOpen(false);
@@ -43,6 +68,16 @@ export default function Header({ onMenuClick = () => {} }) {
 
       {/* Right */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Real-time Socket Indicator */}
+        <div className={`hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border transition-colors ${
+          socketConnected
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            : 'bg-amber-50 text-amber-700 border-amber-200'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${socketConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+          <span>{socketConnected ? 'Live' : 'Reconnecting...'}</span>
+        </div>
+
         {/* Notifications */}
         <button className="p-1.5 rounded-lg border border-border bg-surface text-muted-foreground hover:text-foreground relative transition-colors" aria-label="Notifications">
           <Bell className="w-4 h-4" />

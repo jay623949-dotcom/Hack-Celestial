@@ -60,8 +60,8 @@ export default function DashboardPage() {
       setLoading(true);
       setError(null);
 
-      // Concurrent fetch of core operational endpoints
-      const [summaryRes, roomsRes, incidentsRes, tasksRes, guestsRes, staffRes] = await Promise.all([
+      // Concurrent resilient fetch of core operational endpoints
+      const results = await Promise.allSettled([
         getOperationsSummary(),
         getRooms({ status: roomFilter }),
         getIncidents({ status: 'open' }),
@@ -70,12 +70,21 @@ export default function DashboardPage() {
         getStaff(),
       ]);
 
-      setSummary(summaryRes?.data || null);
-      setRooms(roomsRes?.data || []);
-      setIncidents(incidentsRes?.data || []);
-      setTasks(tasksRes?.data || []);
-      setGuests(guestsRes?.data || []);
-      setStaff(staffRes?.data || []);
+      const [summaryRes, roomsRes, incidentsRes, tasksRes, guestsRes, staffRes] = results;
+
+      if (summaryRes.status === 'fulfilled') setSummary(summaryRes.value?.data || null);
+      if (roomsRes.status === 'fulfilled') setRooms(roomsRes.value?.data || []);
+      if (incidentsRes.status === 'fulfilled') setIncidents(incidentsRes.value?.data || []);
+      if (tasksRes.status === 'fulfilled') setTasks(tasksRes.value?.data || []);
+      if (guestsRes.status === 'fulfilled') setGuests(guestsRes.value?.data || []);
+      if (staffRes.status === 'fulfilled') setStaff(staffRes.value?.data || []);
+
+      const rejectedCount = results.filter((r) => r.status === 'rejected').length;
+      if (rejectedCount === results.length) {
+        setError('Unable to connect to Resort 360 Operational API. Please ensure Express backend is running on port 5000.');
+      } else if (rejectedCount > 0) {
+        console.warn(`[Dashboard] ${rejectedCount} operational endpoint(s) temporarily degraded; active datasets rendered safely.`);
+      }
     } catch (err) {
       console.error('Failed to load dashboard operational data:', err);
       setError(err.message || 'Unable to connect to Resort 360 Operational API');

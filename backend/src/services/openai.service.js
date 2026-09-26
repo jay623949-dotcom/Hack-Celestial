@@ -245,7 +245,17 @@ class AIService {
       attempt++;
       try {
         console.log(`[AIService] Calling Google Gemini model (${modelName}) [Attempt ${attempt}/${maxRetries}]...`);
-        const response = await this.geminiClient.models.generateContent({
+
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => {
+            const err = new Error('Gemini API call timed out after 45s');
+            err.code = 'AI_TIMEOUT';
+            err.status = 504;
+            reject(err);
+          }, 45000);
+        });
+
+        const generatePromise = this.geminiClient.models.generateContent({
           model: modelName,
           contents: [
             {
@@ -261,8 +271,12 @@ class AIService {
           },
         });
 
+        const response = await Promise.race([generatePromise, timeoutPromise]);
         return response.text;
       } catch (err) {
+        if (err.code === 'AI_TIMEOUT') {
+          throw err;
+        }
         const isTransient = err.message.includes('503') || err.message.includes('429') || err.message.includes('high demand') || err.message.includes('UNAVAILABLE') || err.message.includes('RESOURCE_EXHAUSTED');
         if (isTransient && attempt < maxRetries) {
           // Check if error specifies retryDelay
@@ -290,16 +304,26 @@ class AIService {
   async callOpenAICompatible(client, model, userPrompt, providerLabel, systemInstructions = SYSTEM_INSTRUCTIONS) {
     console.log(`[AIService] Calling ${providerLabel} model (${model})...`);
 
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        const err = new Error(`${providerLabel} call timed out after 45s`);
+        err.code = 'AI_TIMEOUT';
+        err.status = 504;
+        reject(err);
+      }, 45000);
+    });
+
     try {
       // Modern Responses API check
       if (client.responses && typeof client.responses.create === 'function' && providerLabel === 'OpenAI') {
-        const response = await client.responses.create({
+        const responsePromise = client.responses.create({
           model,
           instructions: systemInstructions,
           input: userPrompt,
           temperature: 0.2,
         });
 
+        const response = await Promise.race([responsePromise, timeoutPromise]);
         if (response.output_text) return response.output_text;
         if (response.output && Array.isArray(response.output)) {
           const textBlock = response.output.find((o) => o.type === 'message');
@@ -308,8 +332,6 @@ class AIService {
       }
 
       // Standard Chat Completions (works for OpenAI, Ollama, LM Studio, vLLM)
-      // Note: response_format json_object is only supported by OpenAI — local/Ollama models
-      // enforce JSON output via system prompt reinforcement instead.
       const completionParams = {
         model,
         messages: [
@@ -317,20 +339,23 @@ class AIService {
           { role: 'user', content: userPrompt },
         ],
         temperature: 0.2,
-        stream: false, // Disable streaming — required for Ollama/local models to avoid connection drops
+        stream: false,
       };
       if (providerLabel === 'OpenAI') {
         completionParams.response_format = { type: 'json_object' };
       }
-      const chatCompletion = await client.chat.completions.create(completionParams);
+      const chatCompletionPromise = client.chat.completions.create(completionParams);
+      const chatCompletion = await Promise.race([chatCompletionPromise, timeoutPromise]);
 
       const rawContent = chatCompletion.choices[0]?.message?.content || '';
-      // Strip markdown fences if local model wrapped JSON in ```json ... ```
       if (rawContent.startsWith('```')) {
         return rawContent.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
       }
       return rawContent;
     } catch (err) {
+      if (err.code === 'AI_TIMEOUT') {
+        throw err;
+      }
       console.error(`[AIService] ${providerLabel} API error:`, err.message);
       const error = new Error(`${providerLabel} API error: ${err.message}`);
       error.code = 'AI_SERVICE_ERROR';
