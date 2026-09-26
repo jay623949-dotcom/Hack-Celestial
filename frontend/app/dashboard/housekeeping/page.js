@@ -7,8 +7,10 @@ import {
   UserCheck, RefreshCw, AlertCircle, ArrowUpRight, CheckSquare
 } from 'lucide-react';
 import { getRooms, getTasks, getStaff, getGuests } from '../../../lib/api';
+import { getSocket } from '../../../lib/socket';
 
 function StatCard({ label, value, sub, color = 'text-foreground', icon: Icon, badge }) {
+
   return (
     <div className="rounded-xl border border-border bg-surface p-4 shadow-soft">
       <div className="flex items-center justify-between mb-1">
@@ -57,7 +59,31 @@ export default function HousekeepingDashboard() {
 
   useEffect(() => {
     fetchData();
+
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleUpdate = () => {
+      fetchData();
+    };
+
+    socket.on('task.dispatched', handleUpdate);
+    socket.on('task.accepted', handleUpdate);
+    socket.on('task.in_progress', handleUpdate);
+    socket.on('task.completed', handleUpdate);
+    socket.on('room.status_changed', handleUpdate);
+    socket.on('staff.status_changed', handleUpdate);
+
+    return () => {
+      socket.off('task.dispatched', handleUpdate);
+      socket.off('task.accepted', handleUpdate);
+      socket.off('task.in_progress', handleUpdate);
+      socket.off('task.completed', handleUpdate);
+      socket.off('room.status_changed', handleUpdate);
+      socket.off('staff.status_changed', handleUpdate);
+    };
   }, []);
+
 
   // Metrics
   const toCleanRooms = rooms.filter(

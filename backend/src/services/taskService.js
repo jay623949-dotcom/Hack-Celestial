@@ -48,9 +48,14 @@ class TaskService {
       room_id: data.room_id || null,
       incident_id: data.incident_id || null,
       due_time: data.due_time || '12:00 PM',
+      action_plan_id: data.action_plan_id || null,
+      action_plan_item_id: data.action_plan_item_id || null,
+      guest_id: data.guest_id || null,
+      dispatched_at: data.dispatched_at || null,
       created_at: new Date().toISOString(),
     };
     return dataStore.create('tasks', newTask);
+
   }
 
   update(id, updates) {

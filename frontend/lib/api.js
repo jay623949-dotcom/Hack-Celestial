@@ -177,6 +177,32 @@ export async function updateActionItemStatus(planId, itemId, status) {
   });
 }
 
+/**
+ * Phase 5 Execution APIs
+ */
+export async function executeActionPlan(id, { actorId, actorRole } = {}) {
+  return fetchFromApi(`/action-plans/${id}/execute`, {
+    method: 'POST',
+    body: JSON.stringify({ actor_id: actorId, actor_role: actorRole }),
+  });
+}
+
+export async function getExecutionState(id) {
+  return fetchFromApi(`/action-plans/${id}/execution`);
+}
+
+export async function getExecutionTimeline(id) {
+  return fetchFromApi(`/action-plans/${id}/timeline`);
+}
+
+export async function updateTaskStatus(taskId, status) {
+  return fetchFromApi(`/tasks/${taskId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SMART RESORT 360 AUTONOMOUS AGENT API WRAPPERS

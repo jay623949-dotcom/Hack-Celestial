@@ -10,6 +10,7 @@
     "dev": "node --watch src/server.js",
     "test": "node test-phase1.js",
     "test:manager": "node test-manager-decision.js",
+    "test:execution": "node test-phase5-execution.js",
     "db:migrate": "node database/migrations/migrate.js",
     "db:seed": "node database/seeds/seed.js",
     "seed:demo": "node database/seeds/seed.js",
@@ -25,6 +26,7 @@
     "helmet": "^8.3.0",
     "morgan": "^1.12.1",
     "openai": "^7.23.0",
-    "pg": "^8.13.3"
+    "pg": "^8.13.3",
+    "socket.io": "^4.8.4"
   }
 }

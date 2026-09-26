@@ -1,4 +1,5 @@
 const aiPersistence = require('../services/ai-persistence.service');
+const executionService = require('../services/execution.service');
 
 // Helper to check role authorization
 function authorizeManager(req) {
@@ -91,10 +92,23 @@ async function approvePlan(req, res, next) {
       comment,
     });
 
+    // Automatically trigger execution unless explicitly disabled
+    let execution = null;
+    if (req.body.auto_execute !== false) {
+      try {
+        execution = await executionService.executePlan(id);
+      } catch (execErr) {
+        console.warn(`[ActionPlansController] Auto-execution notice for ${id}:`, execErr.message);
+      }
+    }
+
     return res.status(200).json({
       success: true,
-      message: 'Action plan approved for execution.',
-      data: result,
+      message: 'Action plan approved and dispatched for execution.',
+      data: {
+        ...result,
+        execution,
+      },
     });
   } catch (error) {
     if (error.code === 'PLAN_NOT_FOUND') {
@@ -103,6 +117,83 @@ async function approvePlan(req, res, next) {
     if (error.code === 'PLAN_ALREADY_APPROVED' || error.code === 'INVALID_STATE_TRANSITION') {
       return res.status(409).json({ success: false, error: { code: error.code, message: error.message } });
     }
+    next(error);
+  }
+}
+
+/**
+ * POST /api/v1/action-plans/:id/execute
+ */
+async function executePlan(req, res, next) {
+  try {
+    const { id } = req.params;
+    const auth = authorizeManager(req);
+
+    if (!auth.isAuthorized) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED_ROLE',
+          message: `Role '${auth.role}' is not authorized to execute operational action plans. Manager role required.`,
+        },
+      });
+    }
+
+    const execution = await executionService.executePlan(id);
+    return res.status(200).json({
+      success: true,
+      message: 'Operational plan execution initiated successfully.',
+      data: execution,
+    });
+  } catch (error) {
+    if (error.code === 'PLAN_NOT_FOUND') {
+      return res.status(404).json({ success: false, error: { code: error.code, message: error.message } });
+    }
+    if (error.code === 'PLAN_NOT_APPROVED' || error.code === 'PLAN_REJECTED') {
+      return res.status(409).json({ success: false, error: { code: error.code, message: error.message } });
+    }
+    next(error);
+  }
+}
+
+/**
+ * GET /api/v1/action-plans/:id/execution
+ */
+async function getExecutionState(req, res, next) {
+  try {
+    const { id } = req.params;
+    const execution = executionService.getExecutionState(id);
+    if (!execution) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'EXECUTION_NOT_FOUND',
+          message: `No active or completed execution found for action plan: ${id}`,
+        },
+      });
+    }
+    return res.status(200).json({ success: true, data: execution });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/v1/action-plans/:id/timeline
+ */
+async function getExecutionTimeline(req, res, next) {
+  try {
+    const { id } = req.params;
+    const timeline = executionService.getExecutionTimeline(id);
+    return res.status(200).json({
+      success: true,
+      data: {
+        action_plan_id: id,
+        count: timeline.length,
+        timeline,
+      },
+    });
+  } catch (error) {
     next(error);
   }
 }
@@ -256,7 +347,11 @@ module.exports = {
   getActionPlan,
   getAuditTrail,
   approvePlan,
+  executePlan,
+  getExecutionState,
+  getExecutionTimeline,
   rejectPlan,
   modifyPlan,
   updateItemStatus,
 };
+

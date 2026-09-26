@@ -534,3 +534,68 @@ The deployment architecture is optimized for low friction and zero devops overhe
 - **`in_progress`**: One or more assigned action items are actively being executed.
 - **`completed`**: All dispatched action items have been marked complete.
 
+---
+
+## 13. Operational Execution & Real-Time Dispatch Architecture (Phase 5)
+
+```
+                 APPROVED ACTION PLAN
+                          │
+                          ▼
+                  EXECUTION SERVICE
+                          │
+                          ▼
+                  EXECUTABLE TASKS
+                          │
+                          ▼
+                   TASK DISPATCHER
+                          │
+        ┌─────────────────┼─────────────────┐
+        ▼                 ▼                 ▼
+      STAFF              ROOM             INCIDENT
+      STATE              STATE              STATE
+        └─────────────────┼─────────────────┘
+                          │
+                          ▼
+                      SOCKET.IO
+                          │
+                          ▼
+                    LIVE DASHBOARD
+                          │
+                          ▼
+                  EXECUTION TIMELINE
+```
+
+### Architectural Separation: AI Decision Layer vs. Execution Layer
+
+1. **AI Decision Layer (Advisory Only)**:
+   - Senses resort telemetry and multi-department operational constraints.
+   - 4 departmental agents (Front Desk, Housekeeping, Maintenance, Revenue) deliberate.
+   - Consensus engine synthesizes recommendations into an explainable Action Plan.
+   - **CRITICAL SAFETY RULE**: AI NEVER executes operational tasks autonomously.
+
+2. **Manager Approval Gate**:
+   - Authorized manager reviews, modifies, or rejects the AI recommendations.
+   - Pending or rejected plans are strictly prevented from generating tasks.
+
+3. **Execution Service (`backend/src/services/execution.service.js`)**:
+   - Source of truth for operational task generation and dispatch.
+   - **Idempotency Guard**: Prevents duplicate executions if approval is called multiple times.
+   - **Task Instantiation**: Converts approved items into concrete tasks preserving backwards traceability (`action_plan_id`, `action_plan_item_id`, `analysis_run_id`).
+   - **State Cascading**:
+     - **Staff Workload**: Transitions staff to `busy` when assigned, and dynamically recalculates active workload on task completion (`busy` → `available` only when active tasks reach 0).
+     - **Room Turnover**: Changes room housekeeping status (`dirty` → `in_progress` → `clean`/`available`).
+     - **Incident Resolution**: Resolves linked maintenance incidents when all associated work orders complete.
+     - **Execution Progress**: Computes `completed_tasks / total_tasks` from real database records.
+
+4. **Real-Time Broadcast Pipeline (`backend/src/services/socket.service.js`)**:
+   - Express server integrated with Socket.IO.
+   - Broadcasts events (`execution.started`, `task.dispatched`, `task.accepted`, `task.in_progress`, `task.completed`, `staff.status_changed`, `room.status_changed`, `execution.completed`).
+   - Maintains an in-memory circular history buffer and enables live timeline updates across multiple browser sessions without full page reloads.
+
+5. **Manager Execution Console (`/dashboard/execution/:actionPlanId`)**:
+   - Enterprise light-theme operational control screen.
+   - Real-time task board with interactive status progression controls.
+   - Database-backed execution timeline that survives page refreshes and socket disconnections.
+
+

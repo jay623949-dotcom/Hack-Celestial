@@ -288,3 +288,27 @@ The core philosophy of Resort 360 is **"AI Recommends, Manager Understands, Mana
 5. **Decision Audit Trail**:
    - An immutable, append-only log records all AI generations, manager reviews, modifications, and status transitions with timestamps and actor identities.
 
+---
+
+## 13. Phase 5: Real-Time Operational Execution Engine
+
+"Once a manager approves the AI plan, Resort 360 converts the approved recommendations into real operational tasks and dispatches them to the appropriate departments in real time."
+
+### Operational Execution Core Capabilities
+1. **Approval to Execution Trigger**:
+   - Backend-enforced state machine: only plans in `approved` state trigger task creation.
+   - Pending or rejected plans are strictly prevented from generating tasks.
+2. **Idempotent Task Generation**:
+   - Duplicate calls return existing execution state without creating duplicate tasks or double assignments.
+3. **Multi-Department Dispatch**:
+   - Approved actions instantiate concrete operational tasks for Housekeeping, Maintenance, and Front Desk.
+   - Tasks maintain backward traceability to `action_plan_id`, `action_plan_item_id`, and `analysis_run_id`.
+4. **Dynamic Operational State Cascades**:
+   - **Staff Workload**: Transitions assigned staff to `busy`; recalculates active workload on task completion (`busy` → `available` only when active workload reaches 0).
+   - **Room Readiness**: Shifts room housekeeping status (`dirty` → `in_progress` → `clean`/`ready`).
+   - **Incident Lifecycle**: Resolves active incident when all linked work orders complete.
+5. **Real-Time Broadcast & Live Execution Console**:
+   - Centralized Socket.IO event architecture (`task.dispatched`, `staff.status_changed`, `room.status_changed`, etc.).
+   - Manager execution console (`/dashboard/execution/:id`) with live task board and persistent execution timeline that survives page refreshes and socket disconnections.
+
+

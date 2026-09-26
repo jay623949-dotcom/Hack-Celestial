@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Radio, BedDouble, Users, UserCheck, AlertTriangle,
   CheckSquare, Bot, Sparkles, Layers, Settings, HelpCircle, MapPin,
-  X, TrendingUp, Wrench, ClipboardList, CalendarCheck
+  X, TrendingUp, Wrench, ClipboardList, CalendarCheck, Zap
 } from 'lucide-react';
 import { useRole } from '../../lib/roleContext';
 
@@ -21,6 +21,7 @@ const NAV_CONFIG = {
         { label: 'Staff', href: '/dashboard#staff', icon: UserCheck },
         { label: 'Incidents', href: '/dashboard#incidents', icon: AlertTriangle },
         { label: 'Tasks', href: '/dashboard#tasks', icon: CheckSquare },
+        { label: 'Live Execution', href: '/dashboard/execution', icon: Zap },
       ]},
       { title: 'Intelligence', items: [
         { label: 'Autonomous 360 OS', href: '/dashboard/agents?tab=autonomous', icon: Sparkles },
@@ -29,6 +30,7 @@ const NAV_CONFIG = {
       ]},
     ],
   },
+
   front_desk: {
     groups: [
       { title: null, items: [{ label: 'Overview', href: '/dashboard/frontdesk', icon: LayoutDashboard }] },

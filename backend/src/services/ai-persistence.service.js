@@ -997,7 +997,49 @@ class AIPersistenceService {
     return null;
   }
 
+  async persistActionPlan(planData) {
+    const planId = planData.id;
+    const planObj = {
+      id: planId,
+      analysis_run_id: planData.analysis_run_id || `run-${planId}`,
+      consensus_id: planData.consensus_id || null,
+      context_id: planData.context_id || null,
+      title: planData.title || planData.summary || 'Operational Plan',
+      summary: planData.summary || planData.description || '',
+      description: planData.description || '',
+      priority: planData.priority || 'medium',
+      requires_human_approval: true,
+      status: planData.status || 'pending_review',
+      approved_by: planData.approved_by || (planData.status === 'approved' ? 'admin' : null),
+      approved_at: planData.approved_at || (planData.status === 'approved' ? new Date().toISOString() : null),
+      rejected_reason: planData.rejected_reason || (planData.status === 'rejected' ? 'Plan rejected' : null),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      source_type: 'ai_generated',
+    };
+    inMemoryStore.plans.set(planId, planObj);
+
+    const items = (planData.items || []).map((it, idx) => ({
+      id: it.id || `item-${planId}-${idx + 1}`,
+      action_plan_id: planId,
+      action_type: it.action_type || it.type || 'task',
+      description: it.description || it.title || '',
+      department: it.department || 'operations',
+      assigned_staff: it.assigned_staff || it.assigned_to || null,
+      room_id: it.room_id || null,
+      guest_id: it.guest_id || null,
+      priority: it.priority || 'medium',
+      status: planData.status === 'approved' ? 'approved' : (it.status || planData.status || 'pending_review'),
+      sequence_order: idx,
+      source_type: 'ai_generated',
+    }));
+    inMemoryStore.items.set(planId, items);
+
+    return { ...planObj, items };
+  }
+
   async updatePlanStatus(planId, { status, approvedBy, rejectedReason }) {
+
     if (status === 'approved') {
       return this.approvePlan(planId, { actorId: approvedBy, comment: 'Approved via legacy endpoint.' });
     }

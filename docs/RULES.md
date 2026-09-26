@@ -218,3 +218,29 @@ A feature or task is **DONE** only when:
 8. **Action Execution Separate From Recommendation**:
    - Operational tasks are only dispatched upon explicit human approval.
 
+---
+
+## 12. Operational Execution & Task Dispatch Rules (Phase 5)
+
+1. **Only Approved Action Plans Can Execute**:
+   - Plans in `pending_review`, `pending_approval`, `modified_pending_approval`, or `rejected` state must NEVER generate executable tasks. Any attempt returns 409 Conflict.
+2. **AI Cannot Directly Execute Tasks**:
+   - The AI layer recommends; the manager approves. The execution engine converts approved actions into operational tasks only after explicit manager confirmation.
+3. **Execution Must Be Backend-Controlled**:
+   - Execution logic and state transitions must reside strictly in backend services (`execution.service.js`), never calculated client-side in the browser.
+4. **Duplicate Execution Must Be Prevented (Idempotency)**:
+   - Repeated calls to approve or execute an already dispatched action plan must return the existing execution state without creating duplicate tasks or double-assigning staff.
+5. **Database is the Source of Truth**:
+   - WebSockets provide live notifications, but every screen must load its initial state from and resynchronize against the database / REST API.
+6. **WebSocket Events Represent Persisted State Changes**:
+   - Socket.IO events (`execution.started`, `task.dispatched`, `staff.status_changed`, `room.status_changed`, etc.) are only broadcast AFTER database/datastore updates succeed.
+7. **Failed Tasks Must Never Be Presented as Completed**:
+   - If an operational task fails or cannot be dispatched (e.g. missing staff or room), the system must flag `failed` or `partial` execution with clear visibility to managers.
+8. **Room / Staff / Task State Must Remain Consistent**:
+   - State cascading is bidirectional and verified: starting a cleaning task transitions room to `in_progress` and staff to `busy`; completing a task marks the room `clean`/`ready` and recalculates staff workload (`available` only when active task count reaches 0).
+9. **Execution Must Be Auditable**:
+   - All execution timeline events are permanently logged in `ai_action_plan_execution_events` and traceable backwards from Task -> Action Item -> Action Plan -> Manager Decision -> AI Consensus.
+10. **Frontend Must Not Fabricate Execution State**:
+    - Progress bars (`completed_tasks / total_tasks`), timeline logs, and status badges must be derived entirely from genuine backend execution records.
+
+

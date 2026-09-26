@@ -6,6 +6,7 @@ const MIGRATIONS = [
   '001_initial_schema.sql',
   '002_ai_persistence.sql',
   '003_action_plan_decisions.sql',
+  '004_action_plan_executions.sql',
 ];
 
 async function runMigrations() {

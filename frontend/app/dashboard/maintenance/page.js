@@ -7,8 +7,10 @@ import {
   UserCheck, RefreshCw, PenTool, CheckSquare, Zap, Activity
 } from 'lucide-react';
 import { getIncidents, getTasks, getStaff, getRooms } from '../../../lib/api';
+import { getSocket } from '../../../lib/socket';
 
 function StatCard({ label, value, sub, color = 'text-foreground', badge, alert = false }) {
+
   return (
     <div className={`rounded-xl border p-4 shadow-soft ${alert ? 'border-rose-300 bg-rose-50/40' : 'border-border bg-surface'}`}>
       <div className="flex items-center justify-between mb-1">
@@ -58,7 +60,33 @@ export default function MaintenanceDashboard() {
 
   useEffect(() => {
     fetchData();
+
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleUpdate = () => {
+      fetchData();
+    };
+
+    socket.on('task.dispatched', handleUpdate);
+    socket.on('task.accepted', handleUpdate);
+    socket.on('task.in_progress', handleUpdate);
+    socket.on('task.completed', handleUpdate);
+    socket.on('room.status_changed', handleUpdate);
+    socket.on('incident.status_changed', handleUpdate);
+    socket.on('staff.status_changed', handleUpdate);
+
+    return () => {
+      socket.off('task.dispatched', handleUpdate);
+      socket.off('task.accepted', handleUpdate);
+      socket.off('task.in_progress', handleUpdate);
+      socket.off('task.completed', handleUpdate);
+      socket.off('room.status_changed', handleUpdate);
+      socket.off('incident.status_changed', handleUpdate);
+      socket.off('staff.status_changed', handleUpdate);
+    };
   }, []);
+
 
   const openIncidents = incidents.filter((i) => i.status === 'open' || i.status === 'in_progress');
   const criticalIncidents = openIncidents.filter((i) => i.severity === 'critical' || i.severity === 'high');

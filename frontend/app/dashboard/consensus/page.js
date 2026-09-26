@@ -664,11 +664,21 @@ export default function OperationalDecisionReviewPage() {
               {/* Action Buttons */}
               <div className="flex items-center gap-3">
                 {plan?.status === 'approved' ? (
-                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Plan Approved by {plan.approved_by || 'Admin'} at {plan.approved_at ? new Date(plan.approved_at).toLocaleTimeString() : '10:45 AM'}</span>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <span>Plan Approved by {plan.approved_by || 'Admin'} at {plan.approved_at ? new Date(plan.approved_at).toLocaleTimeString() : '10:45 AM'}</span>
+                    </div>
+                    <Link
+                      href={`/dashboard/execution/${plan.id}`}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors"
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>View Live Execution &amp; Dispatch →</span>
+                    </Link>
                   </div>
                 ) : plan?.status === 'rejected' ? (
+
                   <div className="flex items-center gap-2 text-xs font-bold text-rose-700 bg-rose-50 px-4 py-2 rounded-lg border border-rose-200">
                     <XCircle className="w-4 h-4 text-rose-600" />
                     <span>Plan Rejected ({plan.rejected_reason})</span>
