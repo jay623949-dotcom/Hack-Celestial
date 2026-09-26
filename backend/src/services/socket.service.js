@@ -96,6 +96,7 @@ function getRecentEvents(limit = 50) {
 module.exports = {
   init,
   getIO,
+  emit: emitEvent,
   emitEvent,
   getRecentEvents,
 };

@@ -46,11 +46,13 @@ class TaskService {
       department: data.department || 'general',
       assigned_to: data.assigned_to || null,
       room_id: data.room_id || null,
+      room_number: data.room_number || null,
       incident_id: data.incident_id || null,
       due_time: data.due_time || '12:00 PM',
       action_plan_id: data.action_plan_id || null,
       action_plan_item_id: data.action_plan_item_id || null,
       guest_id: data.guest_id || null,
+      source: data.source || null,
       dispatched_at: data.dispatched_at || null,
       created_at: new Date().toISOString(),
     };

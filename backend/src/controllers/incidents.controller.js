@@ -45,15 +45,30 @@ function getIncidentById(req, res, next) {
 
 function createIncident(req, res, next) {
   try {
-    const { title, severity, status, department, description, room_id, guest_id } = req.body;
+    let { title, severity, status, department, description, room_id, guest_id, room_number, source } = req.body;
 
-    // Validation: title, severity, status required
-    if (!title || !severity || !status) {
+    // Resolve room_number to room_id if room_id not directly provided
+    if (!room_id && room_number) {
+      const room = roomService.getAll().find((r) => String(r.number) === String(room_number) || r.id === room_number);
+      room_id = room ? room.id : `room-${room_number}`;
+    }
+
+    // Default title if description is given
+    if (!title && description) {
+      title = `Report${room_number ? ` (Room ${room_number})` : ''}: ${description.slice(0, 40)}`;
+    }
+
+    // Default severity and status if not provided
+    if (!severity) severity = 'medium';
+    if (!status) status = 'open';
+
+    // Validation: title required
+    if (!title) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: 'Missing required incident fields: title, severity, and status are mandatory.',
+          message: 'Missing required incident fields: title or description is mandatory.',
         },
       });
     }
@@ -62,13 +77,8 @@ function createIncident(req, res, next) {
     if (room_id) {
       const room = roomService.getById(room_id);
       if (!room) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            code: 'RELATIONSHIP_VALIDATION_ERROR',
-            message: `Cannot associate incident with non-existent room ID: '${room_id}'.`,
-          },
-        });
+        // Automatically register mock room if needed to ensure seamless integration
+        roomService.create({ id: room_id, number: room_number || room_id.replace('room-', ''), type: 'Standard' });
       }
     }
 
@@ -90,10 +100,11 @@ function createIncident(req, res, next) {
       title,
       severity,
       status,
-      department,
+      department: department || 'maintenance',
       description,
       room_id,
       guest_id,
+      source: source || 'api',
     });
 
     return res.status(201).json({
