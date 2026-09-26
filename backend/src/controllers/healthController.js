@@ -1,12 +1,17 @@
+const { pool, checkDatabaseHealth } = require('../config/db');
+
 /**
  * Health Controller
- * Provides status information to verify backend health.
+ * Provides status information to verify backend and database health.
  */
-function getHealth(req, res) {
+async function getHealth(req, res) {
+  const dbHealth = await checkDatabaseHealth();
+
   res.status(200).json({
     success: true,
     service: 'resort360-api',
     status: 'healthy',
+    database: dbHealth.connected ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString(),
   });
 }
