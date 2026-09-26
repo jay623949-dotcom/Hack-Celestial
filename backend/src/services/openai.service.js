@@ -168,7 +168,7 @@ class AIService {
   /**
    * Invoke Gemini Model via official @google/genai SDK
    */
-  async callGemini(userPrompt) {
+  async callGemini(userPrompt, systemInstructions = SYSTEM_INSTRUCTIONS) {
     if (!this.geminiClient) this.initClients();
 
     const apiKey = config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY;
@@ -181,39 +181,55 @@ class AIService {
 
     const modelName = config.ai?.gemini?.model || process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-    console.log(`[AIService] Calling Google Gemini model (${modelName})...`);
+    const maxRetries = 3;
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      attempt++;
+      try {
+        console.log(`[AIService] Calling Google Gemini model (${modelName}) [Attempt ${attempt}/${maxRetries}]...`);
+        const response = await this.geminiClient.models.generateContent({
+          model: modelName,
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: `${systemInstructions}\n\nStrict JSON only. Respond with a valid JSON object matching the requested schema.\n\n${userPrompt}` }
+              ]
+            }
+          ],
+          config: {
+            responseMimeType: 'application/json',
+            temperature: 0.2,
+          },
+        });
 
-    try {
-      const response = await this.geminiClient.models.generateContent({
-        model: modelName,
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: `${SYSTEM_INSTRUCTIONS}\n\nStrict JSON only. Respond with a valid JSON object matching the requested schema.\n\n${userPrompt}` }
-            ]
+        return response.text;
+      } catch (err) {
+        const isTransient = err.message.includes('503') || err.message.includes('429') || err.message.includes('high demand') || err.message.includes('UNAVAILABLE') || err.message.includes('RESOURCE_EXHAUSTED');
+        if (isTransient && attempt < maxRetries) {
+          // Check if error specifies retryDelay
+          let delayMs = attempt * 3500;
+          const match = err.message.match(/retry in ([0-9.]+)/i);
+          if (match && match[1]) {
+            delayMs = Math.max(delayMs, (parseFloat(match[1]) + 0.5) * 1000);
           }
-        ],
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.2,
-        },
-      });
-
-      return response.text;
-    } catch (err) {
-      console.error('[AIService] Gemini API error:', err.message);
-      const error = new Error(`Gemini API error: ${err.message}`);
-      error.code = 'AI_SERVICE_ERROR';
-      error.status = 502;
-      throw error;
+          console.warn(`[AIService] Gemini transient capacity spike. Retrying in ${Math.round(delayMs)}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        } else {
+          console.error('[AIService] Gemini API error:', err.message);
+          const error = new Error(`Gemini API error: ${err.message}`);
+          error.code = 'AI_SERVICE_ERROR';
+          error.status = 502;
+          throw error;
+        }
+      }
     }
   }
 
   /**
    * Invoke OpenAI or Local Model via OpenAI SDK
    */
-  async callOpenAICompatible(client, model, userPrompt, providerLabel) {
+  async callOpenAICompatible(client, model, userPrompt, providerLabel, systemInstructions = SYSTEM_INSTRUCTIONS) {
     console.log(`[AIService] Calling ${providerLabel} model (${model})...`);
 
     try {
@@ -221,7 +237,7 @@ class AIService {
       if (client.responses && typeof client.responses.create === 'function' && providerLabel === 'OpenAI') {
         const response = await client.responses.create({
           model,
-          instructions: SYSTEM_INSTRUCTIONS,
+          instructions: systemInstructions,
           input: userPrompt,
           temperature: 0.2,
         });
@@ -237,7 +253,7 @@ class AIService {
       const chatCompletion = await client.chat.completions.create({
         model,
         messages: [
-          { role: 'system', content: SYSTEM_INSTRUCTIONS },
+          { role: 'system', content: systemInstructions },
           { role: 'user', content: userPrompt },
         ],
         response_format: { type: 'json_object' },
@@ -328,6 +344,61 @@ class AIService {
     if (!outputValidation.valid) {
       console.error('[AIService] AI output schema validation failed:', outputValidation.errors);
       const error = new Error(`AI returned invalid schema structure: ${outputValidation.errors.join(', ')}`);
+      error.code = 'AI_INVALID_RESPONSE';
+      error.status = 502;
+      throw error;
+    }
+
+    return parsedData;
+  }
+
+  /**
+   * Universal completion executor accepting custom prompt, system instructions, and schema validation
+   * @param {string} userPrompt 
+   * @param {string} systemInstructions 
+   * @returns {Promise<Object>} Cleaned, parsed, and validated JSON output
+   */
+  async executeCompletion(userPrompt, systemInstructions = SYSTEM_INSTRUCTIONS) {
+    const provider = this.getActiveProvider();
+    let responseContent = null;
+
+    if (provider === 'gemini') {
+      responseContent = await this.callGemini(userPrompt, systemInstructions);
+    } else if (provider === 'local') {
+      if (!this.localClient) this.initClients();
+      const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'llama3.2';
+      responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM', systemInstructions);
+    } else {
+      if (!this.openaiClient) this.initClients();
+      const apiKey = config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        const error = new Error('No AI provider configured. Please set GEMINI_API_KEY (free at https://aistudio.google.com) or OPENAI_API_KEY in backend/.env.');
+        error.code = 'AI_KEY_MISSING';
+        error.status = 503;
+        throw error;
+      }
+      const model = config.ai?.openai?.model || config.openai?.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
+      responseContent = await this.callOpenAICompatible(this.openaiClient, model, userPrompt, 'OpenAI', systemInstructions);
+    }
+
+    if (!responseContent) {
+      const error = new Error(`Empty response received from ${provider} model service`);
+      error.code = 'AI_EMPTY_RESPONSE';
+      error.status = 502;
+      throw error;
+    }
+
+    // Clean and parse JSON
+    let parsedData = null;
+    try {
+      let cleaned = responseContent.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+      }
+      parsedData = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error('[AIService] Failed to parse model output as JSON:', responseContent);
+      const error = new Error('AI returned non-JSON or malformed output');
       error.code = 'AI_INVALID_RESPONSE';
       error.status = 502;
       throw error;

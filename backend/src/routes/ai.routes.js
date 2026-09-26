@@ -8,4 +8,7 @@ router.post('/context', aiController.getOperationalContext);
 // POST /api/v1/ai/analyze
 router.post('/analyze', aiController.analyzeOperationalContext);
 
+// POST /api/v1/ai/agents/analyze
+router.post('/agents/analyze', aiController.analyzeDepartmentalAgents);
+
 module.exports = router;
