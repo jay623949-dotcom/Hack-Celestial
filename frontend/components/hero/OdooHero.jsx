@@ -89,18 +89,17 @@ export default function OdooHero() {
         {/* Action CTAs */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/dashboard"
+            href="/sign-up"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-odoo-teal hover:bg-odoo-teal-hover text-white font-semibold text-base shadow-odoo hover:shadow-odoo-hover transition-all duration-200 hover:-translate-y-0.5"
           >
-            <span>Launch Command Center</span>
+            <span>Register Your Resort</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/sign-in"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-white border border-odoo-purple/30 text-odoo-purple hover:bg-odoo-purple/5 font-semibold text-base shadow-odoo hover:shadow-odoo-hover transition-all duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 font-semibold text-base shadow-xs hover:shadow-sm transition-all duration-200"
           >
-            <Sparkles className="w-4 h-4 text-odoo-purple" />
-            <span>Sign In to Atria OS</span>
+            <span>Sign In</span>
           </Link>
         </div>
       </div>

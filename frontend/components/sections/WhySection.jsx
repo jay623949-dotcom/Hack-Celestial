@@ -28,7 +28,7 @@ export default function WhySection() {
   ];
 
   return (
-    <section className="py-20 md:py-28 bg-surface-secondary/40 border-t border-border">
+    <section id="why" className="py-20 md:py-28 bg-surface-secondary/40 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-3xl mb-16">

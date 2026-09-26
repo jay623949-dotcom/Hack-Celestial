@@ -186,18 +186,18 @@ export default function CtaSection() {
           {/* Two-Button CTA Group */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
             <Link
-              href="/dashboard"
+              href="/sign-up"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl bg-odoo-teal hover:bg-odoo-teal-hover text-white font-bold text-sm sm:text-base shadow-soft hover:shadow-md transition-all duration-150 transform hover:-translate-y-0.5"
             >
-              <span>See Resort 360 in action</span>
+              <span>Register Your Resort</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
 
             <Link
-              href="/dashboard/rooms"
+              href="/sign-in"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm sm:text-base transition-colors"
             >
-              <span>Explore the platform</span>
+              <span>Sign In to Account</span>
             </Link>
           </div>
 
