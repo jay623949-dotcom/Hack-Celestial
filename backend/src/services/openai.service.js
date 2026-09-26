@@ -108,6 +108,62 @@ class AIService {
   }
 
   /**
+   * Compress full canonical context into a compact summary for small local models.
+   * Full context can be 6000-10000 tokens — too large for gemma2:2b (4k ctx window).
+   * This strips it to ~1200 tokens covering only operationally critical data.
+   */
+  compressContextForLocalModel(context) {
+    const rooms = Array.isArray(context.rooms) ? context.rooms : [];
+    const staff = Array.isArray(context.staff) ? context.staff : [];
+    const incidents = Array.isArray(context.incidents) ? context.incidents : [];
+    const guests = Array.isArray(context.guests) ? context.guests : [];
+
+    // Only include high-priority incidents
+    const criticalIncidents = incidents
+      .filter(i => i.severity === 'critical' || i.priority === 'critical' || i.status === 'open')
+      .slice(0, 4)
+      .map(i => ({ id: i.id, title: i.title || i.type, severity: i.severity, room: i.room_id, status: i.status }));
+
+    // Only occupied/checkout rooms
+    const relevantRooms = rooms
+      .filter(r => ['occupied', 'checkout', 'dirty', 'maintenance'].includes(r.status))
+      .slice(0, 10)
+      .map(r => ({ id: r.id, number: r.number, status: r.status, type: r.type }));
+
+    // Available staff by department
+    const availableStaff = staff
+      .filter(s => s.status === 'available' || s.status === 'on_duty')
+      .slice(0, 6)
+      .map(s => ({ id: s.id, name: s.name, department: s.department, status: s.status }));
+
+    // VIP guests only
+    const vipGuests = guests
+      .filter(g => g.vip === true || g.vip_tier)
+      .slice(0, 5)
+      .map(g => ({ id: g.id, name: g.name, vip_tier: g.vip_tier, room_id: g.room_id }));
+
+    return {
+      context_id: context.context_id,
+      schema_version: context.schema_version,
+      created_at: context.created_at,
+      resort: context.resort,
+      trigger: context.trigger,
+      rooms_summary: {
+        total: rooms.length,
+        occupied: rooms.filter(r => r.status === 'occupied').length,
+        available: rooms.filter(r => r.status === 'available').length,
+        relevant_rooms: relevantRooms,
+      },
+      staff_summary: {
+        total: staff.length,
+        available: availableStaff,
+      },
+      incidents: criticalIncidents,
+      vip_guests: vipGuests,
+    };
+  }
+
+  /**
    * Validate canonical operational context
    * @param {Object} context 
    */
@@ -291,7 +347,9 @@ class AIService {
     }
 
     const provider = this.getActiveProvider();
-    const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(context, null, 2)}`;
+    // For local small models, compress context to fit within their context window
+    const contextForModel = provider === 'local' ? this.compressContextForLocalModel(context) : context;
+    const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(contextForModel, null, 2)}`;
 
     let responseContent = null;
 

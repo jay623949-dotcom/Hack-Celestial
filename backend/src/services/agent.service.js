@@ -78,9 +78,16 @@ class AgentService {
       throw error;
     }
 
-    const userPrompt = `Analyze the following canonical operational context strictly from your domain perspective as ${agentConfig.department} Operations Analyst (prompt_version: ${agentConfig.promptVersion}):\n\n${JSON.stringify(context, null, 2)}`;
+    // Compress context for local/small models to avoid exceeding context window
+    const provider = openAIService.getActiveProvider();
+    const contextForPrompt = provider === 'local'
+      ? openAIService.compressContextForLocalModel(context)
+      : context;
 
-    console.log(`[AgentService] Running ${agentConfig.department} Agent (${agentConfig.promptVersion})...`);
+    const userPrompt = `Analyze the following canonical operational context strictly from your domain perspective as ${agentConfig.department} Operations Analyst (prompt_version: ${agentConfig.promptVersion}):\n\n${JSON.stringify(contextForPrompt, null, 2)}`;
+
+    console.log(`[AgentService] Running ${agentConfig.department} Agent (${agentConfig.promptVersion}) via ${provider}...`);
+
 
     // 2. Execute via Universal AI Service Adapter
     let rawOutput = null;
