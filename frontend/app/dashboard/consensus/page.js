@@ -24,9 +24,45 @@ import {
 } from '../../../lib/api';
 
 const SCENARIOS = [
-  { id: 'vip_arrival', label: 'VIP Early Arrival — Room 401 AC Failure', desc: 'VIP guest Arjun Mehta arrives 2 hrs early (14:00) while assigned Room 401 has an AC compressor failure.' },
-  { id: 'multiple_incidents', label: 'Multiple Active Incidents', desc: 'HVAC breakdown on 4th floor, housekeeping turnover bottleneck, wedding group incoming.' },
-  { id: 'group_arrival', label: 'Large Group Check-in', desc: '24-room wedding block arriving at 2:00 PM with Floor 4 inventory constraints.' },
+  {
+    id: 'vip_arrival',
+    eventId: 'EVENT #INC-401-AC',
+    label: 'VIP Early Arrival — Room 401 AC Failure',
+    tag: 'Primary Demo',
+    priority: 'CRITICAL',
+    priorityColor: 'text-rose-600',
+    priorityBg: 'bg-rose-100 text-rose-800 border-rose-200',
+    rooms: 'Room 401, 205',
+    guest: 'Arjun Mehta (VIP)',
+    desc: 'VIP guest Arjun Mehta arrived 2 hours early (14:00, expected 16:00) while assigned Room 401 has an active AC compressor failure. Four operational departments require immediate coordination.',
+    time: '14:00 IST'
+  },
+  {
+    id: 'multiple_incidents',
+    eventId: 'EVENT #CASCADE-04',
+    label: 'Multiple Active Incidents & Turnover Squeeze',
+    tag: 'Crisis Cascade',
+    priority: 'CRITICAL',
+    priorityColor: 'text-rose-600',
+    priorityBg: 'bg-rose-100 text-rose-800 border-rose-200',
+    rooms: 'Suite 401, 505, 105',
+    guest: 'Alexander Vance & Inbound Guests',
+    desc: 'Simultaneous AC compressor breakdown in Suite 401, dirty alternative Suite 505, commercial laundry linen delay, and 2:00 PM check-in surge.',
+    time: '12:30 IST'
+  },
+  {
+    id: 'group_arrival',
+    eventId: 'EVENT #GRP-SUMMIT',
+    label: 'Large Group Check-in & Inventory Lock',
+    tag: 'Logistics Surge',
+    priority: 'HIGH',
+    priorityColor: 'text-amber-600',
+    priorityBg: 'bg-amber-100 text-amber-800 border-amber-200',
+    rooms: 'Floor 4 (Rooms 402–415)',
+    guest: '50-Guest Wedding Group',
+    desc: '50-guest corporate summit arriving across 12 Floor 4 rooms requiring batch check-in while lobby queue capacity is capped at 4 simultaneous guests.',
+    time: '13:00 IST'
+  },
 ];
 
 const AGENT_META = {
@@ -269,41 +305,102 @@ export default function OperationalDecisionReviewPage() {
         </div>
       )}
 
+      {/* OPERATIONAL SCENARIOS SWITCHER */}
+      <div className="rounded-2xl border border-border bg-surface p-4 shadow-soft space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-teal-600" />
+            <h3 className="text-xs sm:text-sm font-bold text-foreground">
+              Select Operational Problem / Incident Scenario
+            </h3>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+              {SCENARIOS.length} Benchmark Scenarios
+            </span>
+          </div>
+          <button
+            onClick={() => fetchNugenAnalysis(selectedScenario)}
+            disabled={nugenLoading}
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+          >
+            <Play className="w-3 h-3 fill-current" />
+            <span>{nugenLoading ? 'Deliberating Swarm...' : 'Run Swarm Deliberation'}</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          {SCENARIOS.map((scen) => {
+            const isSelected = selectedScenario.id === scen.id;
+            return (
+              <button
+                key={scen.id}
+                type="button"
+                onClick={() => {
+                  setSelectedScenario(scen);
+                  fetchNugenAnalysis(scen);
+                }}
+                className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
+                  isSelected
+                    ? 'border-teal-500 bg-teal-50/70 shadow-sm ring-2 ring-teal-500/20'
+                    : 'border-border bg-surface hover:bg-surface-secondary/70 hover:border-slate-300'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${
+                    isSelected ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'
+                  }`}>
+                    {scen.tag}
+                  </span>
+                  <span className="text-[10px] font-mono font-semibold text-slate-500">
+                    {scen.eventId}
+                  </span>
+                </div>
+                <div className={`text-xs font-bold ${isSelected ? 'text-teal-950 font-extrabold' : 'text-foreground'}`}>
+                  {scen.label}
+                </div>
+                <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                  {scen.desc}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* TOP SECTION: INCIDENT / SITUATION CONTEXT */}
       <section className="rounded-xl border border-border bg-surface p-5 shadow-soft">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-border/70">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                CRITICAL OPERATIONAL EVENT
+              <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${selectedScenario.priorityBg || 'bg-rose-100 text-rose-800 border-rose-200'}`}>
+                {selectedScenario.priority || 'CRITICAL'} OPERATIONAL EVENT
               </span>
-              <span className="text-[11px] font-mono text-muted-foreground">EVENT #INC-401-AC</span>
-              <span className="text-[11px] font-mono text-muted-foreground">Reported: 14:00 IST</span>
+              <span className="text-[11px] font-mono text-muted-foreground">{selectedScenario.eventId || 'EVENT #INC-401-AC'}</span>
+              <span className="text-[11px] font-mono text-muted-foreground">Reported: {selectedScenario.time || '14:00 IST'}</span>
             </div>
             <h2 className="text-base font-bold text-foreground">
-              VIP Early Arrival — Room 401 AC Failure
+              {selectedScenario.label}
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              VIP guest Arjun Mehta arrived 2 hours early (14:00, expected 16:00) while assigned Room 401 has an active AC compressor failure. Four operational departments require immediate coordination.
+              {selectedScenario.desc}
             </p>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center shrink-0">
             <div className="p-2 rounded-lg bg-surface-secondary/70 border border-border">
               <div className="text-[10px] font-mono uppercase text-muted-foreground">Priority</div>
-              <div className="text-xs font-bold text-rose-600 mt-0.5">CRITICAL</div>
+              <div className={`text-xs font-bold mt-0.5 ${selectedScenario.priorityColor || 'text-rose-600'}`}>{selectedScenario.priority || 'CRITICAL'}</div>
             </div>
             <div className="p-2 rounded-lg bg-surface-secondary/70 border border-border">
               <div className="text-[10px] font-mono uppercase text-muted-foreground">Affected Rooms</div>
-              <div className="text-xs font-bold text-foreground mt-0.5">Room 401, 205</div>
+              <div className="text-xs font-bold text-foreground mt-0.5">{selectedScenario.rooms || 'Room 401, 205'}</div>
             </div>
             <div className="p-2 rounded-lg bg-surface-secondary/70 border border-border">
               <div className="text-[10px] font-mono uppercase text-muted-foreground">Affected Guest</div>
-              <div className="text-xs font-bold text-foreground mt-0.5">Arjun Mehta (VIP)</div>
+              <div className="text-xs font-bold text-foreground mt-0.5">{selectedScenario.guest || 'Arjun Mehta (VIP)'}</div>
             </div>
             <div className="p-2 rounded-lg bg-surface-secondary/70 border border-border">
               <div className="text-[10px] font-mono uppercase text-muted-foreground">Departments</div>
-              <div className="text-xs font-bold text-primary mt-0.5">4 Active</div>
+              <div className="text-xs font-bold text-teal-600 mt-0.5">4 Active</div>
             </div>
           </div>
         </div>

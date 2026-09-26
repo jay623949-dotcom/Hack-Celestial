@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Layers, ChevronDown } from 'lucide-react';
+import { Layers, ChevronDown, Play, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export const SCENARIO_CATALOG = [
   {
@@ -261,55 +261,131 @@ export const SCENARIO_CATALOG = [
 ];
 
 export default function ScenarioSelector({
-  selectedId = 'SCENARIO-001',
-  onSelect = () => {},
+  selectedId,
+  selectedScenario,
+  onSelect,
+  onSelectScenario,
+  onRunAnalysis,
   disabled = false,
 }) {
+  const currentSelectedId = selectedScenario?.id || selectedId || 'SCENARIO-001';
+  const currentScenario = SCENARIO_CATALOG.find((s) => s.id === currentSelectedId) || SCENARIO_CATALOG[0];
+
+  const handleSelectScenario = (scen) => {
+    if (onSelectScenario) onSelectScenario(scen);
+    if (onSelect) onSelect(scen);
+  };
+
+  const handleRun = (e, scen) => {
+    e.stopPropagation();
+    handleSelectScenario(scen);
+    if (onRunAnalysis) {
+      onRunAnalysis(scen);
+    }
+  };
+
   return (
-    <div className="p-4 rounded-xl border border-border bg-surface shadow-soft space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Layers className="w-4 h-4 text-primary" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
-            Select Operational Benchmark Scenario
-          </h3>
+    <div className="p-4 sm:p-5 rounded-2xl border border-border bg-surface shadow-soft space-y-4">
+      {/* Header with Title and Active Action Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border/70">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+            <Layers className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs sm:text-sm font-bold tracking-tight text-foreground">
+                Operational Problem &amp; Incident Scenarios
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+                5 Benchmark Scenarios
+              </span>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              Click any operational crisis below to inspect and trigger multi-agent consensus deliberation.
+            </p>
+          </div>
         </div>
-        <span className="text-[10px] font-mono text-muted-foreground">
-          5 Verified Scenarios
-        </span>
+
+        {/* Global Run Deliberation Button for Current Active Scenario */}
+        {onRunAnalysis && (
+          <button
+            onClick={(e) => handleRun(e, currentScenario)}
+            disabled={disabled}
+            className="self-start sm:self-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 active:scale-98 text-white text-xs font-bold transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+          >
+            <Play className="w-3.5 h-3.5 fill-current" />
+            <span>Run Swarm Deliberation ({currentScenario.tag})</span>
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+      {/* Scenario Grid: All 5 Scenarios are Clickable */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {SCENARIO_CATALOG.map((scen) => {
-          const isSelected = scen.id === selectedId;
+          const isSelected = scen.id === currentSelectedId;
           return (
-            <button
+            <div
               key={scen.id}
-              onClick={() => onSelect(scen)}
-              disabled={disabled}
-              className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between gap-1.5 disabled:opacity-50 ${
+              onClick={() => handleSelectScenario(scen)}
+              className={`group p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-2.5 cursor-pointer select-none ${
                 isSelected
-                  ? 'border-primary bg-primary/5 shadow-soft ring-1 ring-primary'
-                  : 'border-border bg-surface hover:bg-surface-secondary/70 hover:border-slate-300'
+                  ? 'border-teal-500 bg-teal-50/60 shadow-md ring-2 ring-teal-500/20'
+                  : 'border-border bg-surface hover:bg-surface-secondary/70 hover:border-slate-300 hover:shadow-xs'
               }`}
             >
               <div>
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-[9px] font-mono font-bold text-primary px-1.5 py-0.5 rounded bg-surface border border-primary/20">
+                <div className="flex items-center justify-between gap-1 mb-1.5">
+                  <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-md border ${
+                    isSelected
+                      ? 'bg-teal-600 text-white border-teal-600'
+                      : 'bg-surface text-primary border-primary/20 group-hover:border-primary/40'
+                  }`}>
                     {scen.tag}
                   </span>
-                  {isSelected && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  {isSelected ? (
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-teal-700">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
+                      Active
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono text-muted-foreground opacity-60 group-hover:opacity-100">
+                      {scen.id}
+                    </span>
                   )}
                 </div>
-                <div className="text-xs font-bold text-foreground line-clamp-1">
+
+                <div className={`text-xs font-bold transition-colors ${
+                  isSelected ? 'text-teal-950 font-extrabold' : 'text-foreground group-hover:text-primary'
+                }`}>
                   {scen.name}
                 </div>
+
+                <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed mt-1">
+                  {scen.description}
+                </p>
               </div>
-              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
-                {scen.description}
-              </p>
-            </button>
+
+              {/* Quick Action Trigger Button for This Specific Scenario */}
+              <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                <span className="text-[10px] font-semibold text-slate-500">
+                  {scen.context?.trigger?.severity ? `${scen.context.trigger.severity.toUpperCase()} Priority` : 'Operations'}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => handleRun(e, scen)}
+                  disabled={disabled}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
+                    isSelected
+                      ? 'bg-teal-600 hover:bg-teal-700 text-white shadow-xs'
+                      : 'bg-slate-100 hover:bg-teal-100 text-slate-700 hover:text-teal-800'
+                  }`}
+                >
+                  <Play className="w-2.5 h-2.5 fill-current" />
+                  <span>{isSelected ? 'Deliberate' : 'Run'}</span>
+                </button>
+              </div>
+            </div>
           );
         })}
       </div>
