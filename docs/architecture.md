@@ -153,57 +153,45 @@ resort360/
 ### 5.2 Multi-Agent Orchestration & Operational Context Pipeline
 
 ```
-                    PostgreSQL
-                         │
-                         ▼
-                 Operational Services
-                         │
-                         ▼
-                 Context Builder (context-builder.service.js)
-                         │
-                         ▼
-                Canonical AI Context (agent-context.schema.json)
-                         │
-       ┌─────────────────┼─────────────────┐
-       ▼                 ▼                 ▼
- Front Desk        Housekeeping       Maintenance
-   Agent               Agent              Agent
- (front_desk_v1)   (housekeeping_v1)  (maintenance_v1)
-       │                 │                 │
-       └─────────────────┼─────────────────┘
-                         ▼
-                    Revenue Agent
-                     (revenue_v1)
-                         │
-                         ▼
-             Structured Agent Responses (agent-response.schema.json)
-                         │
-                         ▼
-                  [NEXT PHASE - PLANNED / NOT IMPLEMENTED]
-                 Consensus Engine (Multi-Agent Trade-Offs)
-                         │
-                         ▼
-                  [NEXT PHASE - PLANNED / NOT IMPLEMENTED]
-                    Action Plan (Structured Plan)
-                         │
-                         ▼
-                  [PHASE 3 - PLANNED / NOT IMPLEMENTED]
-                  Human Approval (Duty Manager Review)
-                         │
-                         ▼
-                  [PHASE 3 - PLANNED / NOT IMPLEMENTED]
-                  Task Execution & Real-Time Socket.IO
+                  PostgreSQL
+                       ↓
+                Context Builder
+                       ↓
+              Operational Context
+                       ↓
+       ┌───────────────┼───────────────┐
+       ↓               ↓               ↓
+  Front Desk     Housekeeping    Maintenance
+     Agent           Agent           Agent
+       │               │               │
+       └───────────────┼───────────────┘
+                       ↓
+                  Revenue Agent
+                       ↓
+                Agent Responses
+                       ↓
+             ORCHESTRATOR [IMPLEMENTED]
+                       ↓
+              CONSENSUS [IMPLEMENTED]
+                       ↓
+              ACTION PLAN [IMPLEMENTED]
+                       ↓
+             HUMAN APPROVAL [REQUIRED]
 ```
 
-#### Implemented Endpoints (Phase 2, 2.1, 2.2 & 2.3):
+#### Implemented Endpoints:
 - `POST /api/v1/ai/context`  
-  Accepts an operational trigger (`{ trigger: { type: "multiple_incidents" } }` or `{ trigger: { type: "hvac_failure", room_id: "room-401" } }`), queries database state via backend services, compiles a compact canonical context, strictly derives operational constraints, and returns a verified context snapshot adhering 100% to `agent-context.schema.json`.
+  Accepts an operational trigger (`{ trigger: { type: "multiple_incidents" } }`), queries database state via backend services, compiles a compact canonical context, strictly derives operational constraints, and returns a verified context snapshot adhering 100% to `agent-context.schema.json`.
 
 - `POST /api/v1/ai/analyze`  
   Accepts either a `{ trigger: { ... } }` or `{ context: { ... } }`. Dynamically invokes `context-builder.service.js` to extract current database state before querying the Universal AI Adapter. Validates AI response structure against `agent-response.schema.json`.
 
 - `POST /api/v1/ai/agents/analyze`  
   Executes isolated domain agent analyses against shared canonical context for specified agents (`["front_desk", "housekeeping", "maintenance", "revenue"]`). Evaluates each agent using its specialized prompt (`front-desk.prompt.js`, `housekeeping.prompt.js`, `maintenance.prompt.js`, `revenue.prompt.js`) and validates every response against `agent-response.schema.json`. Returns per-agent status and structured outputs.
+
+- `POST /api/v1/ai/consensus` [IMPLEMENTED - PHASE 3.1]  
+  Coordinates end-to-end multi-agent orchestration. Takes an operational trigger, compiles canonical context from database state, executes requested departmental agents with error boundary isolation, handles partial agent failures, performs multi-agent arbitration, detects explicit inter-departmental conflicts, and generates a structured actionable operational plan strictly requiring human approval (`requires_human_approval: true`). Validated against `/schemas/ai/consensus-response.schema.json`.
+
 
 #### Planned Endpoints (Phase 2.4 Consensus & Phase 3 Execution - NOT YET IMPLEMENTED):
   ```json

@@ -183,8 +183,59 @@ async function analyzeDepartmentalAgents(req, res, next) {
   }
 }
 
+/**
+ * Controller for Multi-Agent Orchestration & Coordinated Consensus
+ * POST /api/v1/ai/consensus
+ * Request Body:
+ * {
+ *   "trigger": { "type": "multiple_incidents" },
+ *   "agents": ["front_desk", "housekeeping", "maintenance", "revenue"]
+ * }
+ */
+async function getConsensus(req, res, next) {
+  const orchestratorService = require('../services/orchestrator.service');
+
+  try {
+    const trigger = req.body.trigger || (req.body.type ? req.body : { type: 'multiple_incidents' });
+    const agents = req.body.agents;
+    const context = req.body.context;
+
+    const result = await orchestratorService.orchestrateConsensus({
+      trigger,
+      context,
+      agents,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    if (error.code === 'INVALID_CONTEXT' || error.code === 'UNKNOWN_AGENT') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: error.code,
+          message: error.message,
+          details: error.details || null,
+        },
+      });
+    }
+
+    return res.status(error.status || 500).json({
+      success: false,
+      error: {
+        code: error.code || 'ORCHESTRATION_ERROR',
+        message: error.message || 'An error occurred during multi-agent consensus orchestration.',
+      },
+    });
+  }
+}
+
 module.exports = {
   analyzeOperationalContext,
   getOperationalContext,
   analyzeDepartmentalAgents,
+  getConsensus,
 };
+
