@@ -42,6 +42,40 @@ class GuestService {
     if (!existing) return null;
     return dataStore.update('guests', id, updates);
   }
+
+  findByRoom(roomNumberOrId, telegramId = null) {
+    if (!roomNumberOrId) return null;
+    const str = String(roomNumberOrId).trim().replace(/^room-/i, '');
+    const guests = dataStore.findAll('guests');
+
+    if (telegramId) {
+      const authorizedGuest = guests.find(
+        (g) =>
+          (String(g.room_number) === str ||
+            String(g.room_id) === `room-${str}` ||
+            String(g.room_id) === str) &&
+          g.telegram_id &&
+          String(g.telegram_id) === String(telegramId)
+      );
+      if (authorizedGuest) return authorizedGuest;
+    }
+
+    return (
+      guests.find(
+        (g) =>
+          String(g.room_number) === str ||
+          String(g.room_id) === `room-${str}` ||
+          String(g.room_id) === str
+      ) || null
+    );
+  }
+
+  findByTelegramId(telegramId) {
+    if (!telegramId) return null;
+    const idStr = String(telegramId).trim();
+    const guests = dataStore.findAll('guests');
+    return guests.find((g) => g.telegram_id && String(g.telegram_id) === idStr) || null;
+  }
 }
 
 module.exports = new GuestService();

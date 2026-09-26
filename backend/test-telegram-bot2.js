@@ -63,8 +63,43 @@ async function runTests() {
   assert(lastMsg3.text.includes('Please enter your Room Number to verify your stay:'));
   console.log('✅ Test 3 Passed: Session transitioned to AWAITING_ROOM.\n');
 
-  // 4. Test Receiving Room Number
-  console.log('Test 4: Guest sends room number "204"...');
+  // 4a. Test Unauthorized Room Verification Attempt (Stranger trying to claim Room 204)
+  console.log('Test 4a: Unauthorized user tries to claim Room 204...');
+  await telegramBot.processIncomingText({
+    chatId,
+    text: '204',
+    sendMessage: mockSendMessage,
+  });
+
+  assert.strictEqual(telegramBot.sessions[chatId].step, 'IDLE');
+  assert.strictEqual(telegramBot.sessions[chatId].roomNumber, null);
+  const unauthMsg = messagesSent[messagesSent.length - 1];
+  assert(unauthMsg.text.includes('Verification Failed'));
+  assert(unauthMsg.opts?.reply_markup?.inline_keyboard);
+  console.log('✅ Test 4a Passed: Unauthorized access to Room 204 securely rejected.\n');
+
+  // Register an active reservation for this Telegram user in Room 204
+  const guestService = require('./src/services/guestService');
+  guestService.create({
+    name: 'Emily Watson',
+    room_number: '204',
+    room_id: 'room-204',
+    vip: true,
+    telegram_id: String(chatId),
+  });
+
+  // User taps "Try Again"
+  console.log('Test 4b: User taps "Try Again" and inputs Room 204 with authorized Telegram ID...');
+  await telegramBot.processCallbackQuery({
+    queryId: 'q_try_again',
+    chatId,
+    data: 'verify_try_again',
+    answerCallback: mockAnswerCallback,
+    sendMessage: mockSendMessage,
+  });
+  assert.strictEqual(telegramBot.sessions[chatId].step, 'AWAITING_ROOM');
+
+  // 4b. Authorized Verification
   await telegramBot.processIncomingText({
     chatId,
     text: '204',
@@ -72,11 +107,12 @@ async function runTests() {
   });
 
   assert.strictEqual(telegramBot.sessions[chatId].roomNumber, '204');
+  assert.strictEqual(telegramBot.sessions[chatId].guestName, 'Emily Watson');
   assert.strictEqual(telegramBot.sessions[chatId].step, 'VERIFIED');
   const lastMsg4 = messagesSent[messagesSent.length - 1];
-  assert(lastMsg4.text.includes('Room 204 verified!'));
+  assert(lastMsg4.text.includes('Room 204 verified! Welcome back, Emily Watson.'));
   assert(lastMsg4.opts && lastMsg4.opts.reply_markup && lastMsg4.opts.reply_markup.inline_keyboard);
-  console.log('✅ Test 4 Passed: Room 204 verified and guest menu keyboard presented.\n');
+  console.log('✅ Test 4b Passed: Authorized guest verified successfully.\n');
 
   // 5. Test "Report an Issue" action
   console.log('Test 5: Clicking "Report an Issue" button...');
@@ -90,7 +126,7 @@ async function runTests() {
 
   assert.strictEqual(telegramBot.sessions[chatId].step, 'AWAITING_COMPLAINT');
   const lastMsg5 = messagesSent[messagesSent.length - 1];
-  assert(lastMsg5.text.includes('Please describe the issue in detail, and our AI Concierge will route it immediately.'));
+  assert(lastMsg5.text.includes('Our AI Operations Swarm will triage it immediately'));
   console.log('✅ Test 5 Passed: Session transitioned to AWAITING_COMPLAINT.\n');
 
   // 6. Test Receiving the Complaint & Backend Incident Creation
@@ -103,9 +139,8 @@ async function runTests() {
   });
 
   // Verify guest received confirmation
-  const confirmMsg = messagesSent.find(m => m.text.includes('✅ Your issue has been logged'));
+  const confirmMsg = messagesSent.find(m => m.text.includes('Ticket logged! Our AI Swarm is analyzing your report'));
   assert(confirmMsg, 'Guest did not receive confirmation message');
-  assert(confirmMsg.text.includes('Our AI has alerted the staff, and a technician/housekeeper will be assigned shortly.'));
 
   // Verify session state reset to VERIFIED
   assert.strictEqual(telegramBot.sessions[chatId].step, 'VERIFIED');

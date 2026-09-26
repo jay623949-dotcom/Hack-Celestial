@@ -2,6 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const incidentService = require('./incidentService');
 const roomService = require('./roomService');
 const guestService = require('./guestService');
+const taskService = require('./taskService');
 const socketService = require('./socket.service');
 
 // In-memory session tracking: chatId -> { step, roomNumber, guestName, roomType, isVip }
@@ -52,6 +53,49 @@ const guestMenuKeyboard = {
   },
 };
 
+const amenitiesKeyboard = {
+  reply_markup: {
+    inline_keyboard: [
+      [
+        { text: '🛁 Fresh Towels', callback_data: 'amenity_towels' },
+        { text: '🛏 Extra Pillows', callback_data: 'amenity_pillows' },
+      ],
+      [
+        { text: '💧 Bottled Water', callback_data: 'amenity_water' },
+        { text: '🧼 Toiletries Kit', callback_data: 'amenity_toiletries' },
+      ],
+      [{ text: '🔙 Back to Menu', callback_data: 'back_to_menu' }],
+    ],
+  },
+};
+
+const lateCheckoutKeyboard = {
+  reply_markup: {
+    inline_keyboard: [
+      [{ text: '1:00 PM (Complimentary)', callback_data: 'late_checkout_1pm' }],
+      [{ text: '3:00 PM (Subject to Availability)', callback_data: 'late_checkout_3pm' }],
+      [{ text: '🔙 Back to Menu', callback_data: 'back_to_menu' }],
+    ],
+  },
+};
+
+const cancelToMenuKeyboard = {
+  reply_markup: {
+    inline_keyboard: [[{ text: '🔙 Back to Menu', callback_data: 'back_to_menu' }]],
+  },
+};
+
+const verificationFailedKeyboard = {
+  reply_markup: {
+    inline_keyboard: [
+      [
+        { text: '🔁 Try Again', callback_data: 'booking_details' },
+        { text: '🏨 Book a Room', callback_data: 'book_room' },
+      ],
+    ],
+  },
+};
+
 /**
  * Auto-triages guest complaints to assign reasonable severity and department
  */
@@ -87,7 +131,7 @@ function triageIncident(description = '') {
  * Creates an incident in Resort 360 backend from Telegram guest report
  * Accepts payload { room_number, description, source: 'Telegram' }
  */
-async function createIncidentFromTelegram({ room_number, description, source = 'Telegram' }) {
+async function createIncidentFromTelegram({ room_number, description, source = 'Telegram', guest_name }) {
   const rooms = roomService.getAll();
   const room = rooms.find(
     (r) => String(r.number) === String(room_number) || r.id === room_number || r.id === `room-${room_number}`
@@ -104,6 +148,10 @@ async function createIncidentFromTelegram({ room_number, description, source = '
     });
   }
 
+  // Lookup active guest if available
+  const guest = guestService.findByRoom(room_number);
+  const guestId = guest ? guest.id : null;
+
   const { department, severity } = triageIncident(description);
   const summarySnippet = description.length > 40 ? `${description.slice(0, 40)}...` : description;
   const title = `Guest Report (Room ${room_number}): ${summarySnippet}`;
@@ -115,6 +163,8 @@ async function createIncidentFromTelegram({ room_number, description, source = '
     status: 'open',
     department,
     room_id: roomId,
+    guest_id: guestId,
+    guest_name: guest_name || (guest ? guest.name : undefined),
     source,
     reported_at: new Date().toISOString(),
   });
@@ -129,6 +179,146 @@ async function createIncidentFromTelegram({ room_number, description, source = '
   }
 
   return incident;
+}
+
+/**
+ * Dispatches an amenity delivery task to Housekeeping
+ */
+async function handleAmenityRequest({ chatId, amenityKey, sendMessage }) {
+  const session = sessions[chatId] || {};
+  const roomNumber = session.roomNumber || 'Unknown';
+
+  const amenityMap = {
+    amenity_towels: 'Fresh Towels',
+    amenity_pillows: 'Extra Pillows',
+    amenity_water: 'Bottled Water',
+    amenity_toiletries: 'Toiletries Kit',
+  };
+
+  const selectedAmenity = amenityMap[amenityKey] || amenityKey;
+
+  try {
+    const task = taskService.create({
+      title: `Deliver ${selectedAmenity}`,
+      department: 'housekeeping',
+      room_number: roomNumber,
+      room_id: `room-${roomNumber}`,
+      priority: session.isVip ? 'high' : 'medium',
+      status: 'pending',
+      description: `Guest ${session.guestName || 'in Room ' + roomNumber} requested ${selectedAmenity} via Telegram Concierge.`,
+      source: 'Telegram',
+    });
+
+    console.log(`[Telegram Bot] Housekeeping task created: ID ${task.id} (${task.title})`);
+
+    // Emit Socket.IO events for staff dashboard
+    try {
+      socketService.emit('task:created', task);
+      socketService.emit('task.dispatched', task);
+    } catch (socketErr) {
+      console.warn('[Telegram Bot] Socket emit failed for task:', socketErr.message);
+    }
+
+    await sendMessage(
+      chatId,
+      `🛎 Housekeeping has received your request for ${selectedAmenity} for Room ${roomNumber}. A team member has been dispatched.`
+    );
+
+    session.step = 'VERIFIED';
+    await sendMessage(
+      chatId,
+      'Is there anything else we can assist you with?',
+      guestMenuKeyboard
+    );
+
+    return task;
+  } catch (err) {
+    console.error('[Telegram Bot] Error processing amenity request:', err);
+    await sendMessage(
+      chatId,
+      '⚠️ An error occurred dispatching your request. Please try again or contact the front desk.',
+      guestMenuKeyboard
+    );
+    session.step = 'VERIFIED';
+    return null;
+  }
+}
+
+/**
+ * Handles Late Checkout requests with operational/revenue hooks
+ */
+async function handleLateCheckoutRequest({ chatId, choice, sendMessage }) {
+  const session = sessions[chatId] || {};
+  const roomNumber = session.roomNumber || 'Unknown';
+
+  const is1pm = choice === 'late_checkout_1pm' || /1:?00/i.test(choice);
+  const selectedTime = is1pm ? '1:00 PM (Complimentary)' : '3:00 PM (Subject to Availability)';
+
+  try {
+    if (is1pm) {
+      // 1:00 PM Complimentary: Automatically approve, update guest record, alert housekeeping
+      const guest = guestService.findByRoom(roomNumber, chatId);
+      if (guest) {
+        guestService.update(guest.id, { check_out: '13:00' });
+      }
+
+      const task = taskService.create({
+        title: `Housekeeping Alert: Room ${roomNumber} Late Checkout (1:00 PM)`,
+        department: 'housekeeping',
+        room_number: roomNumber,
+        room_id: `room-${roomNumber}`,
+        priority: session.isVip ? 'high' : 'medium',
+        status: 'pending',
+        description: `Late checkout approved for Room ${roomNumber} until 1:00 PM (Complimentary). Reschedule turnover cleaning.`,
+        source: 'Telegram',
+      });
+
+      console.log(`[Telegram Bot] 1:00 PM late checkout approved for Room ${roomNumber}`);
+
+      try {
+        socketService.emit('task:created', task);
+        socketService.emit('room:updated', { room_number: roomNumber, late_checkout: '13:00' });
+      } catch (socketErr) {}
+    } else {
+      // 3:00 PM Extended: Create operational review task for front desk/revenue management
+      const task = taskService.create({
+        title: `Front Desk Review: Room ${roomNumber} Extended Checkout (3:00 PM)`,
+        department: 'front_desk',
+        room_number: roomNumber,
+        room_id: `room-${roomNumber}`,
+        priority: session.isVip ? 'high' : 'medium',
+        status: 'pending',
+        description: `Guest ${session.guestName || 'in Room ' + roomNumber} requested extended checkout to 3:00 PM (Subject to Availability). Review occupancy & turnover schedule.`,
+        source: 'Telegram',
+      });
+
+      console.log(`[Telegram Bot] 3:00 PM late checkout review task created for Room ${roomNumber}`);
+
+      try {
+        socketService.emit('task:created', task);
+      } catch (socketErr) {}
+    }
+
+    await sendMessage(
+      chatId,
+      `🕒 Late checkout request to ${selectedTime} for Room ${roomNumber} has been registered with Front Desk.`
+    );
+
+    session.step = 'VERIFIED';
+    await sendMessage(
+      chatId,
+      'Is there anything else we can assist you with?',
+      guestMenuKeyboard
+    );
+  } catch (err) {
+    console.error('[Telegram Bot] Error processing late checkout:', err);
+    await sendMessage(
+      chatId,
+      '⚠️ An error occurred processing your checkout request. Please contact the front desk.',
+      guestMenuKeyboard
+    );
+    session.step = 'VERIFIED';
+  }
 }
 
 /**
@@ -335,13 +525,72 @@ async function processIncomingText({ chatId, text, sendMessage }) {
 
   // 7. Receiving Room Number
   if (session.step === 'AWAITING_ROOM') {
-    session.roomNumber = rawText;
-    session.step = 'VERIFIED';
-    await sendMessage(
-      chatId,
-      `✅ Room ${session.roomNumber} verified! Welcome to your guest portal. Please select an option:`,
-      guestMenuKeyboard
-    );
+    const sanitizedRoomInput = rawText.replace(/^room\s*#?/i, '').trim();
+
+    try {
+      const guest = guestService.findByRoom(sanitizedRoomInput, chatId);
+      const isAuthorized =
+        guest && guest.telegram_id && String(guest.telegram_id) === String(chatId);
+
+      if (isAuthorized) {
+        session.roomNumber = String(guest.room_number || sanitizedRoomInput);
+        session.guestName = guest.name;
+        session.isVip = Boolean(guest.vip);
+        session.step = 'VERIFIED';
+
+        await sendMessage(
+          chatId,
+          `✅ Room ${session.roomNumber} verified! Welcome back, ${session.guestName}.`,
+          guestMenuKeyboard
+        );
+        return;
+      }
+
+      // Match Failure / Unauthorized
+      session.step = 'IDLE';
+      session.roomNumber = null;
+      session.guestName = null;
+      session.isVip = false;
+
+      await sendMessage(
+        chatId,
+        `❌ Verification Failed: We could not find an active reservation for Room ${sanitizedRoomInput || rawText} linked to this Telegram account.\n\nPlease check your room number or contact the front desk.`,
+        verificationFailedKeyboard
+      );
+      return;
+    } catch (err) {
+      console.error(`[Telegram Bot] Error verifying guest for room ${sanitizedRoomInput}:`, err);
+      session.step = 'IDLE';
+      session.roomNumber = null;
+      session.guestName = null;
+      session.isVip = false;
+
+      await sendMessage(
+        chatId,
+        '❌ Verification error: Unable to verify reservation at this time. Please visit the front desk for assistance.',
+        verificationFailedKeyboard
+      );
+      return;
+    }
+  }
+
+  // Back to Menu navigation
+  if (lowerText === 'back to menu' || lowerText === '🔙 back to menu' || lowerText === 'back') {
+    if (session.roomNumber) {
+      session.step = 'VERIFIED';
+      await sendMessage(
+        chatId,
+        'Returned to Guest Services Menu. What else can we help you with?',
+        guestMenuKeyboard
+      );
+    } else {
+      session.step = 'IDLE';
+      await sendMessage(
+        chatId,
+        'Returned to main menu. How may we assist you?',
+        welcomeKeyboard
+      );
+    }
     return;
   }
 
@@ -350,29 +599,30 @@ async function processIncomingText({ chatId, text, sendMessage }) {
     session.step = 'AWAITING_COMPLAINT';
     await sendMessage(
       chatId,
-      'Please describe the issue in detail, and our AI Concierge will route it immediately.'
+      '⚠️ Please describe the issue you are experiencing in your room or around the resort. Our AI Operations Swarm will triage it immediately.',
+      cancelToMenuKeyboard
     );
     return;
   }
 
   // 9. Action: Request Amenities
   if (lowerText === 'request amenities' || lowerText === '🛎 request amenities') {
-    const roomStr = session.roomNumber ? `for Room ${session.roomNumber}` : '';
+    session.step = 'AWAITING_AMENITY_SELECTION';
     await sendMessage(
       chatId,
-      `🛎 Housekeeping has received your amenities request ${roomStr}. Fresh towels and toiletries will be delivered shortly!`,
-      guestMenuKeyboard
+      'What can housekeeping bring to your room?',
+      amenitiesKeyboard
     );
     return;
   }
 
   // 10. Action: Late Checkout
   if (lowerText === 'late checkout' || lowerText === '🕒 late checkout') {
-    const roomStr = session.roomNumber ? `for Room ${session.roomNumber}` : '';
+    session.step = 'AWAITING_LATE_CHECKOUT_TIME';
     await sendMessage(
       chatId,
-      `🕒 Your late checkout request ${roomStr} has been submitted to Front Desk management. Standard checkout is 11:00 AM; requested late checkout: 1:00 PM.`,
-      guestMenuKeyboard
+      'Please select your preferred checkout time:',
+      lateCheckoutKeyboard
     );
     return;
   }
@@ -384,11 +634,12 @@ async function processIncomingText({ chatId, text, sendMessage }) {
       room_number: session.roomNumber,
       description: complaintText,
       source: 'Telegram',
+      guest_name: session.guestName,
     });
 
     await sendMessage(
       chatId,
-      '✅ Your issue has been logged. Our AI has alerted the staff, and a technician/housekeeper will be assigned shortly.'
+      '✅ Ticket logged! Our AI Swarm is analyzing your report and assigning the appropriate staff. We will resolve this as quickly as possible.'
     );
 
     // Reset session state to VERIFIED
@@ -400,6 +651,32 @@ async function processIncomingText({ chatId, text, sendMessage }) {
       'Is there anything else we can assist you with?',
       guestMenuKeyboard
     );
+    return;
+  }
+
+  // 12. Receiving Amenity selection via text
+  if (session.step === 'AWAITING_AMENITY_SELECTION') {
+    let selected = rawText;
+    if (/towel/i.test(rawText)) selected = 'Fresh Towels';
+    else if (/pillow/i.test(rawText)) selected = 'Extra Pillows';
+    else if (/water/i.test(rawText)) selected = 'Bottled Water';
+    else if (/toilet|soap|shampoo|kit/i.test(rawText)) selected = 'Toiletries Kit';
+
+    await handleAmenityRequest({
+      chatId,
+      amenityKey: selected,
+      sendMessage,
+    });
+    return;
+  }
+
+  // 13. Receiving Late Checkout choice via text
+  if (session.step === 'AWAITING_LATE_CHECKOUT_TIME') {
+    await handleLateCheckoutRequest({
+      chatId,
+      choice: rawText,
+      sendMessage,
+    });
     return;
   }
 
@@ -467,6 +744,7 @@ async function processCallbackQuery({ queryId, chatId, data, answerCallback, sen
       break;
 
     case 'booking_details':
+    case 'verify_try_again':
       session.step = 'AWAITING_ROOM';
       await sendMessage(chatId, 'Please enter your Room Number to verify your stay:');
       break;
@@ -475,24 +753,57 @@ async function processCallbackQuery({ queryId, chatId, data, answerCallback, sen
       session.step = 'AWAITING_COMPLAINT';
       await sendMessage(
         chatId,
-        'Please describe the issue in detail, and our AI Concierge will route it immediately.'
+        '⚠️ Please describe the issue you are experiencing in your room or around the resort. Our AI Operations Swarm will triage it immediately.',
+        cancelToMenuKeyboard
       );
       break;
 
     case 'request_amenities':
+      session.step = 'AWAITING_AMENITY_SELECTION';
       await sendMessage(
         chatId,
-        `🛎 Housekeeping has received your amenities request for Room ${session.roomNumber || 'your stay'}. Fresh towels and toiletries will be delivered shortly!`,
-        guestMenuKeyboard
+        'What can housekeeping bring to your room?',
+        amenitiesKeyboard
       );
       break;
 
+    case 'amenity_towels':
+    case 'amenity_pillows':
+    case 'amenity_water':
+    case 'amenity_toiletries':
+      await handleAmenityRequest({ chatId, amenityKey: data, sendMessage });
+      break;
+
     case 'late_checkout':
+      session.step = 'AWAITING_LATE_CHECKOUT_TIME';
       await sendMessage(
         chatId,
-        `🕒 Your late checkout request for Room ${session.roomNumber || 'your stay'} has been submitted to Front Desk management. Standard checkout: 11:00 AM; requested: 1:00 PM.`,
-        guestMenuKeyboard
+        'Please select your preferred checkout time:',
+        lateCheckoutKeyboard
       );
+      break;
+
+    case 'late_checkout_1pm':
+    case 'late_checkout_3pm':
+      await handleLateCheckoutRequest({ chatId, choice: data, sendMessage });
+      break;
+
+    case 'back_to_menu':
+      if (session.roomNumber) {
+        session.step = 'VERIFIED';
+        await sendMessage(
+          chatId,
+          'Returned to Guest Services Menu. What else can we help you with?',
+          guestMenuKeyboard
+        );
+      } else {
+        session.step = 'IDLE';
+        await sendMessage(
+          chatId,
+          'Returned to main menu. How may we assist you?',
+          welcomeKeyboard
+        );
+      }
       break;
 
     default:
@@ -586,4 +897,10 @@ module.exports = {
   roomTypeKeyboard,
   vipKeyboard,
   guestMenuKeyboard,
+  amenitiesKeyboard,
+  lateCheckoutKeyboard,
+  cancelToMenuKeyboard,
+  verificationFailedKeyboard,
+  handleAmenityRequest,
+  handleLateCheckoutRequest,
 };
