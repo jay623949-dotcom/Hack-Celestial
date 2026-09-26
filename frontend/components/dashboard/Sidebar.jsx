@@ -13,6 +13,7 @@ import {
   CheckSquare,
   Bot,
   Sparkles,
+  Layers,
   Settings,
   HelpCircle,
   MapPin,
@@ -38,6 +39,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
   const intelligenceNav = [
     { label: 'Autonomous 360 OS', href: '/dashboard/agents?tab=autonomous', icon: Sparkles },
     { label: 'Swarm Consensus', href: '/dashboard/agents?tab=consensus', icon: Bot },
+    { label: 'Consensus Report', href: '/dashboard/consensus', icon: Layers },
   ];
 
   const secondaryNav = [
@@ -55,7 +57,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
       )}
       {items.map((item) => {
         const Icon = item.icon;
-        const isActive = pathname === item.href;
+        const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname?.startsWith(item.href.split('?')[0]));
         return (
           <Link
             key={item.label}
