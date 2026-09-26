@@ -42,22 +42,22 @@ Context Builder Service (context-builder.service.js) [IMPLEMENTED]
 Canonical AI Context (POST /api/v1/ai/context & POST /api/v1/ai/analyze) [IMPLEMENTED]
          │
          ▼
-AI Analysis Layer (OpenAI Responses API with schema validation) [IMPLEMENTED]
+AI Analysis Layer (OpenAI / Gemini / Local LLM with schema validation) [IMPLEMENTED]
          │
          ▼
 Agent Perspectives (Front Desk, Housekeeping, Maintenance, Revenue) [IMPLEMENTED]
          │
          ▼
-Consensus Engine (Multi-agent trade-off resolution) [PLANNED - Phase 2.3]
+Consensus Engine (Multi-agent trade-off resolution & synthesis) [IMPLEMENTED]
          │
          ▼
-Action Plan (Generated with requires_human_approval: true) [PLANNED - Phase 2.3]
+Action Plan (Generated with requires_human_approval: true) [IMPLEMENTED]
          │
          ▼
-Human Approval (Approve / Modify / Reject by Duty Manager) [PLANNED - Phase 3]
+Human Approval (Approve / Modify / Reject by Duty Manager) [IMPLEMENTED]
          │
          ▼
-Task Execution & Socket.IO Real-Time Dispatch [PLANNED - Phase 3]
+Task Execution & Socket.IO Real-Time Dispatch [IMPLEMENTED]
 ```
 
 ---
@@ -206,10 +206,19 @@ cd backend
 # 1. Run Complete API & Error Contract Test Suite (55 tests)
 npm test
 
-# 2. Run Context Builder & 5 Benchmark Scenarios Verification
+# 2. Run Manager Approval & Decision Interface Suite (10 tests)
+npm run test:manager
+
+# 3. Run Execution Engine & Task Dispatch Suite (12 tests)
+npm run test:execution
+
+# 4. Run Failure Handling & System Resilience Suite (25 tests)
+npm run test:resilience
+
+# 5. Run Context Builder & Benchmark Scenarios Verification
 node test-phase2-1.js
 
-# 3. Run JSON Schema Conformance Suite
+# 6. Run JSON Schema Conformance Suite
 node test-schemas.js
 ```
 
@@ -233,7 +242,14 @@ npm run build
 | `GET` | `/api/v1/guests` | In-house guest profiles and VIP tier metadata |
 | `GET` | `/api/v1/staff` | On-duty staff rosters by department |
 | `POST` | `/api/v1/ai/context` | Generates verified Canonical Context from live DB state |
-| `POST` | `/api/v1/ai/analyze` | Evaluates operational context via OpenAI Responses API |
+| `POST` | `/api/v1/ai/analyze` | Evaluates operational context via AI Provider (Gemini / OpenAI) |
+| `POST` | `/api/v1/consensus` | Generates cross-department consensus & Action Plan |
+| `GET` | `/api/v1/consensus/action-plans` | Lists action plans with status filters |
+| `POST` | `/api/v1/consensus/action-plan/:id/approve` | Duty Manager approval with optional modifications |
+| `POST` | `/api/v1/consensus/action-plan/:id/modify` | Duty Manager plan amendment with change reason |
+| `POST` | `/api/v1/consensus/action-plan/:id/reject` | Duty Manager rejection with audit log entry |
+| `POST` | `/api/v1/consensus/action-plan/:id/execute` | Executes plan, dispatches tasks, updates room states |
+| `GET` | `/api/v1/consensus/action-plan/:id/execution-status` | Real-time task progress and department telemetry |
 
 ---
 
@@ -241,3 +257,4 @@ npm run build
 - **No TypeScript**: The codebase strictly uses modern JavaScript (ES6+ CommonJS for backend, ESM for frontend).
 - **Human-in-the-Loop**: The AI Agent Swarm provides advisory proposals only; operations are never dispatched automatically without Duty Manager approval.
 - **Never Commit Secrets**: Never commit `.env` files or API credentials to Git.
+

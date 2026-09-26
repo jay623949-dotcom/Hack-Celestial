@@ -88,14 +88,19 @@ class ContextBuilderService {
     };
 
     // Helper: Map raw staff
-    const mapStaff = (s) => ({
-      id: s.id,
-      name: s.name,
-      department: s.department,
-      role: s.role || 'Staff Member',
-      status: s.status || 'on_duty',
-      current_task: s.current_task || 'Operational duty',
-    });
+    const mapStaff = (s) => {
+      let mappedStatus = s.status || 'on_duty';
+      if (mappedStatus === 'available') mappedStatus = 'on_duty';
+      if (!['on_duty', 'busy', 'off_duty'].includes(mappedStatus)) mappedStatus = 'on_duty';
+      return {
+        id: s.id,
+        name: s.name,
+        department: s.department,
+        role: s.role || 'Staff Member',
+        status: mappedStatus,
+        current_task: s.current_task || 'Operational duty',
+      };
+    };
 
     // Helper: Map raw incident
     const mapIncident = (i) => ({

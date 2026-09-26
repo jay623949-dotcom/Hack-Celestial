@@ -64,7 +64,7 @@ export default function ActiveTasks({ tasks = [], loading = false }) {
                   <span>•</span>
                   <span className="flex items-center gap-1">
                     <UserCheck className="w-3 h-3 text-slate-500" />
-                    {task.assigned_to || 'Unassigned'}
+                    {task.assigned_staff_name || task.assigned_to_name || task.assigned_to || 'Unassigned'}
                   </span>
                 </div>
               </div>
