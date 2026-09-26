@@ -21,10 +21,13 @@ function init(server) {
       console.log(`[Socket.IO] Client connected: ${socket.id}`);
 
       // Support subscribing to specific action plans or execution runs
-      socket.on('subscribe:plan', (planId) => {
+      const handleJoin = (planId) => {
         socket.join(`plan:${planId}`);
         console.log(`[Socket.IO] ${socket.id} joined room plan:${planId}`);
-      });
+      };
+
+      socket.on('subscribe:plan', handleJoin);
+      socket.on('join:plan', handleJoin);
 
       socket.on('unsubscribe:plan', (planId) => {
         socket.leave(`plan:${planId}`);

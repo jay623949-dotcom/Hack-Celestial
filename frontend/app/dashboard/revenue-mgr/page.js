@@ -8,6 +8,7 @@ import {
   Calendar, CheckCircle2, RefreshCw, Sparkles, ArrowRight, ShieldCheck
 } from 'lucide-react';
 import { getOperationsSummary, getRooms, getGuests } from '../../../lib/api';
+import { getSocket } from '../../../lib/socket';
 
 function StatCard({ label, value, sub, color = 'text-foreground', badge, subColor = 'text-muted-foreground' }) {
   return (
@@ -54,6 +55,17 @@ export default function RevenueDashboard() {
 
   useEffect(() => {
     fetchData();
+
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.on('room.status_changed', fetchData);
+    socket.on('task.completed', fetchData);
+
+    return () => {
+      socket.off('room.status_changed', fetchData);
+      socket.off('task.completed', fetchData);
+    };
   }, []);
 
   const totalRooms = summary?.rooms?.total || rooms.length || 45;

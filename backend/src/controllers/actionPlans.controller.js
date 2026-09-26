@@ -22,6 +22,10 @@ function authorizeManager(req) {
     'maintenance_manager',
     'revenue_manager',
     'duty_manager',
+    'front_desk',
+    'housekeeping',
+    'maintenance',
+    'revenue',
   ];
 
   const isAuthorized = allowedRoles.includes(role);

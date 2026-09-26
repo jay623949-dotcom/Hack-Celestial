@@ -21,6 +21,7 @@ import {
   analyzeOperationsContext,
   triggerDemoReset,
 } from '../../lib/api';
+import { getSocket } from '../../lib/socket';
 import {
   BedDouble,
   Users,
@@ -85,6 +86,33 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
+
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleRefresh = () => {
+      fetchDashboardData();
+    };
+
+    socket.on('task.created', handleRefresh);
+    socket.on('task.dispatched', handleRefresh);
+    socket.on('task.completed', handleRefresh);
+    socket.on('room.status_changed', handleRefresh);
+    socket.on('incident.status_changed', handleRefresh);
+    socket.on('staff.status_changed', handleRefresh);
+    socket.on('execution.started', handleRefresh);
+    socket.on('execution.completed', handleRefresh);
+
+    return () => {
+      socket.off('task.created', handleRefresh);
+      socket.off('task.dispatched', handleRefresh);
+      socket.off('task.completed', handleRefresh);
+      socket.off('room.status_changed', handleRefresh);
+      socket.off('incident.status_changed', handleRefresh);
+      socket.off('staff.status_changed', handleRefresh);
+      socket.off('execution.started', handleRefresh);
+      socket.off('execution.completed', handleRefresh);
+    };
   }, [fetchDashboardData]);
 
   const handleRoomFilter = async (filterKey) => {
