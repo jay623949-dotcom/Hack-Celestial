@@ -1,0 +1,253 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "server.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\server.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_server_js",
+      "community": 5,
+      "norm_label": "server.js"
+    },
+    {
+      "label": "index.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\config\\index.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_config_index_js",
+      "community": 6,
+      "norm_label": "index.js"
+    },
+    {
+      "label": "healthController.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\healthController.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_controllers_healthcontroller_js",
+      "community": 1,
+      "norm_label": "healthcontroller.js"
+    },
+    {
+      "label": "getHealth()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\healthController.js",
+      "source_location": "L5",
+      "id": "healthcontroller_gethealth",
+      "community": 1,
+      "norm_label": "gethealth()"
+    },
+    {
+      "label": "errorHandler.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\middleware\\errorHandler.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_middleware_errorhandler_js",
+      "community": 0,
+      "norm_label": "errorhandler.js"
+    },
+    {
+      "label": "errorHandler()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\middleware\\errorHandler.js",
+      "source_location": "L4",
+      "id": "errorhandler_errorhandler",
+      "community": 0,
+      "norm_label": "errorhandler()"
+    },
+    {
+      "label": "notFoundHandler()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\middleware\\errorHandler.js",
+      "source_location": "L23",
+      "id": "errorhandler_notfoundhandler",
+      "community": 0,
+      "norm_label": "notfoundhandler()"
+    },
+    {
+      "label": "healthRoutes.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\healthRoutes.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_healthroutes_js",
+      "community": 7,
+      "norm_label": "healthroutes.js"
+    },
+    {
+      "label": "index.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\index.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_services_index_js",
+      "community": 8,
+      "norm_label": "index.js"
+    },
+    {
+      "label": "next.config.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\next.config.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_next_config_js",
+      "community": 9,
+      "norm_label": "next.config.js"
+    },
+    {
+      "label": "postcss.config.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\postcss.config.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_postcss_config_js",
+      "community": 10,
+      "norm_label": "postcss.config.js"
+    },
+    {
+      "label": "tailwind.config.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\tailwind.config.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_tailwind_config_js",
+      "community": 11,
+      "norm_label": "tailwind.config.js"
+    },
+    {
+      "label": "layout.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\layout.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_app_layout_js",
+      "community": 2,
+      "norm_label": "layout.js"
+    },
+    {
+      "label": "RootLayout()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\layout.js",
+      "source_location": "L8",
+      "id": "layout_rootlayout",
+      "community": 2,
+      "norm_label": "rootlayout()"
+    },
+    {
+      "label": "page.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\page.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_app_page_js",
+      "community": 3,
+      "norm_label": "page.js"
+    },
+    {
+      "label": "HomePage()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\page.js",
+      "source_location": "L1",
+      "id": "page_homepage",
+      "community": 3,
+      "norm_label": "homepage()"
+    },
+    {
+      "label": "index.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\index.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_index_js",
+      "community": 12,
+      "norm_label": "index.js"
+    },
+    {
+      "label": "api.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_lib_api_js",
+      "community": 4,
+      "norm_label": "api.js"
+    },
+    {
+      "label": "checkBackendHealth()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
+      "source_location": "L7",
+      "id": "api_checkbackendhealth",
+      "community": 4,
+      "norm_label": "checkbackendhealth()"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\healthController.js",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_backend_src_controllers_healthcontroller_js",
+      "_tgt": "healthcontroller_gethealth",
+      "source": "c_web_devlopment_hackathonproject_resort360_backend_src_controllers_healthcontroller_js",
+      "target": "healthcontroller_gethealth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\middleware\\errorHandler.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_backend_src_middleware_errorhandler_js",
+      "_tgt": "errorhandler_errorhandler",
+      "source": "c_web_devlopment_hackathonproject_resort360_backend_src_middleware_errorhandler_js",
+      "target": "errorhandler_errorhandler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\middleware\\errorHandler.js",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_backend_src_middleware_errorhandler_js",
+      "_tgt": "errorhandler_notfoundhandler",
+      "source": "c_web_devlopment_hackathonproject_resort360_backend_src_middleware_errorhandler_js",
+      "target": "errorhandler_notfoundhandler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\layout.js",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_frontend_app_layout_js",
+      "_tgt": "layout_rootlayout",
+      "source": "c_web_devlopment_hackathonproject_resort360_frontend_app_layout_js",
+      "target": "layout_rootlayout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\page.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_frontend_app_page_js",
+      "_tgt": "page_homepage",
+      "source": "c_web_devlopment_hackathonproject_resort360_frontend_app_page_js",
+      "target": "page_homepage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_frontend_lib_api_js",
+      "_tgt": "api_checkbackendhealth",
+      "source": "c_web_devlopment_hackathonproject_resort360_frontend_lib_api_js",
+      "target": "api_checkbackendhealth",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": []
+}
