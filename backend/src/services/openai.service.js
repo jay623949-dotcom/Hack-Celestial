@@ -72,6 +72,8 @@ class AIService {
         this.localClient = new OpenAI({
           apiKey: 'local-no-key-required',
           baseURL: localBaseURL,
+          timeout: 120000, // 120s — local models like gemma2:2b can be slow
+          maxRetries: 0,   // Don't retry on local — fail fast and surface error
         });
       } catch (e) {
         console.warn('[AIService] Failed to initialize Local AI client:', e.message);
@@ -105,6 +107,62 @@ class AIService {
     }
 
     return configured;
+  }
+
+  /**
+   * Compress full canonical context into a compact summary for small local models.
+   * Full context can be 6000-10000 tokens — too large for gemma2:2b (4k ctx window).
+   * This strips it to ~1200 tokens covering only operationally critical data.
+   */
+  compressContextForLocalModel(context) {
+    const rooms = Array.isArray(context.rooms) ? context.rooms : [];
+    const staff = Array.isArray(context.staff) ? context.staff : [];
+    const incidents = Array.isArray(context.incidents) ? context.incidents : [];
+    const guests = Array.isArray(context.guests) ? context.guests : [];
+
+    // Only include high-priority incidents
+    const criticalIncidents = incidents
+      .filter(i => i.severity === 'critical' || i.priority === 'critical' || i.status === 'open')
+      .slice(0, 4)
+      .map(i => ({ id: i.id, title: i.title || i.type, severity: i.severity, room: i.room_id, status: i.status }));
+
+    // Only occupied/checkout rooms
+    const relevantRooms = rooms
+      .filter(r => ['occupied', 'checkout', 'dirty', 'maintenance'].includes(r.status))
+      .slice(0, 10)
+      .map(r => ({ id: r.id, number: r.number, status: r.status, type: r.type }));
+
+    // Available staff by department
+    const availableStaff = staff
+      .filter(s => s.status === 'available' || s.status === 'on_duty')
+      .slice(0, 6)
+      .map(s => ({ id: s.id, name: s.name, department: s.department, status: s.status }));
+
+    // VIP guests only
+    const vipGuests = guests
+      .filter(g => g.vip === true || g.vip_tier)
+      .slice(0, 5)
+      .map(g => ({ id: g.id, name: g.name, vip_tier: g.vip_tier, room_id: g.room_id }));
+
+    return {
+      context_id: context.context_id,
+      schema_version: context.schema_version,
+      created_at: context.created_at,
+      resort: context.resort,
+      trigger: context.trigger,
+      rooms_summary: {
+        total: rooms.length,
+        occupied: rooms.filter(r => r.status === 'occupied').length,
+        available: rooms.filter(r => r.status === 'available').length,
+        relevant_rooms: relevantRooms,
+      },
+      staff_summary: {
+        total: staff.length,
+        available: availableStaff,
+      },
+      incidents: criticalIncidents,
+      vip_guests: vipGuests,
+    };
   }
 
   /**
@@ -168,7 +226,7 @@ class AIService {
   /**
    * Invoke Gemini Model via official @google/genai SDK
    */
-  async callGemini(userPrompt) {
+  async callGemini(userPrompt, systemInstructions = SYSTEM_INSTRUCTIONS) {
     if (!this.geminiClient) this.initClients();
 
     const apiKey = config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY;
@@ -181,51 +239,91 @@ class AIService {
 
     const modelName = config.ai?.gemini?.model || process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-    console.log(`[AIService] Calling Google Gemini model (${modelName})...`);
+    const maxRetries = 3;
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      attempt++;
+      try {
+        console.log(`[AIService] Calling Google Gemini model (${modelName}) [Attempt ${attempt}/${maxRetries}]...`);
 
-    try {
-      const response = await this.geminiClient.models.generateContent({
-        model: modelName,
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: `${SYSTEM_INSTRUCTIONS}\n\nStrict JSON only. Respond with a valid JSON object matching the requested schema.\n\n${userPrompt}` }
-            ]
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => {
+            const err = new Error('Gemini API call timed out after 45s');
+            err.code = 'AI_TIMEOUT';
+            err.status = 504;
+            reject(err);
+          }, 45000);
+        });
+
+        const generatePromise = this.geminiClient.models.generateContent({
+          model: modelName,
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: `${systemInstructions}\n\nStrict JSON only. Respond with a valid JSON object matching the requested schema.\n\n${userPrompt}` }
+              ]
+            }
+          ],
+          config: {
+            responseMimeType: 'application/json',
+            temperature: 0.2,
+          },
+        });
+
+        const response = await Promise.race([generatePromise, timeoutPromise]);
+        return response.text;
+      } catch (err) {
+        if (err.code === 'AI_TIMEOUT') {
+          throw err;
+        }
+        const isTransient = err.message.includes('503') || err.message.includes('429') || err.message.includes('high demand') || err.message.includes('UNAVAILABLE') || err.message.includes('RESOURCE_EXHAUSTED');
+        if (isTransient && attempt < maxRetries) {
+          // Check if error specifies retryDelay
+          let delayMs = attempt * 3500;
+          const match = err.message.match(/retry in ([0-9.]+)/i);
+          if (match && match[1]) {
+            delayMs = Math.max(delayMs, (parseFloat(match[1]) + 0.5) * 1000);
           }
-        ],
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.2,
-        },
-      });
-
-      return response.text;
-    } catch (err) {
-      console.error('[AIService] Gemini API error:', err.message);
-      const error = new Error(`Gemini API error: ${err.message}`);
-      error.code = 'AI_SERVICE_ERROR';
-      error.status = 502;
-      throw error;
+          console.warn(`[AIService] Gemini transient capacity spike. Retrying in ${Math.round(delayMs)}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        } else {
+          console.error('[AIService] Gemini API error:', err.message);
+          const error = new Error(`Gemini API error: ${err.message}`);
+          error.code = 'AI_SERVICE_ERROR';
+          error.status = 502;
+          throw error;
+        }
+      }
     }
   }
 
   /**
    * Invoke OpenAI or Local Model via OpenAI SDK
    */
-  async callOpenAICompatible(client, model, userPrompt, providerLabel) {
+  async callOpenAICompatible(client, model, userPrompt, providerLabel, systemInstructions = SYSTEM_INSTRUCTIONS) {
     console.log(`[AIService] Calling ${providerLabel} model (${model})...`);
+
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        const err = new Error(`${providerLabel} call timed out after 45s`);
+        err.code = 'AI_TIMEOUT';
+        err.status = 504;
+        reject(err);
+      }, 45000);
+    });
 
     try {
       // Modern Responses API check
       if (client.responses && typeof client.responses.create === 'function' && providerLabel === 'OpenAI') {
-        const response = await client.responses.create({
+        const responsePromise = client.responses.create({
           model,
-          instructions: SYSTEM_INSTRUCTIONS,
+          instructions: systemInstructions,
           input: userPrompt,
           temperature: 0.2,
         });
 
+        const response = await Promise.race([responsePromise, timeoutPromise]);
         if (response.output_text) return response.output_text;
         if (response.output && Array.isArray(response.output)) {
           const textBlock = response.output.find((o) => o.type === 'message');
@@ -234,18 +332,30 @@ class AIService {
       }
 
       // Standard Chat Completions (works for OpenAI, Ollama, LM Studio, vLLM)
-      const chatCompletion = await client.chat.completions.create({
+      const completionParams = {
         model,
         messages: [
-          { role: 'system', content: SYSTEM_INSTRUCTIONS },
+          { role: 'system', content: `${systemInstructions}\n\nCRITICAL: You MUST respond with ONLY a valid JSON object. No markdown, no prose, no code fences. Start your response with { and end with }.` },
           { role: 'user', content: userPrompt },
         ],
-        response_format: { type: 'json_object' },
         temperature: 0.2,
-      });
+        stream: false,
+      };
+      if (providerLabel === 'OpenAI') {
+        completionParams.response_format = { type: 'json_object' };
+      }
+      const chatCompletionPromise = client.chat.completions.create(completionParams);
+      const chatCompletion = await Promise.race([chatCompletionPromise, timeoutPromise]);
 
-      return chatCompletion.choices[0]?.message?.content;
+      const rawContent = chatCompletion.choices[0]?.message?.content || '';
+      if (rawContent.startsWith('```')) {
+        return rawContent.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+      }
+      return rawContent;
     } catch (err) {
+      if (err.code === 'AI_TIMEOUT') {
+        throw err;
+      }
       console.error(`[AIService] ${providerLabel} API error:`, err.message);
       const error = new Error(`${providerLabel} API error: ${err.message}`);
       error.code = 'AI_SERVICE_ERROR';
@@ -270,7 +380,9 @@ class AIService {
     }
 
     const provider = this.getActiveProvider();
-    const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(context, null, 2)}`;
+    // For local small models, compress context to fit within their context window
+    const contextForModel = provider === 'local' ? this.compressContextForLocalModel(context) : context;
+    const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(contextForModel, null, 2)}`;
 
     let responseContent = null;
 
@@ -328,6 +440,61 @@ class AIService {
     if (!outputValidation.valid) {
       console.error('[AIService] AI output schema validation failed:', outputValidation.errors);
       const error = new Error(`AI returned invalid schema structure: ${outputValidation.errors.join(', ')}`);
+      error.code = 'AI_INVALID_RESPONSE';
+      error.status = 502;
+      throw error;
+    }
+
+    return parsedData;
+  }
+
+  /**
+   * Universal completion executor accepting custom prompt, system instructions, and schema validation
+   * @param {string} userPrompt 
+   * @param {string} systemInstructions 
+   * @returns {Promise<Object>} Cleaned, parsed, and validated JSON output
+   */
+  async executeCompletion(userPrompt, systemInstructions = SYSTEM_INSTRUCTIONS) {
+    const provider = this.getActiveProvider();
+    let responseContent = null;
+
+    if (provider === 'gemini') {
+      responseContent = await this.callGemini(userPrompt, systemInstructions);
+    } else if (provider === 'local') {
+      if (!this.localClient) this.initClients();
+      const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'llama3.2';
+      responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM', systemInstructions);
+    } else {
+      if (!this.openaiClient) this.initClients();
+      const apiKey = config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        const error = new Error('No AI provider configured. Please set GEMINI_API_KEY (free at https://aistudio.google.com) or OPENAI_API_KEY in backend/.env.');
+        error.code = 'AI_KEY_MISSING';
+        error.status = 503;
+        throw error;
+      }
+      const model = config.ai?.openai?.model || config.openai?.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
+      responseContent = await this.callOpenAICompatible(this.openaiClient, model, userPrompt, 'OpenAI', systemInstructions);
+    }
+
+    if (!responseContent) {
+      const error = new Error(`Empty response received from ${provider} model service`);
+      error.code = 'AI_EMPTY_RESPONSE';
+      error.status = 502;
+      throw error;
+    }
+
+    // Clean and parse JSON
+    let parsedData = null;
+    try {
+      let cleaned = responseContent.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+      }
+      parsedData = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error('[AIService] Failed to parse model output as JSON:', responseContent);
+      const error = new Error('AI returned non-JSON or malformed output');
       error.code = 'AI_INVALID_RESPONSE';
       error.status = 502;
       throw error;

@@ -13,13 +13,19 @@ const incidentsRoutes = require('./routes/incidents.routes');
 const tasksRoutes = require('./routes/tasks.routes');
 const operationsRoutes = require('./routes/operations.routes');
 const aiRoutes = require('./routes/ai.routes');
+const actionPlansRoutes = require('./routes/action-plans.routes');
+
+// Smart Resort 360 Autonomous Multi-Agent OS Router
+const { smartResortRouter, performReset } = require('./smart-resort/routes');
 
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
 // Security Headers
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
 
 // Request Logging
 if (config.nodeEnv !== 'test') {
@@ -30,8 +36,10 @@ if (config.nodeEnv !== 'test') {
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:3001',
+  'http://127.0.0.1:5173',
   config.clientUrl,
 ].filter(Boolean);
 
@@ -46,26 +54,43 @@ app.use(
       ) {
         return callback(null, true);
       }
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
+      return callback(null, true); // Permissive in dev so all ports work
     },
     credentials: true,
   })
 );
 
 // Body Parsing
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Root welcome
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Welcome to Resort 360 Operational Intelligence API',
+    message: 'Welcome to Resort 360 Operational Intelligence & Multi-Agent OS API',
     version: 'v1',
     docs: '/api/v1/operations/summary',
-    healthCheck: '/api/v1/health',
+    healthCheck: '/health',
   });
 });
+
+// Demo reset endpoint
+app.post(['/demo/reset', '/api/demo/reset'], performReset);
+
+// Health check endpoints
+app.get(['/health', '/api/health'], (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'Smart Resort 360 API',
+    system: 'Autonomous Multi-Agent Resort Operating System',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Mount Smart Resort 360 routes directly on /api and /api/v1
+app.use('/api/incidents', incidentsRoutes);
+app.use('/api', smartResortRouter);
 
 // API v1 Mounting
 const apiV1Router = express.Router();
@@ -78,15 +103,14 @@ apiV1Router.use('/incidents', incidentsRoutes);
 apiV1Router.use('/tasks', tasksRoutes);
 apiV1Router.use('/operations', operationsRoutes);
 apiV1Router.use('/ai', aiRoutes);
+apiV1Router.use('/action-plans', actionPlansRoutes);
+apiV1Router.use('/', smartResortRouter);
 
 app.use('/api/v1', apiV1Router);
-
-// Backward-compatibility health check aliases
-app.use('/health', healthRoutes);
-app.use('/api/health', healthRoutes);
 
 // Error Handling Middlewares
 app.use(notFoundHandler);
 app.use(errorHandler);
 
 module.exports = app;
+

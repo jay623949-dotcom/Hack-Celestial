@@ -196,3 +196,91 @@ A feature or task is **DONE** only when:
 - [x] Zero sensitive secrets or `.env` files are tracked by Git.
 - [x] The feature works cleanly when running the full stack (`npm run dev`).
 - [x] Git diff is clean and ready for integration into `develop`.
+
+---
+
+## 11. Human-in-the-Loop Decision Governance Rules
+
+1. **AI Never Autonomously Executes**:
+   - The AI swarms synthesize and recommend; hotel managers review, decide, and execute.
+2. **AI Cannot Approve Its Own Recommendation**:
+   - Automated self-approval is strictly forbidden.
+3. **Manager Approval Required for Execution**:
+   - Only authorized manager/admin roles can approve, modify, or reject action plans.
+4. **Original AI Plan Remains Immutable**:
+   - When a manager modifies a plan, the original AI recommendation is preserved verbatim in `original_plan`.
+5. **Modifications Must Be Fully Auditable**:
+   - Every modified field, original value, modified value, and reason is recorded in the append-only audit trail (`ai_action_plan_decisions`).
+6. **Rejections Require Explicit Reason**:
+   - Plans cannot be rejected without a meaningful justification recorded in the audit trail.
+7. **Invalid State Transitions Blocked**:
+   - Transition validations must be enforced at the API level (e.g. approving a rejected or completed plan returns 409 Conflict).
+8. **Action Execution Separate From Recommendation**:
+   - Operational tasks are only dispatched upon explicit human approval.
+
+---
+
+## 12. Operational Execution & Task Dispatch Rules (Phase 5)
+
+1. **Only Approved Action Plans Can Execute**:
+   - Plans in `pending_review`, `pending_approval`, `modified_pending_approval`, or `rejected` state must NEVER generate executable tasks. Any attempt returns 409 Conflict.
+2. **AI Cannot Directly Execute Tasks**:
+   - The AI layer recommends; the manager approves. The execution engine converts approved actions into operational tasks only after explicit manager confirmation.
+3. **Execution Must Be Backend-Controlled**:
+   - Execution logic and state transitions must reside strictly in backend services (`execution.service.js`), never calculated client-side in the browser.
+4. **Duplicate Execution Must Be Prevented (Idempotency)**:
+   - Repeated calls to approve or execute an already dispatched action plan must return the existing execution state without creating duplicate tasks or double-assigning staff.
+5. **Database is the Source of Truth**:
+   - WebSockets provide live notifications, but every screen must load its initial state from and resynchronize against the database / REST API.
+6. **WebSocket Events Represent Persisted State Changes**:
+   - Socket.IO events (`execution.started`, `task.dispatched`, `staff.status_changed`, `room.status_changed`, etc.) are only broadcast AFTER database/datastore updates succeed.
+7. **Failed Tasks Must Never Be Presented as Completed**:
+   - If an operational task fails or cannot be dispatched (e.g. missing staff or room), the system must flag `failed` or `partial` execution with clear visibility to managers.
+8. **Room / Staff / Task State Must Remain Consistent**:
+   - State cascading is bidirectional and verified: starting a cleaning task transitions room to `in_progress` and staff to `busy`; completing a task marks the room `clean`/`ready` and recalculates staff workload (`available` only when active task count reaches 0).
+9. **Execution Must Be Auditable**:
+   - All execution timeline events are permanently logged in `ai_action_plan_execution_events` and traceable backwards from Task -> Action Item -> Action Plan -> Manager Decision -> AI Consensus.
+10. **Frontend Must Not Fabricate Execution State**:
+    - Progress bars (`completed_tasks / total_tasks`), timeline logs, and status badges must be derived entirely from genuine backend execution records.
+
+---
+
+## 13. Fixed Demo Integrity & Deterministic Scenario Rules
+
+1. **Deterministic Single Story**:
+   - The primary judge-facing demonstration is fixed: VIP Early Arrival (Arjun Mehta, RES-VIP-401, expected 16:00, actual 14:00) with Room 401 AC Failure and alternative Room 205 (Deluxe).
+2. **Never Fake Final State**:
+   - Do not hardcode "Resolved" in UI components. Every state shift (`open` → `in_progress` → `resolved`, Room 401 `maintenance` → `ready`, staff `available` → `busy` → `available`) must be backed by genuine REST/WebSocket transitions.
+3. **Deterministic Reset Guarantee**:
+   - Running `npm run seed:demo` or triggering `POST /demo/reset` must restore the database and in-memory store to the exact initial scenario without requiring application restarts.
+4. **No Premature Feature Creep**:
+   - Focus exclusively on the end-to-end loop: Incident → Context → 4 Agents → Consensus → Manager Approval → Task Dispatch → Real-time Execution → Incident Resolution.
+
+---
+
+## 14. Failure Handling, Resilience & Demo Safety Rules
+
+1. **Never Show False Success**:
+   - State changes in the UI must represent confirmed backend transitions, not optimistic user intent. Never mark a task or incident as completed if the backend or database mutation failed.
+2. **Backend Confirmation Required Before State Changes**:
+   - Only update local UI and operational dashboards upon receiving a 2xx HTTP response or confirmed Socket.IO broadcast event.
+3. **Database is the Single Source of Truth**:
+   - Frontend and in-memory caches must resynchronize against authoritative database state on load, tab switch, and socket reconnect.
+4. **Strict AI Schema Validation**:
+   - Every AI response must pass AJV JSON schema validation before entering operational state. Invalid JSON or missing required fields must be rejected immediately.
+5. **Invalid AI Output Must Never Reach Execution**:
+   - If an AI model outputs unparseable text or violates schema contracts, the system must trigger deterministic fallback consensus or flag for manual manager review.
+6. **AI Failure Must Never Crash the Application**:
+   - Network timeouts, rate limits (429), or capacity spikes (503) must be caught by per-agent error boundaries and timeout guards (`Promise.race`), keeping the server and frontend running.
+7. **Retry Transient Failures Only**:
+   - Automatically retry transient network or capacity errors once or twice with exponential backoff. Never automatically retry validation errors (400), authentication failures (401/403), or not found errors (404).
+8. **Socket Reconnect Must Reconcile with Backend State**:
+   - When a client reconnects after network disconnection or server restart, it must immediately fetch fresh operational records via REST API to ensure no missed events leave the UI stale.
+9. **Distinguish EMPTY from ERROR**:
+   - Components must render clear, friendly empty states when zero records match a query, rather than throwing or displaying generic error banners.
+10. **Global React Error Boundaries**:
+    - Unexpected rendering exceptions in dashboard sections must be caught by an `ErrorBoundary`, rendering an isolated section error card with `[Try Again]` and `[Reload Page]` actions while keeping global navigation fully functional.
+
+
+
+

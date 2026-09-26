@@ -88,14 +88,19 @@ class ContextBuilderService {
     };
 
     // Helper: Map raw staff
-    const mapStaff = (s) => ({
-      id: s.id,
-      name: s.name,
-      department: s.department,
-      role: s.role || 'Staff Member',
-      status: s.status || 'on_duty',
-      current_task: s.current_task || 'Operational duty',
-    });
+    const mapStaff = (s) => {
+      let mappedStatus = s.status || 'on_duty';
+      if (mappedStatus === 'available') mappedStatus = 'on_duty';
+      if (!['on_duty', 'busy', 'off_duty'].includes(mappedStatus)) mappedStatus = 'on_duty';
+      return {
+        id: s.id,
+        name: s.name,
+        department: s.department,
+        role: s.role || 'Staff Member',
+        status: mappedStatus,
+        current_task: s.current_task || 'Operational duty',
+      };
+    };
 
     // Helper: Map raw incident
     const mapIncident = (i) => ({
@@ -137,26 +142,37 @@ class ContextBuilderService {
         }
       }
 
-      // Add suitable alternative suites (e.g. 505 or available suites)
-      const altRooms = allRooms.filter(
-        (r) => r.type.toLowerCase().includes('suite') && (!guest || r.id !== guest.room_id)
-      ).slice(0, 2);
-      altRooms.forEach((r) => {
+      // Prioritize Room 205 (Deluxe) as the primary alternative room
+      const alt205 = allRooms.find((r) => String(r.number) === '205');
+      if (alt205 && !selectedRooms.some((sr) => sr.id === alt205.id)) {
+        selectedRooms.push(mapRoom(alt205));
+      }
+
+      // Add any additional available Deluxe/Suite rooms if needed
+      const otherAltRooms = allRooms.filter(
+        (r) => (r.status === 'available' || r.type.toLowerCase().includes('deluxe')) &&
+               (!guest || r.id !== guest.room_id) &&
+               (!alt205 || r.id !== alt205.id)
+      ).slice(0, 1);
+      otherAltRooms.forEach((r) => {
         if (!selectedRooms.some((sr) => sr.id === r.id)) {
           selectedRooms.push(mapRoom(r));
         }
       });
 
-      // Relevant incidents
+      // Relevant incidents (Room 401 AC Failure)
       selectedIncidents = allIncidents
-        .filter((i) => (guest && i.guest_id === guest.id) || (guest && i.room_id === guest.room_id) || i.id === 'incident-001')
+        .filter((i) => (guest && i.guest_id === guest.id) || (guest && i.room_id === guest.room_id) || i.id === 'INC-401-AC' || i.id === 'incident-001')
         .map(mapIncident);
 
-      // Relevant staff: Front desk, Housekeeping, HVAC tech
-      selectedStaff = allStaff
-        .filter((s) => ['front_desk', 'housekeeping', 'maintenance', 'revenue'].includes(s.department) && s.status === 'on_duty')
-        .slice(0, 6)
-        .map(mapStaff);
+      // Relevant staff: Amit Shah (Front Desk), Priya Sharma (Housekeeping), Rohan Mehta (Maintenance HVAC)
+      const keyStaffIds = ['staff-001', 'staff-003', 'staff-005', 'staff-002'];
+      const keyStaffMembers = allStaff.filter((s) => keyStaffIds.includes(s.id));
+      const remainingStaff = allStaff.filter(
+        (s) => !keyStaffIds.includes(s.id) && ['front_desk', 'housekeeping', 'maintenance', 'revenue'].includes(s.department) && (s.status === 'on_duty' || s.status === 'available')
+      ).slice(0, 2);
+
+      selectedStaff = [...keyStaffMembers, ...remainingStaff].map(mapStaff);
 
       // Related tasks
       selectedTasks = allTasks

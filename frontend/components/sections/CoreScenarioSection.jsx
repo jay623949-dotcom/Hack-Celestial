@@ -60,15 +60,15 @@ export default function CoreScenarioSection() {
                 </div>
                 <div className="p-2.5 rounded-lg border border-border bg-surface">
                   <span className="text-muted-foreground block text-[10px]">ALTERNATIVE</span>
-                  <span className="text-foreground font-bold">Room 505 can be prepared</span>
+                  <span className="text-foreground font-bold">Room 205 (Deluxe) ready</span>
                 </div>
                 <div className="p-2.5 rounded-lg border border-border bg-surface">
                   <span className="text-muted-foreground block text-[10px]">STAFFING</span>
-                  <span className="text-amber-600 dark:text-amber-400 font-bold">Housekeeping capacity limited</span>
+                  <span className="text-amber-600 dark:text-amber-400 font-bold">Priya Sharma on Floor 2</span>
                 </div>
                 <div className="p-2.5 rounded-lg border border-border bg-surface">
                   <span className="text-muted-foreground block text-[10px]">REVENUE</span>
-                  <span className="text-foreground font-bold">Group booking arriving soon</span>
+                  <span className="text-foreground font-bold">82% property occupancy</span>
                 </div>
               </div>
             </div>
@@ -95,7 +95,7 @@ export default function CoreScenarioSection() {
               </div>
 
               <h4 className="text-xl sm:text-2xl font-extrabold text-foreground">
-                &ldquo;Move VIP → Room 505&rdquo;
+                &ldquo;Move VIP → Room 205&rdquo;
               </h4>
 
               {/* Rationale Checklist */}
@@ -124,7 +124,7 @@ export default function CoreScenarioSection() {
                   Duty Manager sign-off required for execution
                 </span>
                 <Link
-                  href="/sign-up"
+                  href="/sign-in"
                   className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs shadow-soft transition-all"
                 >
                   <span>Review Action Plan</span>

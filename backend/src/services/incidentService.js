@@ -24,6 +24,9 @@ class IncidentService {
   }
 
   getById(id) {
+    if (id === 'incident-001' || id === 'INC-401-AC') {
+      return dataStore.findById('incidents', 'INC-401-AC') || dataStore.findById('incidents', 'incident-001');
+    }
     return dataStore.findById('incidents', id);
   }
 
@@ -38,6 +41,7 @@ class IncidentService {
       department: data.department || 'general',
       room_id: data.room_id || null,
       guest_id: data.guest_id || null,
+      source: data.source || 'internal',
       reported_at: data.reported_at || new Date().toISOString(),
     };
     return dataStore.create('incidents', newIncident);

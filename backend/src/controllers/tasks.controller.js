@@ -2,6 +2,7 @@ const taskService = require('../services/taskService');
 const staffService = require('../services/staffService');
 const incidentService = require('../services/incidentService');
 const roomService = require('../services/roomService');
+const executionService = require('../services/execution.service');
 
 /**
  * Controller for Task resources
@@ -122,7 +123,7 @@ function createTask(req, res, next) {
   }
 }
 
-function updateTask(req, res, next) {
+async function updateTask(req, res, next) {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -167,6 +168,32 @@ function updateTask(req, res, next) {
       }
     }
 
+    // If status is being updated, run through executionService state engine
+    if (updates.status) {
+      try {
+        const result = await executionService.advanceTaskStatus(id, updates.status);
+        const otherUpdates = { ...updates };
+        delete otherUpdates.status;
+        let finalTask = result.task;
+        if (Object.keys(otherUpdates).length > 0) {
+          finalTask = taskService.update(id, otherUpdates);
+        }
+        return res.status(200).json({
+          success: true,
+          data: finalTask,
+          execution: result.execution,
+        });
+      } catch (statusErr) {
+        if (statusErr.code === 'INVALID_STATE_TRANSITION' || statusErr.code === 'INVALID_TASK_STATUS') {
+          return res.status(400).json({ success: false, error: { code: statusErr.code, message: statusErr.message } });
+        }
+        if (statusErr.code === 'TASK_NOT_FOUND') {
+          return res.status(404).json({ success: false, error: { code: statusErr.code, message: statusErr.message } });
+        }
+        throw statusErr;
+      }
+    }
+
     const updated = taskService.update(id, updates);
     if (!updated) {
       return res.status(404).json({
@@ -186,6 +213,7 @@ function updateTask(req, res, next) {
     next(error);
   }
 }
+
 
 module.exports = {
   getAllTasks,

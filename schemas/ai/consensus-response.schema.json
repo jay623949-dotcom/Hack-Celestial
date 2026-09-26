@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resort360.internal/schemas/ai/consensus-response.schema.json",
+  "title": "ConsensusResponse",
+  "description": "Multi-agent coordinated consensus and action recommendation synthesized by the consensus service.",
+  "type": "object",
+  "required": [
+    "consensus_id",
+    "context_id",
+    "schema_version",
+    "summary",
+    "agreements",
+    "conflicts",
+    "priority",
+    "recommendations",
+    "action_plan",
+    "requires_human_approval"
+  ],
+  "properties": {
+    "consensus_id": {
+      "type": "string",
+      "description": "Unique identifier for this consensus synthesis (e.g. 'cons-001')"
+    },
+    "context_id": {
+      "type": "string",
+      "description": "Canonical operational context ID that triggered this consensus evaluation"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Schema version (e.g. '1.0')"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Executive synthesis of the consensus across departmental agents"
+    },
+    "agreements": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Cross-departmental areas of alignment and shared priorities"
+    },
+    "conflicts": {
+      "type": "array",
+      "description": "Explicitly detected inter-departmental conflicts or resource contention",
+      "items": {
+        "type": "object",
+        "required": [
+          "conflict_id",
+          "type",
+          "description",
+          "agents",
+          "resolution"
+        ],
+        "properties": {
+          "conflict_id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": [
+              "resource_conflict",
+              "priority_conflict",
+              "timeline_conflict",
+              "inventory_conflict",
+              "policy_conflict"
+            ]
+          },
+          "description": { "type": "string" },
+          "agents": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Departments involved in the conflict"
+          },
+          "resolution": {
+            "type": "string",
+            "description": "Proposed operational compromise or resolution based on context constraints"
+          }
+        }
+      }
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Synthesized operational priority level"
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Prioritized consolidated recommendations",
+      "items": {
+        "type": "object",
+        "required": [
+          "recommendation_id",
+          "action",
+          "department",
+          "priority",
+          "reason"
+        ],
+        "properties": {
+          "recommendation_id": { "type": "string" },
+          "action": { "type": "string" },
+          "department": { "type": "string" },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "reason": { "type": "string" },
+          "affected_rooms": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "affected_guests": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "required_staff": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "estimated_duration_minutes": {
+            "type": ["integer", "null"]
+          }
+        }
+      }
+    },
+    "action_plan": {
+      "type": "object",
+      "description": "Structured operational action plan requiring human approval",
+      "required": [
+        "action_plan_id",
+        "summary",
+        "actions",
+        "requires_human_approval"
+      ],
+      "properties": {
+        "action_plan_id": { "type": "string" },
+        "summary": { "type": "string" },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "action_id",
+              "type",
+              "description",
+              "department",
+              "priority"
+            ],
+            "properties": {
+              "action_id": { "type": "string" },
+              "type": { "type": "string" },
+              "description": { "type": "string" },
+              "department": { "type": "string" },
+              "priority": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "critical"]
+              },
+              "assigned_to": { "type": ["string", "null"] },
+              "room_id": { "type": ["string", "null"] },
+              "guest_id": { "type": ["string", "null"] },
+              "estimated_duration_minutes": { "type": ["integer", "null"] }
+            }
+          }
+        },
+        "affected_guests": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "affected_rooms": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "risks": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "requires_human_approval": {
+          "type": "boolean",
+          "const": true
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending_approval", "approved", "modified", "rejected"],
+          "default": "pending_approval"
+        }
+      }
+    },
+    "requires_human_approval": {
+      "type": "boolean",
+      "const": true,
+      "description": "Safety lock indicating this proposal requires human review and authorization"
+    },
+    "agent_status": {
+      "type": "object",
+      "description": "Operational availability status for each evaluated agent",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["available", "unavailable", "failed"]
+      }
+    }
+  }
+}

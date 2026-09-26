@@ -32,24 +32,24 @@ export default function AttentionPanel() {
   ];
 
   return (
-    <div className="p-6 rounded-3xl border border-border bg-surface shadow-soft">
-      <div className="flex items-center gap-2 pb-5 mb-5 border-b border-border/70">
+    <div className="rounded-xl border border-border bg-surface shadow-soft p-4">
+      <div className="flex items-center gap-2 pb-3 mb-3 border-b border-border">
         <AlertCircle className="w-4 h-4 text-primary" />
-        <h2 className="text-base font-bold text-foreground tracking-tight">
-          Operational Pressure
+        <h2 className="text-sm font-bold text-foreground tracking-tight">
+          Operational Watchlist
         </h2>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {pressureItems.map((item, idx) => {
           const Icon = item.icon;
           return (
             <div
               key={idx}
-              className="p-4 rounded-2xl border border-border bg-surface-secondary/40 space-y-1.5"
+              className="p-3 rounded-lg border border-border bg-surface-secondary/40 space-y-1"
             >
               <div className="flex items-center justify-between">
-                <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${item.levelBg}`}>
+                <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${item.levelBg}`}>
                   {item.level}
                 </span>
                 <span className="text-[10px] font-mono text-muted-foreground">
@@ -57,8 +57,8 @@ export default function AttentionPanel() {
                 </span>
               </div>
 
-              <div className="text-xs font-bold text-foreground flex items-center gap-1.5 pt-1">
-                <Icon className="w-3.5 h-3.5 text-primary shrink-0" />
+              <div className="text-xs font-semibold text-foreground flex items-center gap-1.5 pt-0.5">
+                <Icon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                 <span>{item.title}</span>
               </div>
 
@@ -70,26 +70,25 @@ export default function AttentionPanel() {
         })}
       </div>
 
-      {/* AI Swarm Entrypoint */}
-      <div className="mt-5 pt-4 border-t border-border/70">
-        <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/20 space-y-2">
+      {/* Operational Intelligence Link */}
+      <div className="mt-4 pt-3 border-t border-border">
+        <div className="p-3 rounded-lg bg-surface-secondary/60 border border-border space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              AI Operations Panel
+            <span className="text-xs font-semibold text-foreground">
+              Operational Intelligence
             </span>
-            <span className="text-[10px] font-mono text-primary font-semibold">
-              4 Agents Ready
+            <span className="text-[10px] font-mono text-primary font-bold">
+              4 Agents
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Multi-departmental reasoning engine ready to evaluate operational friction across Front Desk, Housekeeping, Maintenance, and Revenue.
+            Multi-departmental reasoning across Front Desk, Housekeeping, Maintenance, and Revenue.
           </p>
           <a
             href="/dashboard/agents"
-            className="inline-flex items-center justify-center w-full py-2 px-3 rounded-xl bg-primary text-primary-foreground font-semibold text-xs hover:opacity-90 transition-opacity gap-1.5"
+            className="inline-flex items-center justify-center w-full py-2 px-3 rounded-lg bg-primary hover:bg-teal-700 text-white font-semibold text-xs transition-colors gap-1.5"
           >
-            <span>Open Agent Swarm</span>
+            <span>Open Departmental Agents</span>
             <span>→</span>
           </a>
         </div>

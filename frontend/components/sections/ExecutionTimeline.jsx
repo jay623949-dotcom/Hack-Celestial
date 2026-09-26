@@ -6,34 +6,34 @@ import { CheckCircle2, Radio } from 'lucide-react';
 export default function ExecutionTimeline() {
   const events = [
     {
-      time: '10:42',
+      time: '14:02',
       title: 'Housekeeping assigned',
-      desc: 'Housekeeping supervisor receives express turn-around task; 2 attendants routed to Suite 505.',
+      desc: 'Housekeeping supervisor receives express turn-around task; Priya Sharma routed to Room 205.',
     },
     {
-      time: '10:43',
-      title: 'Room 505 preparation started',
-      desc: 'Express cleaning protocol initiated with high-touch inspection priority.',
+      time: '14:03',
+      title: 'Room 205 preparation started',
+      desc: 'Express cleaning protocol initiated with high-touch VIP inspection priority.',
     },
     {
-      time: '10:44',
+      time: '14:04',
       title: 'Maintenance technician assigned',
-      desc: 'Technician dispatched to Room 401 with replacement HVAC capacitor.',
+      desc: 'Technician Rohan Mehta dispatched to Room 401 with replacement HVAC capacitor.',
     },
     {
-      time: '10:45',
+      time: '14:05',
       title: 'Front Desk updated',
-      desc: 'Guest profile tagged; VIP Alexander Vance escorted to Executive Lounge with hospitality voucher.',
+      desc: 'Guest profile tagged; VIP Arjun Mehta escorted by Amit Shah to Club Lounge with hospitality voucher.',
     },
     {
-      time: '10:46',
-      title: 'Guest notification triggered',
-      desc: 'Automated greeting message delivered to guest device with digital key & lounge access pass.',
+      time: '14:07',
+      title: 'Room 205 ready',
+      desc: 'Room 205 passes supervisor inspection checklist; digital key released to guest.',
     },
     {
-      time: '10:48',
-      title: 'Room ready',
-      desc: 'Suite 505 passes express supervisor checklist; room keys released to guest seamlessly.',
+      time: '14:10',
+      title: 'Incident resolved',
+      desc: 'Room 401 HVAC compressor repair verified; incident INC-401-AC marked resolved.',
     },
   ];
 
