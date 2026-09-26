@@ -101,6 +101,16 @@ export async function getRooms(params = {}) {
 }
 
 /**
+ * Update room operational status, condition, or notes
+ */
+export async function updateRoom(id, updates) {
+  return fetchFromApi(`/rooms/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
  * Open incidents
  */
 export async function getIncidents(params = {}) {

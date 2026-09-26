@@ -11,7 +11,7 @@ import {
   Activity,
   Layers,
   CheckCircle2,
-  DollarSign,
+  IndianRupee,
   TrendingDown,
   Lock,
   Tag,
@@ -155,19 +155,19 @@ export default function AutonomousOverview({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl border border-border bg-surface shadow-sm">
           <div className="text-[10px] font-mono text-muted-foreground uppercase">Base RevPAR</div>
-          <div className="text-xl font-bold text-foreground mt-1">${kpis.baseRevPAR.toFixed(2)}</div>
+          <div className="text-xl font-bold text-foreground mt-1">₹{Math.round(kpis.baseRevPAR * 80).toLocaleString('en-IN')}</div>
           <div className="text-[10px] text-muted-foreground font-mono mt-1">Target baseline yield</div>
         </div>
 
         <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 shadow-sm">
           <div className="text-[10px] font-mono text-emerald-500 uppercase font-bold">Current Net RevPAR</div>
-          <div className="text-xl font-bold text-emerald-500 mt-1">${kpis.currentNetRevPAR.toFixed(2)}</div>
+          <div className="text-xl font-bold text-emerald-500 mt-1">₹{Math.round(kpis.currentNetRevPAR * 80).toLocaleString('en-IN')}</div>
           <div className="text-[10px] text-emerald-600 font-mono mt-1 font-semibold">Live margin yield</div>
         </div>
 
         <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/5 shadow-sm">
           <div className="text-[10px] font-mono text-rose-500 uppercase font-bold">Active Cost Impact</div>
-          <div className="text-xl font-bold text-rose-500 mt-1">-${kpis.costDeduction.toLocaleString()}</div>
+          <div className="text-xl font-bold text-rose-500 mt-1">-₹{Math.round(kpis.costDeduction * 80).toLocaleString('en-IN')}</div>
           <div className="text-[10px] text-rose-600 font-mono mt-1">Auto-deducted from Net RevPAR</div>
         </div>
 

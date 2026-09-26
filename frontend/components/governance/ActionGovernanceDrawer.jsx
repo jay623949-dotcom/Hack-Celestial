@@ -226,7 +226,7 @@ export default function ActionGovernanceDrawer({
                         Require Dual-Manager Signature
                       </span>
                       <span className="text-[11px] text-muted-foreground block">
-                        Enforce secondary sign-off for financial comps exceeding $200
+                        Enforce secondary sign-off for financial comps exceeding ₹15,000
                       </span>
                     </div>
 

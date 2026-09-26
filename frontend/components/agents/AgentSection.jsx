@@ -55,7 +55,7 @@ export default function AgentSection() {
         'Inventory displacement calculations',
         'Cost of upgrade vs compensation',
       ],
-      preview: 'Suite 505 is unreserved until tomorrow afternoon. $0 revenue cannibalization. Protects floor 4 wedding block.',
+      preview: 'Suite 505 is unreserved until tomorrow afternoon. ₹0 revenue cannibalization. Protects floor 4 wedding block.',
     },
   ];
 

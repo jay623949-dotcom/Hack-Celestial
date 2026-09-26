@@ -2,9 +2,16 @@
 
 import React, { useState } from 'react';
 import RoomMapVisualizer from './RoomMapVisualizer';
-import { BedDouble, CheckCircle2, Wrench, ShieldAlert, Sparkles, LayoutGrid, Table } from 'lucide-react';
+import { BedDouble, CheckCircle2, Wrench, ShieldAlert, Sparkles, LayoutGrid, Table, Edit3 } from 'lucide-react';
 
-export default function RoomOverview({ rooms = [], summary = {}, onFilterChange = () => {}, activeFilter = 'all', loading = false }) {
+export default function RoomOverview({
+  rooms = [],
+  summary = {},
+  onFilterChange = () => {},
+  activeFilter = 'all',
+  loading = false,
+  onEditRoom,
+}) {
   const [viewMode, setViewMode] = useState('visual'); // 'visual' or 'table'
 
   const filters = [
@@ -37,8 +44,8 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
         };
       case 'reserved':
         return {
-          bg: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-          dot: 'bg-amber-500',
+          bg: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+          dot: 'bg-blue-500',
           label: 'RESERVED',
         };
       case 'dirty':
@@ -68,7 +75,7 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
             </h2>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Operational status across resort floors, VIP suites, and maintenance nodes
+            Operational status across resort floors, VIP suites, and maintenance nodes • Click any room to edit condition
           </p>
         </div>
 
@@ -79,7 +86,7 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
               onClick={() => setViewMode('visual')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${
                 viewMode === 'visual'
-                  ? 'bg-odoo-teal text-white shadow-sm font-semibold'
+                  ? 'bg-odoo-purple text-white shadow-sm font-semibold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -90,7 +97,7 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
               onClick={() => setViewMode('table')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${
                 viewMode === 'table'
-                  ? 'bg-odoo-teal text-white shadow-sm font-semibold'
+                  ? 'bg-odoo-purple text-white shadow-sm font-semibold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -104,7 +111,7 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
       {/* Render Visual Map vs Table */}
       {viewMode === 'visual' ? (
         <div className="p-4 sm:p-6 bg-background">
-          <RoomMapVisualizer rooms={rooms} />
+          <RoomMapVisualizer rooms={rooms} onEditRoom={onEditRoom} />
         </div>
       ) : (
         <div>
@@ -145,13 +152,16 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
                     <th className="py-3 px-4 font-semibold">Category</th>
                     <th className="py-3 px-4 font-semibold">Floor</th>
                     <th className="py-3 px-4 font-semibold">Status</th>
-                    <th className="py-3 px-4 font-semibold">Housekeeping</th>
+                    <th className="py-3 px-4 font-semibold">Housekeeping Condition</th>
                     <th className="py-3 px-4 font-semibold">Operational Notes</th>
+                    <th className="py-3 px-4 font-semibold text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {rooms.map((room) => {
                     const badge = getStatusBadge(room.status);
+                    const isOccupied = room.status === 'occupied';
+
                     return (
                       <tr key={room.id} className="hover:bg-surface-secondary/40 transition-colors">
                         <td className="py-3 px-4 font-mono font-bold text-foreground">
@@ -170,25 +180,42 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
                           </span>
                         </td>
                         <td className="py-3 px-4 font-mono text-[11px] capitalize text-muted-foreground">
-                          {room.housekeeping_status || (room.status === 'dirty' ? 'dirty' : 'clean')}
+                          {room.housekeeping_status || room.housekeeping || (room.status === 'dirty' ? 'dirty' : 'clean')}
                         </td>
                         <td className="py-3 px-4 font-mono text-[11px] text-muted-foreground">
                           {room.status === 'maintenance' && (
                             <span className="text-rose-700 font-semibold flex items-center gap-1">
-                              <Wrench className="w-3.5 h-3.5 text-rose-500" /> HVAC compressor fault
+                              <Wrench className="w-3.5 h-3.5 text-rose-500" /> {room.issue || 'HVAC compressor fault'}
                             </span>
                           )}
                           {room.number === '505' && (
-                            <span className="text-odoo-teal font-semibold flex items-center gap-1">
-                              <Sparkles className="w-3.5 h-3.5 text-odoo-teal" /> Alternate VIP Candidate
+                            <span className="text-odoo-purple font-semibold flex items-center gap-1">
+                              <Sparkles className="w-3.5 h-3.5 text-odoo-purple" /> Alternate VIP Candidate
                             </span>
                           )}
                           {room.status === 'available' && !['505'].includes(room.number) && (
                             <span className="text-emerald-700">Inspected &amp; Ready</span>
                           )}
-                          {room.status === 'occupied' && (
-                            <span className="text-gray-600">Guest in residence</span>
+                          {isOccupied && (
+                            <span className="text-amber-700 font-semibold">
+                              {room.guest && room.guest !== 'Vacant' ? `Occupied: ${room.guest}` : 'Occupied (Guest in residence)'}
+                            </span>
                           )}
+                          {room.status === 'reserved' && (
+                            <span className="text-blue-700 font-semibold">Reserved Block</span>
+                          )}
+                          {room.status === 'dirty' && (
+                            <span className="text-orange-700 font-semibold">Turndown Required</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            onClick={() => onEditRoom && onEditRoom(room)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-border bg-white hover:bg-odoo-purple/10 hover:border-odoo-purple/30 text-odoo-purple font-semibold text-[11px] transition-colors"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                            <span>Edit Condition</span>
+                          </button>
                         </td>
                       </tr>
                     );
@@ -202,4 +229,3 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
     </div>
   );
 }
-

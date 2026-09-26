@@ -119,7 +119,7 @@ class FrontDeskService {
     const actionMap = {
       complimentary_upgrade: `Complimentary room upgrade offered to ${guest.name}. Sentiment reset to Neutral.`,
       spa_voucher: `Complimentary spa voucher issued to ${guest.name}.`,
-      room_credit: `$50 room credit applied to ${guest.name}'s account.`,
+      room_credit: `₹4,000 room credit applied to ${guest.name}'s account.`,
       manager_callback: `Duty manager callback scheduled for ${guest.name} within 15 mins.`,
     };
 

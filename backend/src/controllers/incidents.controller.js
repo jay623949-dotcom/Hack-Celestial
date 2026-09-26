@@ -77,8 +77,13 @@ function createIncident(req, res, next) {
     if (room_id) {
       const room = roomService.getById(room_id);
       if (!room) {
-        // Automatically register mock room if needed to ensure seamless integration
-        roomService.create({ id: room_id, number: room_number || room_id.replace('room-', ''), type: 'Standard' });
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'RELATIONSHIP_VALIDATION_ERROR',
+            message: `Associated room with ID '${room_id}' does not exist.`,
+          },
+        });
       }
     }
 

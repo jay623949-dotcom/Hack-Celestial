@@ -14,4 +14,7 @@ router.post('/', roomsController.createRoom);
 // PATCH /api/v1/rooms/:id
 router.patch('/:id', roomsController.updateRoom);
 
+// PUT /api/v1/rooms/:id
+router.put('/:id', roomsController.updateRoom);
+
 module.exports = router;

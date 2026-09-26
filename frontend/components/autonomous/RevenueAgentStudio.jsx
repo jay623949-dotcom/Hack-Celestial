@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { smartResortApi } from '../../lib/api';
 import {
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   Percent,
   Clock,
   Sparkles,
@@ -29,7 +29,7 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
 
   // Flash sale state
   const [flashAsset, setFlashAsset] = useState('Sunset Spa & Cabana Bundle');
-  const [flashPrice, setFlashPrice] = useState(79);
+  const [flashPrice, setFlashPrice] = useState(6500);
   const [flashExpiry, setFlashExpiry] = useState(45);
   const [flashResult, setFlashResult] = useState(null);
   const [flashLoading, setFlashLoading] = useState(false);
@@ -121,7 +121,7 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
         <div className="p-4 rounded-xl border border-border bg-surface shadow-sm">
           <div className="text-[10px] font-mono text-muted-foreground uppercase">Gross RevPAR</div>
           <div className="text-xl sm:text-2xl font-bold text-foreground mt-1">
-            ${netRevPar?.gross_revpar || 385.0}
+            ₹{netRevPar?.gross_revpar ? Math.round(netRevPar.gross_revpar * 80).toLocaleString('en-IN') : '30,800'}
           </div>
           <div className="text-[10px] text-muted-foreground font-mono mt-1">
             Before maintenance deductions
@@ -131,7 +131,7 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
         <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 shadow-sm">
           <div className="text-[10px] font-mono text-emerald-500 uppercase font-bold">Current Net RevPAR</div>
           <div className="text-xl sm:text-2xl font-bold text-emerald-500 mt-1">
-            ${netRevPar?.net_revpar || 368.5}
+            ₹{netRevPar?.net_revpar ? Math.round(netRevPar.net_revpar * 80).toLocaleString('en-IN') : '29,480'}
           </div>
           <div className="text-[10px] text-emerald-600 font-mono mt-1 font-semibold">
             True operating margin yield
@@ -141,7 +141,7 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
         <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-500/5 shadow-sm">
           <div className="text-[10px] font-mono text-rose-500 uppercase font-bold">Active Cost Deductions</div>
           <div className="text-xl sm:text-2xl font-bold text-rose-500 mt-1">
-            -${netRevPar?.total_active_cost_incidents || 1850}
+            -₹{netRevPar?.total_active_cost_incidents ? Math.round(netRevPar.total_active_cost_incidents * 80).toLocaleString('en-IN') : '1,48,000'}
           </div>
           <div className="text-[10px] text-rose-600 font-mono mt-1">
             Auto-deducted from Net RevPAR
@@ -187,10 +187,10 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full mt-1 p-2 rounded-lg border border-border bg-surface-secondary text-foreground text-xs"
               >
-                <option value="standard">Standard ($149)</option>
-                <option value="deluxe">Deluxe ($219)</option>
-                <option value="suite">Suite ($349)</option>
-                <option value="villa">Villa ($599)</option>
+                <option value="standard">Standard (₹12,500)</option>
+                <option value="deluxe">Deluxe (₹18,200)</option>
+                <option value="suite">Suite (₹29,000)</option>
+                <option value="villa">Villa (₹49,800)</option>
               </select>
             </div>
 
@@ -228,7 +228,7 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
             disabled={pricingLoading}
             className="w-full py-2 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {pricingLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <DollarSign className="w-3.5 h-3.5" />}
+            {pricingLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <IndianRupee className="w-3.5 h-3.5" />}
             <span>Recalculate Rate with Guardrails</span>
           </button>
 
@@ -237,7 +237,7 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
               <div className="flex items-center justify-between font-bold">
                 <span className="text-foreground capitalize">{pricingResult.room_category} Rate</span>
                 <span className="text-emerald-500 font-mono">
-                  ${pricingResult.old_rate} → ${pricingResult.new_rate}/night ({pricingResult.change_pct > 0 ? `+${pricingResult.change_pct}` : pricingResult.change_pct}%)
+                  ₹{pricingResult.old_rate} → ₹{pricingResult.new_rate}/night ({pricingResult.change_pct > 0 ? `+${pricingResult.change_pct}` : pricingResult.change_pct}%)
                 </span>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono">
@@ -277,7 +277,7 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
             </div>
 
             <div>
-              <label className="text-[10px] font-mono text-muted-foreground uppercase">Price ($)</label>
+              <label className="text-[10px] font-mono text-muted-foreground uppercase">Price (₹)</label>
               <input
                 type="number"
                 value={flashPrice}

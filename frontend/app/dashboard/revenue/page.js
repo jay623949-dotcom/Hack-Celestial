@@ -9,7 +9,7 @@ import { getOperationsSummary, getRooms, getGuests } from '../../../lib/api';
 import { getSocket } from '../../../lib/socket';
 import {
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   Percent,
   BedDouble,
   RefreshCw,
@@ -78,7 +78,7 @@ export default function RevenuePage() {
   const totalRooms = summary?.rooms?.total || rooms.length || 45;
   const occupiedRooms = summary?.rooms?.occupied || rooms.filter((r) => r.status === 'occupied').length || 37;
   const occupancyPct = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 82;
-  const adrValue = 420; // Average Daily Rate ($)
+  const adrValue = 18500; // Average Daily Rate in INR (₹)
   const estDailyRevenue = occupiedRooms * adrValue;
 
   return (
@@ -128,14 +128,14 @@ export default function RevenuePage() {
         />
         <StatCard
           title="AVERAGE DAILY RATE (ADR)"
-          value={`$${adrValue}`}
-          subtext="Target yield: $410"
-          icon={DollarSign}
+          value={`₹${adrValue.toLocaleString('en-IN')}`}
+          subtext="Target yield: ₹22,000"
+          icon={IndianRupee}
           loading={loading}
         />
         <StatCard
           title="EST. DAILY ROOM REVENUE"
-          value={`$${estDailyRevenue.toLocaleString()}`}
+          value={`₹${estDailyRevenue.toLocaleString('en-IN')}`}
           subtext="Based on active in-house stays"
           icon={TrendingUp}
           loading={loading}

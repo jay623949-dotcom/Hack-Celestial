@@ -146,7 +146,7 @@ export default function LiveIncidentSection() {
                     <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">100% Match</span>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Suite 505 is unreserved until tomorrow afternoon. $0 revenue cannibalization. Preserves 2:00 PM wedding party block on floor 4.
+                    Suite 505 is unreserved until tomorrow afternoon. ₹0 revenue cannibalization. Preserves 2:00 PM wedding party block on floor 4.
                   </p>
                 </div>
               </div>

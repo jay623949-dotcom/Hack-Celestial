@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { DollarSign, TrendingUp, BarChart3, PieChart, ShieldCheck } from 'lucide-react';
+import { IndianRupee, TrendingUp, BarChart3, PieChart, ShieldCheck } from 'lucide-react';
 
 export default function RevenueOverview({ summary = {}, rooms = [], guests = [] }) {
   const totalRooms = summary.total || rooms.length || 45;
@@ -9,7 +9,7 @@ export default function RevenueOverview({ summary = {}, rooms = [], guests = [] 
   const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 71;
 
   // Realistically calculated resort metrics
-  const adr = 18500; // Average Daily Rate in INR (approx $220)
+  const adr = 18500; // Average Daily Rate in INR (₹)
   const estRevPAR = Math.round(adr * (occupancyRate / 100));
   const dailyRoomRevenue = occupiedRooms * adr;
 
@@ -27,7 +27,7 @@ export default function RevenueOverview({ summary = {}, rooms = [], guests = [] 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-border gap-2">
         <div>
           <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-teal-700" />
+            <IndianRupee className="w-4 h-4 text-odoo-purple" />
             <h2 className="text-sm font-bold text-foreground tracking-tight">
               Revenue & Inventory Yield Management
             </h2>

@@ -263,7 +263,7 @@ export default function FrontDeskAgentStudio({ onActionSuccess = () => {} }) {
                       onClick={() => handleApplyServiceRecovery('room_credit')}
                       className="p-2.5 rounded-lg border border-border bg-surface hover:bg-surface-secondary text-xs font-medium text-foreground text-left transition-colors"
                     >
-                      💳 $50 Food & Beverage Credit
+                      💳 ₹4,000 Food & Beverage Credit
                     </button>
                     <button
                       onClick={() => handleApplyServiceRecovery('manager_callback')}

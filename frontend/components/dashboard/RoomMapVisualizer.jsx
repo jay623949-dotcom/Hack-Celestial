@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import {
   BedDouble, CheckCircle2, Wrench, AlertTriangle, UserCheck,
-  Sparkles, Filter, ShieldAlert, ChevronRight, Info
+  Sparkles, Filter, ShieldAlert, ChevronRight, Info, Edit3
 } from 'lucide-react';
 
 const DEFAULT_FLOORPLAN_ROOMS = [
@@ -33,7 +33,7 @@ const DEFAULT_FLOORPLAN_ROOMS = [
   { id: 'r203', number: '203', floor: 2, type: 'Deluxe Room', status: 'available', housekeeping: 'clean', guest: 'Vacant', vip: 'None', staff: 'Ana P.' },
 ];
 
-export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
+export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS, onEditRoom }) {
   const [selectedFloor, setSelectedFloor] = useState('all');
   const [activeFilter, setActiveFilter] = useState('all');
   const [hoveredRoom, setHoveredRoom] = useState(null);
@@ -83,7 +83,7 @@ export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
               </h2>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Interactive node map with real-time operational status dots &amp; guest cards
+              Interactive node map with real-time operational status dots • Click any room to edit condition
             </p>
           </div>
 
@@ -168,32 +168,51 @@ export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
                       const isHovered = hoveredRoom?.id === room.id;
                       const dotClass = getStatusDotColor(room);
 
+                      // Robust occupancy resolution: NEVER display "Vacant / Ready" if status === 'occupied'
+                      const isOccupied = room.status === 'occupied';
+                      const isReserved = room.status === 'reserved';
+                      const isMaintenance = room.status === 'maintenance';
+                      const isDirty = room.status === 'dirty' || room.housekeeping === 'dirty';
+
+                      const headlineGuest = isOccupied
+                        ? (room.guest && room.guest !== 'Vacant' && room.guest !== 'Available for VIP Swap' ? room.guest : 'Occupied (Guest in residence)')
+                        : isReserved
+                        ? (room.guest && room.guest !== 'Vacant' ? room.guest : 'Reserved Block')
+                        : isMaintenance
+                        ? 'Under Maintenance'
+                        : isDirty
+                        ? (room.guest && room.guest !== 'Vacant' ? room.guest : 'Dirty (Turndown Required)')
+                        : (room.guest || 'Vacant / Ready');
+
                       return (
                         <div
                           key={room.id}
                           onMouseEnter={() => setHoveredRoom(room)}
                           onMouseLeave={() => setHoveredRoom(null)}
-                          className="relative group"
+                          onClick={() => onEditRoom && onEditRoom(room)}
+                          className="relative group cursor-pointer"
                         >
                           {/* Visual Node Card */}
                           <div
-                            className={`bg-white rounded-2xl p-4 border border-gray-200 shadow-sm transition-all duration-200 cursor-pointer flex flex-col justify-between h-28 relative ${
+                            className={`bg-white rounded-2xl p-4 border border-gray-200 shadow-sm transition-all duration-200 flex flex-col justify-between h-28 relative ${
                               isHovered
-                                ? 'shadow-odoo-hover border-odoo-purple/40 -translate-y-1'
-                                : 'hover:border-gray-300'
+                                ? 'shadow-odoo-hover border-odoo-purple/50 -translate-y-1 ring-2 ring-odoo-purple/10'
+                                : 'hover:border-odoo-purple/30'
                             }`}
                           >
                             {/* Top Row: Room Number & Status Dot */}
                             <div className="flex items-center justify-between">
-                              <span className="text-lg font-mono font-bold text-foreground">
+                              <span className="text-lg font-mono font-bold text-foreground group-hover:text-odoo-purple transition-colors">
                                 #{room.number}
                               </span>
 
                               {/* Single Small Bright Status Dot */}
-                              <span
-                                className={`w-3 h-3 rounded-full transition-transform duration-200 group-hover:scale-125 ${dotClass}`}
-                                title={getStatusLabel(room)}
-                              />
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className={`w-3 h-3 rounded-full transition-transform duration-200 group-hover:scale-125 ${dotClass}`}
+                                  title={getStatusLabel(room)}
+                                />
+                              </div>
                             </div>
 
                             {/* Middle Row: Room Category */}
@@ -201,7 +220,7 @@ export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
                               {room.type}
                             </div>
 
-                            {/* Bottom Row: Micro Status Label */}
+                            {/* Bottom Row: Micro Status Label & Edit prompt */}
                             <div className="flex items-center justify-between text-[11px] mt-2 pt-2 border-t border-gray-100">
                               <span className="text-gray-500 font-mono text-[10px] truncate">
                                 {room.issue ? (
@@ -209,16 +228,23 @@ export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
                                     <Wrench className="w-3 h-3 inline" /> Fault
                                   </span>
                                 ) : room.number === '505' ? (
-                                  <span className="text-odoo-teal font-bold flex items-center gap-1">
+                                  <span className="text-odoo-purple font-bold flex items-center gap-1">
                                     <Sparkles className="w-3 h-3 inline" /> VIP Swap
                                   </span>
+                                ) : isOccupied ? (
+                                  <span className="text-amber-700 font-bold">Occupied</span>
+                                ) : isMaintenance ? (
+                                  <span className="text-rose-700 font-bold">Maintenance</span>
+                                ) : isReserved ? (
+                                  <span className="text-blue-700 font-bold">Reserved</span>
                                 ) : (
                                   room.housekeeping || 'Ready'
                                 )}
                               </span>
 
-                              <span className="text-[10px] font-accent text-odoo-purple font-semibold">
-                                {room.vip !== 'None' ? room.vip : 'Details →'}
+                              <span className="text-[10px] font-accent text-odoo-purple font-bold group-hover:underline flex items-center gap-0.5">
+                                <Edit3 className="w-2.5 h-2.5 inline" />
+                                <span>Edit</span>
                               </span>
                             </div>
 
@@ -233,10 +259,10 @@ export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
                                   <div className="flex items-start justify-between border-b border-gray-100 pb-2">
                                     <div>
                                       <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                                        Guest In Residence
+                                        {isOccupied ? 'Occupied Status' : 'Guest / Operational State'}
                                       </div>
                                       <div className="font-accent text-lg font-bold text-odoo-purple leading-tight">
-                                        {room.guest || 'Vacant / Ready'}
+                                        {headlineGuest}
                                       </div>
                                     </div>
                                     <span
@@ -248,10 +274,10 @@ export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
                                   <div className="grid grid-cols-2 gap-2 text-xs pt-1">
                                     <div>
                                       <span className="text-[10px] text-muted-foreground block">
-                                        Status:
+                                        Operational State:
                                       </span>
                                       <span className="font-semibold text-gray-800 capitalize">
-                                        {room.status}
+                                        {isOccupied ? 'Occupied' : room.status}
                                       </span>
                                     </div>
 
@@ -259,17 +285,17 @@ export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
                                       <span className="text-[10px] text-muted-foreground block">
                                         VIP Tier:
                                       </span>
-                                      <span className="font-semibold text-odoo-teal">
+                                      <span className="font-semibold text-odoo-purple">
                                         {room.vip || 'Standard'}
                                       </span>
                                     </div>
 
                                     <div>
                                       <span className="text-[10px] text-muted-foreground block">
-                                        Housekeeping:
+                                        Condition:
                                       </span>
                                       <span className="font-semibold text-gray-800 capitalize">
-                                        {room.housekeeping || 'Inspected'}
+                                        {room.housekeeping || room.housekeeping_status || (isDirty ? 'Dirty' : 'Clean')}
                                       </span>
                                     </div>
 
@@ -290,6 +316,11 @@ export default function RoomMapVisualizer({ rooms = DEFAULT_FLOORPLAN_ROOMS }) {
                                       <span>{room.issue || room.note}</span>
                                     </div>
                                   )}
+
+                                  <div className="pt-1.5 border-t border-gray-100 text-[10px] text-odoo-purple font-mono font-medium flex items-center justify-between">
+                                    <span>Click node to edit condition</span>
+                                    <span>✎</span>
+                                  </div>
                                 </div>
                               </div>
                             )}

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import DashboardShell from '../../../components/dashboard/DashboardShell';
 import RoomOverview from '../../../components/dashboard/RoomOverview';
+import EditRoomModal from '../../../components/dashboard/EditRoomModal';
 import StatCard from '../../../components/dashboard/StatCard';
 import { getRooms, getOperationsSummary } from '../../../lib/api';
 import { getSocket } from '../../../lib/socket';
@@ -24,6 +25,7 @@ export default function RoomsPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingRoom, setEditingRoom] = useState(null);
 
   const fetchRoomsData = useCallback(async (filter = activeFilter) => {
     try {
@@ -79,6 +81,14 @@ export default function RoomsPage() {
     fetchRoomsData(newFilter);
   };
 
+  const handleRoomSaved = (updatedRoom) => {
+    setRooms((prev) =>
+      prev.map((r) => (r.id === updatedRoom.id || r.number === updatedRoom.number ? { ...r, ...updatedRoom } : r))
+    );
+    // Refresh to ensure full synchronization
+    fetchRoomsData(activeFilter);
+  };
+
   const totalCount = summary?.total ?? rooms.length;
   const availableCount = summary?.available ?? rooms.filter((r) => r.status === 'available').length;
   const occupiedCount = summary?.occupied ?? rooms.filter((r) => r.status === 'occupied').length;
@@ -102,7 +112,7 @@ export default function RoomsPage() {
             <span>Room Inventory &amp; Floor Plan</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Complete physical inventory, live floor plan status, housekeeping cleanliness, and maintenance nodes
+            Complete physical inventory, live floor plan status, housekeeping cleanliness, and maintenance nodes • Click any room to edit condition
           </p>
         </div>
 
@@ -166,6 +176,15 @@ export default function RoomsPage() {
         onFilterChange={handleFilterChange}
         activeFilter={activeFilter}
         loading={loading}
+        onEditRoom={(room) => setEditingRoom(room)}
+      />
+
+      {/* Edit Room Condition Modal */}
+      <EditRoomModal
+        isOpen={!!editingRoom}
+        room={editingRoom}
+        onClose={() => setEditingRoom(null)}
+        onSaved={handleRoomSaved}
       />
     </DashboardShell>
   );

@@ -73,7 +73,7 @@ const INITIAL_AGENT_MESSAGES = [
     avatarBg: 'bg-purple-100 text-odoo-purple border-purple-200',
     time: '10:42 AM',
     confidence: '96%',
-    message: 'Floor 4 rooms reserved for 2:00 PM wedding group block. Reassigning Vance to Room 505 protects $4,200 ADR group revenue.',
+    message: 'Floor 4 rooms reserved for 2:00 PM wedding group block. Reassigning Vance to Room 505 protects ₹3,50,000 ADR group revenue.',
     accentNote: 'Zero yield loss; group block preserved',
     department: 'revenue',
   },
