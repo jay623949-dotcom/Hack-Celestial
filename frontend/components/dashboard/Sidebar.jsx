@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Radio, BedDouble, Users, UserCheck, AlertTriangle,
   CheckSquare, Bot, Sparkles, Layers, MapPin, X, TrendingUp, Wrench,
-  ClipboardList, CalendarCheck, Zap
+  ClipboardList, CalendarCheck, Zap, CloudSun
 } from 'lucide-react';
 import { useRole } from '../../lib/roleContext';
 
@@ -25,6 +25,7 @@ const NAV_CONFIG = {
       ]},
       { title: 'Intelligence', items: [
         { label: 'Autonomous 360 OS', href: '/dashboard/agents?tab=autonomous', icon: Sparkles },
+        { label: 'Weather Digital Twin', href: '/dashboard/weather-digital-twin', icon: CloudSun },
         { label: 'Swarm Consensus', href: '/dashboard/agents?tab=consensus', icon: Bot },
         { label: 'Consensus Report', href: '/dashboard/consensus', icon: Layers },
       ]},

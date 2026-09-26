@@ -14,6 +14,7 @@ const tasksRoutes = require('./routes/tasks.routes');
 const operationsRoutes = require('./routes/operations.routes');
 const aiRoutes = require('./routes/ai.routes');
 const actionPlansRoutes = require('./routes/action-plans.routes');
+const weatherRoutes = require('./routes/weather.routes');
 
 // Smart Resort 360 Autonomous Multi-Agent OS Router
 const { smartResortRouter, performReset } = require('./smart-resort/routes');
@@ -91,6 +92,7 @@ app.get(['/health', '/api/health'], (req, res) => {
 // Mount Smart Resort 360 routes directly on /api and /api/v1
 app.use('/api/incidents', incidentsRoutes);
 app.use('/api', smartResortRouter);
+app.use('/api', weatherRoutes);
 
 // API v1 Mounting
 const apiV1Router = express.Router();
@@ -104,6 +106,7 @@ apiV1Router.use('/tasks', tasksRoutes);
 apiV1Router.use('/operations', operationsRoutes);
 apiV1Router.use('/ai', aiRoutes);
 apiV1Router.use('/action-plans', actionPlansRoutes);
+apiV1Router.use('/', weatherRoutes);
 apiV1Router.use('/', smartResortRouter);
 
 app.use('/api/v1', apiV1Router);

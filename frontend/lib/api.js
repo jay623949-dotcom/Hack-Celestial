@@ -344,6 +344,22 @@ export const smartResortApi = {
   housekeepingReorder: (data) => smartApiRequest('/api/engine/housekeeping-reorder', 'POST', data),
 };
 
+export const weatherDigitalTwinApi = {
+  getCurrentWeather: () => fetchFromApi('/weather/current'),
+  refreshWeather: () => fetchFromApi('/weather/refresh'),
+  getContext: () => fetchFromApi('/digital-twin/weather/context'),
+  getSignals: () => fetchFromApi('/digital-twin/weather/signals'),
+  runSimulation: (params) => fetchFromApi('/digital-twin/weather/simulate', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  }),
+  getNugenImpact: (params) => fetchFromApi('/nugen/weather-impact', {
+    method: 'POST',
+    body: JSON.stringify(params || {}),
+  }),
+};
+
+
 
 
 

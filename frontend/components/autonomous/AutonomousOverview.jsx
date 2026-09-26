@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { smartResortApi } from '../../lib/api';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { smartResortApi, weatherDigitalTwinApi } from '../../lib/api';
 import LiveEventBusFeed from './LiveEventBusFeed';
 import {
   Play,
@@ -15,7 +16,9 @@ import {
   TrendingDown,
   Lock,
   Tag,
-  RefreshCw
+  RefreshCw,
+  CloudSun,
+  ArrowRight,
 } from 'lucide-react';
 
 
@@ -38,6 +41,17 @@ export default function AutonomousOverview({
     activeFlashSales: 1,
     projectedYield: 195.0,
   });
+
+  // Environmental context for Phase 11
+  const [weatherContext, setWeatherContext] = useState(null);
+
+  useEffect(() => {
+    weatherDigitalTwinApi.getContext()
+      .then((res) => {
+        if (res?.data) setWeatherContext(res.data);
+      })
+      .catch(() => {});
+  }, []);
 
   // Full Rehearsal Cascade Simulation
   const handleRunCascadeSimulation = async () => {
@@ -138,6 +152,43 @@ export default function AutonomousOverview({
         </div>
       </div>
 
+
+      {/* ENVIRONMENTAL CONDITIONS (PHASE 11 REQUIREMENT 20) */}
+      <div className="rounded-xl border border-teal-200/80 bg-gradient-to-r from-teal-50/70 to-emerald-50/50 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-teal-600 text-white rounded-lg shadow-sm">
+            <CloudSun className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800">
+                ENVIRONMENTAL CONDITIONS · DIGITAL TWIN
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-white text-teal-700 border border-teal-200">
+                {weatherContext?.weather?.severity || 'ACTIVE'}
+              </span>
+            </div>
+            <div className="text-sm font-bold text-gray-900 mt-0.5">
+              {weatherContext?.weather?.current?.condition || 'Coastal Conditions'} ({weatherContext?.weather?.current?.temperature || 28}°C)
+              <span className="mx-2 text-gray-300">|</span>
+              <span className="text-xs font-semibold text-gray-600">
+                Travel Delay Risk: <strong className="text-teal-800">{weatherContext?.impacts?.overallRisk === 'EXTREME' || weatherContext?.impacts?.overallRisk === 'HIGH' ? 'HIGH' : 'MODERATE'}</strong>
+              </span>
+              <span className="mx-2 text-gray-300">|</span>
+              <span className="text-xs font-semibold text-gray-600">
+                Operational Impact: <strong className="text-teal-800">{weatherContext?.impacts?.overallRisk || 'NORMAL'}</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <Link
+          href="/dashboard/weather-digital-twin"
+          className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 hover:text-teal-900 bg-white hover:bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 shadow-2xs transition whitespace-nowrap self-start sm:self-auto"
+        >
+          View in Weather Digital Twin <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
 
       {cascadeStep && (
         <div className="p-3.5 rounded-lg border border-primary/30 bg-primary/5 text-xs text-foreground font-mono flex items-center justify-between animate-in fade-in">
