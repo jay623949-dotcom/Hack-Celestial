@@ -1,33 +1,33 @@
-# Resort 360 — Nugen Domain Alignment Dataset
+# Resort 360 — Nugen Domain Alignment Package
 
-## Purpose
-This directory contains the domain-specific training and alignment corpus for **Nugen Intelligence** model customization. 
+**Base Model**: Llama-V3p2-3b-Reasoning
+**Aligned Model**: resort360-hospitality-v1
+**Domain**: Luxury Resort & Hotel Operations
 
-Standard foundation models (e.g. general LLMs) lack deep operational context regarding hospitality operations, inter-departmental trade-offs, VIP priority escalation thresholds, and simultaneous incident arbitration.
+## Files
 
-By aligning a base foundation model (such as `qwen-v2p5-0p5b-instruct`) using Nugen's train-time and inference-time alignment platform, we produce **Resort 360 Domain-Aligned Hospitality Intelligence**.
+| File | Records/Size |
+|---|---|
+| resort360-hospitality-handbook.md | ~2,500 words |
+| resort360-domain-scenarios.jsonl | 25 scenarios |
+| resort360-benchmark.jsonl | 15 benchmarks |
+| resort360-alignment-guide.md | ~700 words |
+| README.md | This file |
 
-## Files in this Directory
-1. `resort360-alignment-scenarios.jsonl`:
-   - 25 high-fidelity operational scenarios teaching multi-departmental reasoning.
-   - Covers VIP early arrivals, HVAC compressor failures, plumbing leaks, housekeeping turnover bottlenecks, high occupancy yield trade-offs, weather disruptions, and Telegram/WhatsApp escalations.
-   - Formatted with structured instruction, operational context, and canonical JSON output schema.
+## Upload Sequence to Nugen
+1. Upload `resort360-hospitality-handbook.md` as domain document
+2. Upload `resort360-domain-scenarios.jsonl` as training scenarios
+3. Select base model: **Llama-V3p2-3b-Reasoning**
+4. Create benchmark from `resort360-benchmark.jsonl`
+5. Start Alignment
 
-2. `resort360-operations-handbook.txt`:
-   - Plain text operational standard operating procedures (SOPs) designed for direct upload to Nugen Document API (`POST /api/v3/documents/create`).
-   - Details guest VIP tiers, room turn times, maintenance response SLAs, housekeeping priority queues, and manager approval boundaries.
+## Scenario Coverage (25 total)
+VIP Early Arrival & Room Failure (3) | Housekeeping Incidents (4) | Maintenance Single & Multi (5) | Revenue Conflicts (3) | Weather & Safety (2) | Digital Guest Complaints (2) | Complex Multi-Department (3) | High Occupancy (3)
 
-## Alignment Pipeline
+## Application Flow
 ```
-Base Model (e.g. qwen-v2p5-0p5b-instruct)
-       ↓
-Nugen Document Upload & Benchmark Preparation
-       ↓
-Nugen Domain Alignment Project (POST /api/v3/alignment-projects/create)
-       ↓
-Domain-Aligned Adaptor Checkpoint
-       ↓
-Nugen Model Deployment (POST /api/v3/models/{id}/deployment)
-       ↓
-Resort 360 Real-Time Inference (POST /api/v3/inference/chat/completions)
+Incident → NugenInferenceService (resort360-hospitality-v1)
+  → Departmental Agents → Consensus → Manager Approval → Task Dispatch
 ```
+
+*Resort 360 — Hack Celestial Hackathon*
