@@ -11,13 +11,20 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 xl:gap-12">
           {/* Brand Info & Mission Statement */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="inline-flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-odoo-teal/10 border border-odoo-teal/20 flex items-center justify-center text-odoo-teal font-extrabold text-sm shadow-2xs">
-                360
+            <Link href="/" className="inline-flex items-center gap-3">
+              <img
+                src="/atria_logo.jpg"
+                alt="Atria Intelligence Logo"
+                className="h-9 w-auto object-contain rounded-lg shadow-sm"
+              />
+              <div className="flex flex-col">
+                <span className="font-extrabold tracking-tight text-slate-900 text-base sm:text-lg leading-none">
+                  Atria <span className="text-odoo-purple font-black">intelligence</span>
+                </span>
+                <span className="text-xs text-muted-foreground font-mono tracking-wider mt-0.5">
+                  Resort 360 Swarm Operations
+                </span>
               </div>
-              <span className="font-extrabold text-slate-900 text-lg tracking-tight">
-                RESORT <span className="text-odoo-teal">360</span>
-              </span>
             </Link>
 
             <p className="text-xs text-slate-600 max-w-sm leading-relaxed">

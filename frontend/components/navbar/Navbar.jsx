@@ -19,16 +19,18 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo / Brand Left */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-odoo-teal text-white font-black text-xs tracking-tight shadow-xs group-hover:scale-105 transition-transform">
-              360
-            </div>
+          <Link href="/" className="flex items-center gap-3 group">
+            <img
+              src="/atria_logo.jpg"
+              alt="Atria Intelligence Logo"
+              className="h-9 w-auto object-contain rounded-lg shadow-sm"
+            />
             <div className="flex flex-col">
-              <span className="font-black tracking-tight text-slate-900 text-base sm:text-lg leading-none">
-                RESORT <span className="text-odoo-teal font-black">360</span>
+              <span className="font-extrabold tracking-tight text-foreground text-base sm:text-lg leading-none">
+                Atria <span className="text-odoo-purple font-black">intelligence</span>
               </span>
-              <span className="text-[11px] text-muted-foreground font-medium tracking-tight mt-0.5">
-                AI-Powered Resort Operations
+              <span className="text-xs text-muted-foreground font-mono tracking-wider mt-0.5">
+                Swarm Operations &amp; Intelligence
               </span>
             </div>
           </Link>
