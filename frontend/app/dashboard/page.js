@@ -34,12 +34,15 @@ import {
   ShieldAlert,
   UserCheck,
   HelpCircle,
+  PlusCircle,
 } from 'lucide-react';
 import HelpDocsModal from '../../components/common/HelpDocsModal';
+import ReportConcernModal from '../../components/common/ReportConcernModal';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [helpOpen, setHelpOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [summary, setSummary] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -191,6 +194,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {/* Raise Operational Concern / Report Defect */}
+          <button
+            onClick={() => setReportOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-800 transition-colors shadow-xs"
+            title="Log an operational problem or defect across any department"
+          >
+            <PlusCircle className="w-3.5 h-3.5 text-rose-600" />
+            <span>+ Report Concern / Issue</span>
+          </button>
+
           <button
             onClick={() => setHelpOpen(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors shadow-xs"
@@ -541,6 +554,13 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Register Operational Concern / Report Defect Modal */}
+      <ReportConcernModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        onSuccess={() => fetchDashboardData(activeRoomFilter)}
+      />
     </DashboardShell>
   );
 }

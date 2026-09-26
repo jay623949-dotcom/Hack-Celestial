@@ -18,11 +18,15 @@ import {
   Sparkles,
   ShieldCheck,
   HelpCircle,
+  PlusCircle,
+  FileWarning,
 } from 'lucide-react';
 import HelpDocsModal from '../../../components/common/HelpDocsModal';
+import ReportConcernModal from '../../../components/common/ReportConcernModal';
 
 export default function RoomsPage() {
   const [helpOpen, setHelpOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [rooms, setRooms] = useState([]);
   const [summary, setSummary] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -122,6 +126,16 @@ export default function RoomsPage() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          {/* Raise Operational Concern / Room Defect */}
+          <button
+            onClick={() => setReportOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-800 transition-colors shadow-xs"
+            title="Log an operational problem or defect for this room inventory"
+          >
+            <PlusCircle className="w-3.5 h-3.5 text-rose-600" />
+            <span>+ Report Room Concern</span>
+          </button>
+
           <button
             onClick={() => setHelpOpen(true)}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors shadow-xs"
@@ -199,6 +213,13 @@ export default function RoomsPage() {
         room={editingRoom}
         onClose={() => setEditingRoom(null)}
         onSaved={handleRoomSaved}
+      />
+
+      {/* Register Operational Concern / Report Defect Modal */}
+      <ReportConcernModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        onSuccess={() => fetchRoomsData(activeFilter)}
       />
     </DashboardShell>
   );

@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Menu, Bell, ChevronDown, LogOut, ShieldCheck, HelpCircle, BookOpen } from 'lucide-react';
+import { Menu, Bell, ChevronDown, LogOut, ShieldCheck, HelpCircle, BookOpen, AlertCircle, PlusCircle } from 'lucide-react';
 import { useRole, DEMO_ROLES } from '../../lib/roleContext';
 import { getSocket } from '../../lib/socket';
 import HelpDocsModal from '../common/HelpDocsModal';
 import NotificationsDrawer from '../common/NotificationsDrawer';
+import ReportConcernModal from '../common/ReportConcernModal';
 
 export default function Header({ onMenuClick = () => {} }) {
   const { role, roleData, setRole } = useRole();
@@ -16,6 +17,7 @@ export default function Header({ onMenuClick = () => {} }) {
   const [socketConnected, setSocketConnected] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     const socket = getSocket();
@@ -63,6 +65,7 @@ export default function Header({ onMenuClick = () => {} }) {
       {/* Modals & Drawers */}
       <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
       <NotificationsDrawer isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+      <ReportConcernModal isOpen={reportOpen} onClose={() => setReportOpen(false)} onSuccess={() => window.location.reload()} />
 
       {/* Left Branding & Logo */}
       <div className="flex items-center gap-4">
@@ -102,6 +105,16 @@ export default function Header({ onMenuClick = () => {} }) {
           <span className={`w-1.5 h-1.5 rounded-full ${socketConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
           <span>{socketConnected ? 'Live' : 'Reconnecting...'}</span>
         </div>
+
+        {/* Raise Operational Concern / Report Defect */}
+        <button
+          onClick={() => setReportOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100 transition-colors shadow-xs text-xs font-bold"
+          title="Raise a department concern or report room defect"
+        >
+          <PlusCircle className="w-4 h-4 text-rose-600" />
+          <span className="hidden sm:inline">Report Issue / Concern</span>
+        </button>
 
         {/* Global Help & Documentation Button */}
         <button

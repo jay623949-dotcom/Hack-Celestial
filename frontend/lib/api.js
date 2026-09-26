@@ -125,6 +125,16 @@ export async function getIncidents(params = {}) {
 }
 
 /**
+ * Register a new operational incident / room concern
+ */
+export async function createIncident(data) {
+  return fetchFromApi('/incidents', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
  * Active tasks
  */
 export async function getTasks(params = {}) {
