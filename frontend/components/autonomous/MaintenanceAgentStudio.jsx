@@ -5,7 +5,6 @@ import { CV_BENCHMARKS } from '../../lib/autonomous/benchmarks';
 import { smartResortApi } from '../../lib/api';
 import {
   Wrench,
-  Camera,
   Activity,
   AlertTriangle,
   CheckCircle2,
@@ -15,31 +14,32 @@ import {
   ShieldAlert,
   Droplet,
   Zap,
-  PackageCheck
+  PackageCheck,
+  FileText
 } from 'lucide-react';
 
 export default function MaintenanceAgentStudio({ onActionSuccess = () => {} }) {
   const [selectedBenchmark, setSelectedBenchmark] = useState(CV_BENCHMARKS[0]);
-  const [processingCv, setProcessingCv] = useState(false);
-  const [cvResult, setCvResult] = useState(null);
+  const [processingDiagnostic, setProcessingDiagnostic] = useState(false);
+  const [diagnosticResult, setDiagnosticResult] = useState(null);
 
   const [scanningTelemetry, setScanningTelemetry] = useState(false);
   const [telemetryResult, setTelemetryResult] = useState(null);
 
-  const handleRunCvTriage = async () => {
+  const handleRunDiagnosticTriage = async () => {
     try {
-      setProcessingCv(true);
+      setProcessingDiagnostic(true);
       const res = await smartResortApi.imageTriage({
         room_id: selectedBenchmark.room_id,
         description: selectedBenchmark.description,
-        source: 'cv_camera',
+        source: 'sensor_telemetry',
       });
-      setCvResult(res);
-      onActionSuccess('Computer Vision triage completed', res);
+      setDiagnosticResult(res);
+      onActionSuccess('Technical work order diagnostic completed', res);
     } catch (err) {
-      alert(`CV Triage error: ${err.message}`);
+      alert(`Diagnostic error: ${err.message}`);
     } finally {
-      setProcessingCv(false);
+      setProcessingDiagnostic(false);
     }
   };
 
@@ -65,13 +65,13 @@ export default function MaintenanceAgentStudio({ onActionSuccess = () => {} }) {
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-orange-500 text-black">
               MAINTENANCE AGENT
             </span>
-            <span className="text-xs text-muted-foreground font-mono">Differentiators: CV Image Triage & Telemetry Anomaly Detection</span>
+            <span className="text-xs text-muted-foreground font-mono">Predictive Sensor Diagnostics & Safety Lockout</span>
           </div>
           <h2 className="text-base sm:text-lg font-bold text-foreground mt-1">
             Predictive Maintenance & Automated Safety Lockout
           </h2>
           <p className="text-xs text-muted-foreground max-w-2xl mt-1">
-            Triages maintenance photographs using computer vision, cross-references inventory for replacement parts, detects invisible micro-leaks in vacant rooms, and locks out unsafe rooms across the system.
+            Diagnoses equipment anomalies, cross-references inventory for replacement parts, detects phantom load leaks, and enforces safety lockouts across resort rooms.
           </p>
         </div>
 
@@ -86,11 +86,11 @@ export default function MaintenanceAgentStudio({ onActionSuccess = () => {} }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Computer Vision Studio */}
+        {/* Left Column: Diagnostics Studio */}
         <div className="lg:col-span-7 space-y-4">
           <div className="rounded-xl border border-border bg-surface p-4 space-y-3 shadow-sm">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider font-mono">
-              1. Select Benchmark Inspection Image
+              1. Select Benchmark Equipment Issue
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -99,7 +99,7 @@ export default function MaintenanceAgentStudio({ onActionSuccess = () => {} }) {
                 return (
                   <button
                     key={bm.id}
-                    onClick={() => { setSelectedBenchmark(bm); setCvResult(null); }}
+                    onClick={() => { setSelectedBenchmark(bm); setDiagnosticResult(null); }}
                     className={`p-3 rounded-lg border text-left transition-all ${
                       isSelected
                         ? 'border-orange-500 bg-orange-500/10 shadow-sm'
@@ -108,7 +108,7 @@ export default function MaintenanceAgentStudio({ onActionSuccess = () => {} }) {
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-foreground truncate">{bm.title}</span>
-                      <Camera className="w-3.5 h-3.5 text-orange-500 shrink-0 ml-1" />
+                      <Wrench className="w-3.5 h-3.5 text-orange-500 shrink-0 ml-1" />
                     </div>
                     <div className="text-[11px] text-muted-foreground mt-1 font-mono">
                       {bm.room_id} • {bm.fixture_hint}
@@ -119,105 +119,106 @@ export default function MaintenanceAgentStudio({ onActionSuccess = () => {} }) {
             </div>
           </div>
 
-          {/* Visualizer & Run CV */}
+          {/* Diagnostic Feed */}
           <div className="rounded-xl border border-border bg-surface p-4 space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Camera className="w-4 h-4 text-orange-500" />
-                <span className="text-xs font-bold text-foreground">Computer Vision Diagnostic Feed</span>
+                <FileText className="w-4 h-4 text-orange-500" />
+                <span className="text-xs font-bold text-foreground">Equipment Diagnostic Telemetry</span>
               </div>
               <span className="text-[10px] font-mono text-muted-foreground">
-                Room: {selectedBenchmark.room_id}
+                Target Room: {selectedBenchmark.room_id}
               </span>
             </div>
 
-            <div className="h-44 rounded-lg bg-black/80 border border-border relative overflow-hidden flex items-center justify-center p-4">
-              <img
-                src={selectedBenchmark.image_url}
-                alt={selectedBenchmark.title}
-                className="absolute inset-0 w-full h-full object-cover opacity-60"
-              />
-              <div className="relative z-10 p-3 rounded-lg bg-black/75 backdrop-blur-sm border border-white/10 max-w-md text-center">
-                <div className="text-xs font-bold text-white">{selectedBenchmark.fixture_hint}</div>
-                <div className="text-[11px] text-neutral-300 mt-1 line-clamp-2">{selectedBenchmark.description}</div>
+            <div className="p-4 rounded-lg bg-surface-secondary border border-border space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-foreground">
+                <span>{selectedBenchmark.fixture_hint}</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-100 text-orange-800 uppercase font-semibold">
+                  Expected Severity: {selectedBenchmark.expected_severity}
+                </span>
               </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {selectedBenchmark.description}
+              </p>
             </div>
 
             <div className="flex items-center justify-between pt-1">
               <span className="text-[11px] font-mono text-muted-foreground">
-                Expected Severity: <strong className="text-foreground uppercase">{selectedBenchmark.expected_severity}</strong>
+                Component: <strong className="text-foreground">{selectedBenchmark.fixture_hint}</strong>
               </span>
 
               <button
-                onClick={handleRunCvTriage}
-                disabled={processingCv}
+                onClick={handleRunDiagnosticTriage}
+                disabled={processingDiagnostic}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow transition-colors disabled:opacity-50"
               >
-                {processingCv ? (
+                {processingDiagnostic ? (
                   <>
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Analyzing Image...</span>
+                    <span>Diagnosing Defect...</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Run CV Diagnostic Triage</span>
+                    <span>Run Defect Triage &amp; Parts Check</span>
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          {/* CV Output */}
-          {cvResult && (
+          {/* Diagnostic Output */}
+          {diagnosticResult && (
             <div className="rounded-xl border border-border bg-surface p-4 space-y-4 shadow-sm animate-in fade-in">
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  <span className="text-xs font-bold text-foreground">CV Triage Results</span>
+                  <span className="text-xs font-bold text-foreground">Diagnostic Triage Results</span>
                 </div>
                 <span className="text-[10px] font-mono text-muted-foreground">
-                  Confidence: {Math.round((cvResult.confidence_score || 0.9) * 100)}%
+                  Confidence: {Math.round((diagnosticResult.confidence_score || 0.9) * 100)}%
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="p-3 rounded-lg bg-surface-secondary border border-border">
                   <div className="text-[10px] font-mono text-muted-foreground uppercase">Detected Asset</div>
-                  <div className="text-sm font-bold text-foreground mt-0.5">{cvResult.identified_asset}</div>
+                  <div className="text-sm font-bold text-foreground mt-0.5">{diagnosticResult.identified_asset}</div>
                 </div>
 
                 <div className={`p-3 rounded-lg border ${
-                  cvResult.priority === 'safety'
+                  diagnosticResult.priority === 'safety'
                     ? 'bg-rose-500/10 border-rose-500/30 text-rose-500'
                     : 'bg-amber-500/10 border-amber-500/30 text-amber-500'
                 }`}>
                   <div className="text-[10px] font-mono uppercase">Priority / Severity</div>
-                  <div className="text-sm font-bold mt-0.5">{cvResult.priority || 'safety'}</div>
+                  <div className="text-sm font-bold mt-0.5">{diagnosticResult.priority || 'safety'}</div>
                 </div>
 
                 <div className="p-3 rounded-lg bg-surface-secondary border border-border">
                   <div className="text-[10px] font-mono text-muted-foreground uppercase">Required Part</div>
                   <div className="text-xs font-bold text-foreground mt-0.5 truncate">
-                    {cvResult.required_part || 'Brass Coupling 1/2"'}
+                    {diagnosticResult.required_part || 'Brass Coupling 1/2"'}
                   </div>
                 </div>
               </div>
 
               <div className="p-3 rounded-lg bg-surface-secondary text-xs text-foreground font-mono">
-                <span className="text-orange-500 font-bold">Visible Issue: </span>
-                {cvResult.visible_issue}
+                <span className="text-orange-500 font-bold">Identified Issue: </span>
+                {diagnosticResult.visible_issue}
               </div>
 
-              {cvResult.priority === 'safety' && (
+              {diagnosticResult.priority === 'safety' && (
                 <div className="p-3.5 rounded-lg border border-rose-500/30 bg-rose-500/10 flex items-center gap-3 text-xs text-rose-500 font-medium">
                   <ShieldAlert className="w-5 h-5 shrink-0" />
-                  <span>Safety condition detected. Room {selectedBenchmark.room_id} has been automatically LOCKED OUT and marked fault_free=false across all agents.</span>
+                  <span>Safety condition detected. Room {selectedBenchmark.room_id} has been automatically LOCKED OUT across all systems.</span>
                 </div>
               )}
             </div>
           )}
         </div>
+
 
         {/* Right Column: Telemetry & Micro-Leak Anomaly Scanner */}
         <div className="lg:col-span-5 space-y-4">

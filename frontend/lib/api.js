@@ -231,8 +231,7 @@ export async function smartApiRequest(path, method = 'GET', body = null) {
 }
 
 export const smartResortApi = {
-  // Demo Reset & Ping
-  resetDemo: () => smartApiRequest('/demo/reset', 'POST'),
+  // Ping & Telemetry
   ping: () => smartApiRequest('/api/test/ping', 'POST'),
   getGuardrails: () => smartApiRequest('/api/guardrails'),
   getEventHistory: () => smartApiRequest('/api/events/history'),
@@ -261,15 +260,14 @@ export const smartResortApi = {
   getCurrentPricing: (category) => smartApiRequest(`/api/revenue/pricing/current/${category}`),
   getNetRevPar: () => smartApiRequest('/api/revenue/net-revpar'),
   createFlashSale: (data) => smartApiRequest('/api/revenue/flash-sale', 'POST', data),
-  simulateWingShutdown: (wingId) => smartApiRequest('/api/revenue/wing-shutdown-simulate', 'POST', { wing_id: wingId }),
 
   // Intelligence Engine
   guestIntake: (data) => smartApiRequest('/api/engine/guest-intake', 'POST', data),
-  maintenanceCv: (data) => smartApiRequest('/api/engine/maintenance-cv', 'POST', data),
   costIncident: (data) => smartApiRequest('/api/engine/cost-incident', 'POST', data),
   flashSale: (data) => smartApiRequest('/api/engine/flash-sale', 'POST', data),
   housekeepingReorder: (data) => smartApiRequest('/api/engine/housekeeping-reorder', 'POST', data),
 };
+
 
 
 

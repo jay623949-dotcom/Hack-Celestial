@@ -5,7 +5,6 @@ import { smartResortApi } from '../../lib/api';
 import LiveEventBusFeed from './LiveEventBusFeed';
 import {
   Play,
-  RotateCcw,
   Sparkles,
   ShieldAlert,
   Radio,
@@ -19,6 +18,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 
+
 export default function AutonomousOverview({
   events = [],
   isConnected = false,
@@ -27,7 +27,6 @@ export default function AutonomousOverview({
   onNavigateTab = () => {},
 }) {
   const [cascading, setCascading] = useState(false);
-  const [resetting, setResetting] = useState(false);
   const [cascadeStep, setCascadeStep] = useState(null);
 
   // Live KPI state
@@ -35,7 +34,7 @@ export default function AutonomousOverview({
     baseRevPAR: 385.0,
     currentNetRevPAR: 368.5,
     costDeduction: 1850.0,
-    lockedRooms: ['Suite 502'],
+    lockedRooms: ['Suite 401'],
     activeFlashSales: 1,
     projectedYield: 195.0,
   });
@@ -44,36 +43,32 @@ export default function AutonomousOverview({
   const handleRunCascadeSimulation = async () => {
     try {
       setCascading(true);
-      setCascadeStep('1/4: Resetting demo state...');
-      await smartResortApi.resetDemo();
-
-      await new Promise((r) => setTimeout(r, 600));
-      setCascadeStep('2/4: Front Desk Ambient Voice Check-In (Dr. Vance - At-Risk)...');
+      setCascadeStep('1/3: Front Desk Guest Check-In & Priority Triage...');
       const intakeRes = await smartResortApi.checkIn({
-        name: 'Dr. Evelyn Vance',
-        reservation_id: 'RES-CASCADE-001',
-        room_id: 1,
-        transcript: 'My flight was delayed 5 hours and luggage stuck. Urgent keynote at 9 AM, need whisper-quiet suite!',
+        name: 'Alexander Vance',
+        reservation_id: 'RES-VIP-001',
+        room_id: 'room-205',
+        transcript: 'Diamond VIP early arrival. Requesting expedited room readiness and lounge access.',
       });
-      onActionSuccess('Cascade Step 1: Front Desk checked in Dr. Vance (At-Risk)', intakeRes);
+      onActionSuccess('Cascade Step 1: Front Desk checked in Alexander Vance (VIP)', intakeRes);
 
-      await new Promise((r) => setTimeout(r, 800));
-      setCascadeStep('3/4: Maintenance CV Image Triage (Under-sink rupture lockout)...');
-      const cvRes = await smartResortApi.imageTriage({
-        room_id: 'Suite 502',
-        description: 'Major high pressure cold water pipe rupture and pooling under vanity sink.',
-        source: 'cv_camera',
+      await new Promise((r) => setTimeout(r, 700));
+      setCascadeStep('2/3: Maintenance Diagnostic (Suite 401 compressor lockout)...');
+      const diagRes = await smartResortApi.imageTriage({
+        room_id: 'room-401',
+        description: 'HVAC compressor capacitor failure and high-pressure head cutoff.',
+        source: 'sensor_telemetry',
       });
       setKpis((prev) => ({
         ...prev,
-        lockedRooms: [...new Set([...prev.lockedRooms, 'Suite 502'])],
+        lockedRooms: [...new Set([...prev.lockedRooms, 'Suite 401'])],
       }));
-      onActionSuccess('Cascade Step 2: Maintenance CV flagged safety issue & locked Suite 502', cvRes);
+      onActionSuccess('Cascade Step 2: Maintenance flagged safety issue & locked Suite 401', diagRes);
 
-      await new Promise((r) => setTimeout(r, 800));
-      setCascadeStep('4/4: Revenue live Net RevPAR deduction & perishable flash sale...');
+      await new Promise((r) => setTimeout(r, 700));
+      setCascadeStep('3/3: Revenue live Net RevPAR deduction & flash sale...');
       const revRes = await smartResortApi.getNetRevPar();
-      const flashRes = await smartResortApi.createFlashSale({
+      await smartResortApi.createFlashSale({
         asset_description: 'Sunset Spa & Cabana Bundle',
         price: 79,
         expiry_minutes: 45,
@@ -86,35 +81,12 @@ export default function AutonomousOverview({
         activeFlashSales: prev.activeFlashSales + 1,
       }));
 
-      onActionSuccess('Cascade Step 3: Revenue Net RevPAR updated and Flash Sale launched!', flashRes);
+      onActionSuccess('Cascade Step 3: Revenue Net RevPAR updated and Flash Sale launched!');
       setCascadeStep('Cascade Complete: All 4 agents synchronized across live Event Bus.');
     } catch (err) {
       console.error('Error during cascade simulation:', err);
-      alert(`Cascade error: ${err.message}`);
     } finally {
       setCascading(false);
-    }
-  };
-
-  const handleResetDemo = async () => {
-    try {
-      setResetting(true);
-      await smartResortApi.resetDemo();
-      onClearEvents();
-      setCascadeStep(null);
-      setKpis({
-        baseRevPAR: 385.0,
-        currentNetRevPAR: 385.0,
-        costDeduction: 0.0,
-        lockedRooms: [],
-        activeFlashSales: 0,
-        projectedYield: 0.0,
-      });
-      onActionSuccess('Demo environment reset successfully. All tables and counters cleared.');
-    } catch (err) {
-      alert(`Reset error: ${err.message}`);
-    } finally {
-      setResetting(false);
     }
   };
 
@@ -136,13 +108,13 @@ export default function AutonomousOverview({
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-primary text-primary-foreground">
               AUTONOMOUS MULTI-AGENT OS
             </span>
-            <span className="text-xs text-muted-foreground font-mono">Real-Time Event-Driven Architecture</span>
+            <span className="text-xs text-muted-foreground font-mono">Real-Time Operational Intelligence</span>
           </div>
           <h2 className="text-lg sm:text-xl font-bold text-foreground mt-1">
             Smart Resort 360 Operational Mission Control
           </h2>
           <p className="text-xs text-muted-foreground max-w-2xl mt-1">
-            4 autonomous agents coordinating via in-memory pub/sub and Server-Sent Events (SSE). Test individual agent capabilities or run the full live demonstration cascade.
+            4 autonomous departmental agents coordinating via live Socket.IO pub/sub. Test individual agent capabilities or run the full live demonstration cascade.
           </p>
         </div>
 
@@ -157,15 +129,6 @@ export default function AutonomousOverview({
           </button>
 
           <button
-            onClick={handleResetDemo}
-            disabled={resetting || cascading}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-surface hover:bg-surface-secondary text-xs font-medium text-foreground shadow-sm transition-colors disabled:opacity-50"
-          >
-            <RotateCcw className={`w-3.5 h-3.5 ${resetting ? 'animate-spin' : ''}`} />
-            <span>Reset Demo</span>
-          </button>
-
-          <button
             onClick={handleSmokePing}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-surface hover:bg-surface-secondary text-xs font-medium text-foreground shadow-sm transition-colors"
           >
@@ -174,6 +137,7 @@ export default function AutonomousOverview({
           </button>
         </div>
       </div>
+
 
       {cascadeStep && (
         <div className="p-3.5 rounded-lg border border-primary/30 bg-primary/5 text-xs text-foreground font-mono flex items-center justify-between animate-in fade-in">

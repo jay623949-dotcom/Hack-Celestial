@@ -6,9 +6,10 @@ import DashboardShell from '../../../components/dashboard/DashboardShell';
 import AgentCard from '../../../components/agents/AgentCard';
 import ScenarioSelector, { SCENARIO_CATALOG } from '../../../components/agents/ScenarioSelector';
 import { analyzeOperationsContext } from '../../../lib/api';
-import { useEventStream } from '../../../lib/autonomous/useEventStream';
+import { getSocket } from '../../../lib/socket';
 
 // Smart Resort 360 Autonomous Agent Components
+
 import AutonomousOverview from '../../../components/autonomous/AutonomousOverview';
 import FrontDeskAgentStudio from '../../../components/autonomous/FrontDeskAgentStudio';
 import HousekeepingAgentStudio from '../../../components/autonomous/HousekeepingAgentStudio';
@@ -59,14 +60,42 @@ function AgentSwarmPageContent() {
     }, 4500);
   };
 
-  const handleServerEvent = useCallback((event) => {
-    setStreamEvents((prev) => [event, ...prev].slice(0, 100));
-    const eventName = event.event || event.event_type || 'SYSTEM_EVENT';
-    const payload = event.payload || event.data || {};
-    addToast(`Event: ${eventName}`, payload.reason || payload.message || payload.description || 'Payload received');
+  const [isConnected, setIsConnected] = useState(false);
+
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    if (socket.connected) setIsConnected(true);
+
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
+
+    const handleAny = (event, ...args) => {
+      const data = args[0] || {};
+      const record = {
+        id: `evt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        event,
+        event_type: event,
+        payload: data,
+        timestamp: new Date().toISOString(),
+      };
+      setStreamEvents((prev) => [record, ...prev].slice(0, 100));
+      addToast(`Event: ${event}`, data.title || data.message || data.description || 'Payload received');
+    };
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.onAny(handleAny);
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.offAny(handleAny);
+    };
   }, []);
 
-  const { isConnected } = useEventStream(handleServerEvent);
 
   // ───────────────────────────────────────────────────────────────────────────
   // ORIGINAL SWARM CONSENSUS STATE & LOGIC
