@@ -4,8 +4,8 @@ import { RoleProvider } from '../lib/roleContext';
 import Navbar from '../components/navbar/Navbar';
 
 export const metadata = {
-  title: 'Atria intelligence — AI-Powered Resort Operations Platform',
-  description: 'Clean, approachable enterprise swarm intelligence across Front Desk, Housekeeping, Maintenance, and Revenue.',
+  title: 'Resort 360 — AI-Powered Resort Operations Platform',
+  description: 'Clean, approachable enterprise operations platform connecting Front Desk, Housekeeping, Maintenance, and Revenue with multi-agent intelligence and human-in-the-loop control.',
 };
 
 export default function RootLayout({ children }) {
