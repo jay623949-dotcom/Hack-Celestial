@@ -393,47 +393,63 @@ class AIService {
 
     // 2. Route to Active Provider
     if (provider === 'nugen') {
-      const nugenInferenceService = require('./nugen/nugenInferenceService');
-      const nugenResult = await nugenInferenceService.analyzeResortIncident(context);
+      try {
+        console.log('[NUGEN] Preparing Resort 360 context');
+        const nugenInferenceService = require('./nugen/nugenInferenceService');
+        const modelId = nugenInferenceService.getModelId();
+        console.log(`[NUGEN] Using aligned Resort 360 model (${modelId})`);
+        console.log('[NUGEN] Inference started');
+        const nugenResult = await nugenInferenceService.analyzeResortIncident(context);
+        console.log('[NUGEN] Inference completed');
 
-      const mappedResponse = {
-        agent: 'operations',
-        schema_version: '1.0',
-        assessment: {
-          summary: nugenResult.summary,
-          priority: (nugenResult.severity || 'high').toLowerCase(),
-        },
-        observations: [
-          `Incident ${nugenResult.incident_id}: ${nugenResult.summary}`,
-          ...(nugenResult.impact || []),
-        ],
-        constraints: nugenResult.dependencies || [],
-        recommendations: (nugenResult.recommended_actions || []).map((a, idx) => ({
-          recommendation_id: `rec-nugen-${idx + 1}`,
-          action: a.action,
-          reason: a.reason,
-          priority: (a.priority || 'high').toLowerCase(),
-          affected_rooms: context.rooms?.map((r) => r.id).slice(0, 2) || ['room-401'],
-          affected_guests: context.guests?.map((g) => g.id).slice(0, 1) || ['guest-001'],
-          required_staff: context.staff?.filter((s) => s.department === a.department).map((s) => s.id) || [],
-          estimated_duration_minutes: 20,
-          risks: ['Cross-departmental coordination requirement'],
+        const mappedResponse = {
+          agent: 'operations',
+          schema_version: '1.0',
+          assessment: {
+            summary: nugenResult.summary,
+            priority: (nugenResult.severity || 'high').toLowerCase(),
+          },
+          observations: [
+            `Incident ${nugenResult.incident_id}: ${nugenResult.summary}`,
+            ...(nugenResult.impact || []),
+          ],
+          constraints: nugenResult.dependencies || [],
+          recommendations: (nugenResult.recommended_actions || []).map((a, idx) => ({
+            recommendation_id: `rec-nugen-${idx + 1}`,
+            action: a.action,
+            reason: a.reason,
+            priority: (a.priority || 'high').toLowerCase(),
+            affected_rooms: context.rooms?.map((r) => r.id).slice(0, 2) || ['room-401'],
+            affected_guests: context.guests?.map((g) => g.id).slice(0, 1) || ['guest-001'],
+            required_staff: context.staff?.filter((s) => s.department === a.department).map((s) => s.id) || [],
+            estimated_duration_minutes: 20,
+            risks: ['Cross-departmental coordination requirement'],
+            confidence: (nugenResult.confidence_score || 95) / 100,
+          })),
           confidence: (nugenResult.confidence_score || 95) / 100,
-        })),
-        confidence: (nugenResult.confidence_score || 95) / 100,
-        nugen_domain_intelligence: nugenResult,
-      };
+          nugen_domain_intelligence: nugenResult,
+        };
 
-      const outputValidation = this.validateAIOutput(mappedResponse);
-      if (!outputValidation.valid) {
-        console.warn('[AIService] Nugen output normalization schema warning:', outputValidation.errors);
+        const outputValidation = this.validateAIOutput(mappedResponse);
+        if (!outputValidation.valid) {
+          console.warn('[AIService] Nugen output normalization schema warning:', outputValidation.errors);
+        } else {
+          console.log('[NUGEN] Structured response validated');
+        }
+        console.log('[AIService] Nugen analysis completed');
+        return mappedResponse;
+      } catch (nugenErr) {
+        console.error('[NUGEN] Inference failed:', nugenErr.message);
+        console.log('[AIService] Falling back to Local LLM');
+        if (!this.localClient) this.initClients();
+        const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'gemma2:2b';
+        responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM');
       }
-      return mappedResponse;
     } else if (provider === 'gemini') {
       responseContent = await this.callGemini(userPrompt);
     } else if (provider === 'local') {
       if (!this.localClient) this.initClients();
-      const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'llama3.2';
+      const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'gemma2:2b';
       responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM');
     } else {
       // Default: OpenAI
@@ -506,6 +522,7 @@ class AIService {
         try {
           const baseUrl = (config.ai?.nugen?.baseURL || process.env.NUGEN_BASE_URL || 'https://api.nugen.in').replace(/\/+$/, '');
           const model = config.ai?.nugen?.modelId || process.env.NUGEN_MODEL_ID || 'resort360-hospitality-v1';
+          console.log(`[NUGEN] Executing completion using aligned model: ${model}`);
           const nugenRes = await fetch(`${baseUrl}/api/v3/inference/chat/completions`, {
             method: 'POST',
             headers: {
@@ -527,12 +544,12 @@ class AIService {
             responseContent = data.choices?.[0]?.message?.content || '';
           }
         } catch (e) {
-          console.warn('[AIService] Nugen execution error, falling back:', e.message);
+          console.warn('[NUGEN] Inference failed for completion:', e.message);
         }
       }
     }
 
-    if (!responseContent && (provider === 'gemini' || config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY)) {
+    if (!responseContent && (provider === 'gemini' || (provider !== 'nugen' && (config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY)))) {
       try {
         responseContent = await this.callGemini(userPrompt, systemInstructions);
       } catch (e) {
@@ -540,9 +557,9 @@ class AIService {
       }
     }
 
-    if (!responseContent && (provider === 'local' || (!responseContent && process.env.LOCAL_AI_BASE_URL))) {
+    if (!responseContent && (provider === 'local' || (!responseContent && process.env.LOCAL_AI_BASE_URL && provider !== 'nugen'))) {
       if (!this.localClient) this.initClients();
-      const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'llama3.2';
+      const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'gemma2:2b';
       try {
         responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM', systemInstructions);
       } catch (e) {
