@@ -4,8 +4,9 @@
  */
 function getHealth(req, res) {
   res.status(200).json({
-    status: 'ok',
-    service: 'resort-360-backend',
+    success: true,
+    service: 'resort360-api',
+    status: 'healthy',
     timestamp: new Date().toISOString(),
   });
 }
