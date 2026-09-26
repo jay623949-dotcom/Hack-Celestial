@@ -104,3 +104,15 @@ export async function getStaff(params = {}) {
   const qs = query.toString() ? `?${query.toString()}` : '';
   return fetchFromApi(`/staff${qs}`);
 }
+
+/**
+ * AI Operations Analysis
+ * Submits operational context to backend OpenAI service
+ */
+export async function analyzeOperationsContext(context) {
+  return fetchFromApi('/ai/analyze', {
+    method: 'POST',
+    body: JSON.stringify({ context }),
+  });
+}
+

@@ -29,7 +29,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
     { label: 'Staff', href: '/dashboard#staff', icon: UserCheck },
     { label: 'Incidents', href: '/dashboard#incidents', icon: AlertTriangle },
     { label: 'Tasks', href: '/dashboard#tasks', icon: CheckSquare },
-    { label: 'AI Agents', href: '/dashboard#agents', icon: Bot },
+    { label: 'AI Agent Swarm', href: '/dashboard/agents', icon: Bot },
   ];
 
   const secondaryNav = [

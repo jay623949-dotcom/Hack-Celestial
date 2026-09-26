@@ -69,6 +69,31 @@ export default function AttentionPanel() {
           );
         })}
       </div>
+
+      {/* AI Swarm Entrypoint */}
+      <div className="mt-5 pt-4 border-t border-border/70">
+        <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/20 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              AI Operations Panel
+            </span>
+            <span className="text-[10px] font-mono text-primary font-semibold">
+              4 Agents Ready
+            </span>
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            Multi-departmental reasoning engine ready to evaluate operational friction across Front Desk, Housekeeping, Maintenance, and Revenue.
+          </p>
+          <a
+            href="/dashboard/agents"
+            className="inline-flex items-center justify-center w-full py-2 px-3 rounded-xl bg-primary text-primary-foreground font-semibold text-xs hover:opacity-90 transition-opacity gap-1.5"
+          >
+            <span>Open Agent Swarm</span>
+            <span>→</span>
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

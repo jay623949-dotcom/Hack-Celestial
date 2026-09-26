@@ -150,9 +150,38 @@ resort360/
   ```
   **Response (201 Created)**: Returns saved incident record with ID and timestamp.
 
-- `POST /api/incidents/:id/analyze`  
-  Runs the **Context Builder** and invokes all 4 specialized departmental AI agents concurrently (`Promise.all`).  
-  **Response (200 OK)**:
+### 5.2 Multi-Agent Orchestration & Operational Context Pipeline
+
+```
+Operational Database (Rooms, Guests, Staff, Incidents, Tasks) [IMPLEMENTED]
+         │
+         ▼
+Context Builder Service (Extracts compact canonical snapshot) [IMPLEMENTED]
+         │
+         ▼
+AI Analysis Layer (POST /api/v1/ai/analyze via OpenAI Responses API) [IMPLEMENTED]
+         │
+         ▼
+Agent Perspectives (Front Desk, Housekeeping, Maintenance, Revenue) [IMPLEMENTED]
+         │
+         ▼
+Consensus Engine (Multi-agent trade-off resolution) [PLANNED - Phase 2.3]
+         │
+         ▼
+Action Plan (Generated with requires_human_approval: true) [PLANNED - Phase 2.3]
+         │
+         ▼
+Human Approval (Approve / Modify / Reject by Duty Manager) [PLANNED - Phase 3]
+         │
+         ▼
+Task Execution & Socket.IO Real-Time Dispatch [PLANNED - Phase 3]
+```
+
+#### Implemented Endpoints (Phase 2):
+- `POST /api/v1/ai/analyze`  
+  Validates input context against `agent-context.schema.json`, queries OpenAI via Responses API, verifies output schema against `agent-response.schema.json`, and returns structured operational analysis.
+
+#### Planned Endpoints (Phase 2.3 & 3):
   ```json
   {
     "incidentId": "inc-101",

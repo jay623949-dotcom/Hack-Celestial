@@ -4,12 +4,39 @@
   "graph": {},
   "nodes": [
     {
+      "label": "test-ai-route.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-ai-route.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_test_ai_route_js",
+      "community": 10,
+      "norm_label": "test-ai-route.js"
+    },
+    {
+      "label": "postJSON()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-ai-route.js",
+      "source_location": "L3",
+      "id": "test_ai_route_postjson",
+      "community": 10,
+      "norm_label": "postjson()"
+    },
+    {
+      "label": "testEndpoint()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-ai-route.js",
+      "source_location": "L35",
+      "id": "test_ai_route_testendpoint",
+      "community": 10,
+      "norm_label": "testendpoint()"
+    },
+    {
       "label": "test-phase1.js",
       "file_type": "code",
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-phase1.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_test_phase1_js",
-      "community": 10,
+      "community": 11,
       "norm_label": "test-phase1.js"
     },
     {
@@ -18,7 +45,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-phase1.js",
       "source_location": "L16",
       "id": "test_phase1_request",
-      "community": 10,
+      "community": 11,
       "norm_label": "request()"
     },
     {
@@ -27,7 +54,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-phase1.js",
       "source_location": "L25",
       "id": "test_phase1_assert",
-      "community": 10,
+      "community": 11,
       "norm_label": "assert()"
     },
     {
@@ -36,7 +63,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-schemas.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_test_schemas_js",
-      "community": 8,
+      "community": 1,
       "norm_label": "test-schemas.js"
     },
     {
@@ -45,7 +72,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-schemas.js",
       "source_location": "L172",
       "id": "test_schemas_validatecontext",
-      "community": 8,
+      "community": 1,
       "norm_label": "validatecontext()"
     },
     {
@@ -54,7 +81,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-schemas.js",
       "source_location": "L227",
       "id": "test_schemas_validateresponse",
-      "community": 8,
+      "community": 1,
       "norm_label": "validateresponse()"
     },
     {
@@ -63,7 +90,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-schemas.js",
       "source_location": "L292",
       "id": "test_schemas_validateplan",
-      "community": 8,
+      "community": 1,
       "norm_label": "validateplan()"
     },
     {
@@ -72,7 +99,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\database\\migrations\\migrate.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_database_migrations_migrate_js",
-      "community": 12,
+      "community": 13,
       "norm_label": "migrate.js"
     },
     {
@@ -81,7 +108,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\database\\migrations\\migrate.js",
       "source_location": "L5",
       "id": "migrate_runmigrations",
-      "community": 12,
+      "community": 13,
       "norm_label": "runmigrations()"
     },
     {
@@ -90,7 +117,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\database\\migrations\\reset.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_database_migrations_reset_js",
-      "community": 13,
+      "community": 14,
       "norm_label": "reset.js"
     },
     {
@@ -99,7 +126,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\database\\migrations\\reset.js",
       "source_location": "L3",
       "id": "reset_resetdatabase",
-      "community": 13,
+      "community": 14,
       "norm_label": "resetdatabase()"
     },
     {
@@ -108,7 +135,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\database\\seeds\\seed.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_database_seeds_seed_js",
-      "community": 14,
+      "community": 15,
       "norm_label": "seed.js"
     },
     {
@@ -117,7 +144,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\database\\seeds\\seed.js",
       "source_location": "L5",
       "id": "seed_seeddatabase",
-      "community": 14,
+      "community": 15,
       "norm_label": "seeddatabase()"
     },
     {
@@ -126,7 +153,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\app.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_app_js",
-      "community": 54,
+      "community": 58,
       "norm_label": "app.js"
     },
     {
@@ -135,8 +162,17 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\server.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_server_js",
-      "community": 55,
+      "community": 59,
       "norm_label": "server.js"
+    },
+    {
+      "label": "operations-analysis.prompt.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\ai\\prompts\\operations-analysis.prompt.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_ai_prompts_operations_analysis_prompt_js",
+      "community": 60,
+      "norm_label": "operations-analysis.prompt.js"
     },
     {
       "label": "db.js",
@@ -162,8 +198,26 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\config\\index.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_config_index_js",
-      "community": 56,
+      "community": 61,
       "norm_label": "index.js"
+    },
+    {
+      "label": "ai.controller.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\ai.controller.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_controllers_ai_controller_js",
+      "community": 1,
+      "norm_label": "ai.controller.js"
+    },
+    {
+      "label": "analyzeOperationalContext()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\ai.controller.js",
+      "source_location": "L6",
+      "id": "ai_controller_analyzeoperationalcontext",
+      "community": 1,
+      "norm_label": "analyzeoperationalcontext()"
     },
     {
       "label": "guests.controller.js",
@@ -279,7 +333,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\operations.controller.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_controllers_operations_controller_js",
-      "community": 6,
+      "community": 7,
       "norm_label": "operations.controller.js"
     },
     {
@@ -288,7 +342,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\operations.controller.js",
       "source_location": "L6",
       "id": "operations_controller_getoperationssummary",
-      "community": 6,
+      "community": 7,
       "norm_label": "getoperationssummary()"
     },
     {
@@ -432,7 +486,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\data\\dataStore.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_data_datastore_js",
-      "community": 15,
+      "community": 16,
       "norm_label": "datastore.js"
     },
     {
@@ -441,7 +495,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\data\\dataStore.js",
       "source_location": "L17",
       "id": "datastore_loadinitialdata",
-      "community": 15,
+      "community": 16,
       "norm_label": "loadinitialdata()"
     },
     {
@@ -450,7 +504,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\middleware\\errorHandler.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_middleware_errorhandler_js",
-      "community": 11,
+      "community": 12,
       "norm_label": "errorhandler.js"
     },
     {
@@ -459,7 +513,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\middleware\\errorHandler.js",
       "source_location": "L4",
       "id": "errorhandler_errorhandler",
-      "community": 11,
+      "community": 12,
       "norm_label": "errorhandler()"
     },
     {
@@ -468,8 +522,17 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\middleware\\errorHandler.js",
       "source_location": "L25",
       "id": "errorhandler_notfoundhandler",
-      "community": 11,
+      "community": 12,
       "norm_label": "notfoundhandler()"
+    },
+    {
+      "label": "ai.routes.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\ai.routes.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_ai_routes_js",
+      "community": 62,
+      "norm_label": "ai.routes.js"
     },
     {
       "label": "guests.routes.js",
@@ -477,7 +540,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\guests.routes.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_guests_routes_js",
-      "community": 57,
+      "community": 63,
       "norm_label": "guests.routes.js"
     },
     {
@@ -486,7 +549,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\healthRoutes.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_healthroutes_js",
-      "community": 58,
+      "community": 64,
       "norm_label": "healthroutes.js"
     },
     {
@@ -495,7 +558,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\incidents.routes.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_incidents_routes_js",
-      "community": 59,
+      "community": 65,
       "norm_label": "incidents.routes.js"
     },
     {
@@ -504,7 +567,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\operations.routes.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_operations_routes_js",
-      "community": 60,
+      "community": 66,
       "norm_label": "operations.routes.js"
     },
     {
@@ -513,7 +576,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\rooms.routes.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_rooms_routes_js",
-      "community": 61,
+      "community": 67,
       "norm_label": "rooms.routes.js"
     },
     {
@@ -522,7 +585,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\staff.routes.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_staff_routes_js",
-      "community": 62,
+      "community": 68,
       "norm_label": "staff.routes.js"
     },
     {
@@ -531,7 +594,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\routes\\tasks.routes.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_routes_tasks_routes_js",
-      "community": 63,
+      "community": 69,
       "norm_label": "tasks.routes.js"
     },
     {
@@ -540,7 +603,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\guestService.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_services_guestservice_js",
-      "community": 2,
+      "community": 3,
       "norm_label": "guestservice.js"
     },
     {
@@ -549,7 +612,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\guestService.js",
       "source_location": "L3",
       "id": "guestservice_guestservice",
-      "community": 2,
+      "community": 3,
       "norm_label": "guestservice"
     },
     {
@@ -558,7 +621,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\guestService.js",
       "source_location": "L4",
       "id": "guestservice_guestservice_getall",
-      "community": 2,
+      "community": 3,
       "norm_label": ".getall()"
     },
     {
@@ -567,7 +630,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\guestService.js",
       "source_location": "L19",
       "id": "guestservice_guestservice_getbyid",
-      "community": 2,
+      "community": 3,
       "norm_label": ".getbyid()"
     },
     {
@@ -576,7 +639,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\guestService.js",
       "source_location": "L23",
       "id": "guestservice_guestservice_create",
-      "community": 2,
+      "community": 3,
       "norm_label": ".create()"
     },
     {
@@ -585,7 +648,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\guestService.js",
       "source_location": "L38",
       "id": "guestservice_guestservice_update",
-      "community": 2,
+      "community": 3,
       "norm_label": ".update()"
     },
     {
@@ -594,7 +657,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\incidentService.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_services_incidentservice_js",
-      "community": 3,
+      "community": 4,
       "norm_label": "incidentservice.js"
     },
     {
@@ -603,7 +666,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\incidentService.js",
       "source_location": "L3",
       "id": "incidentservice_incidentservice",
-      "community": 3,
+      "community": 4,
       "norm_label": "incidentservice"
     },
     {
@@ -612,7 +675,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\incidentService.js",
       "source_location": "L4",
       "id": "incidentservice_incidentservice_getall",
-      "community": 3,
+      "community": 4,
       "norm_label": ".getall()"
     },
     {
@@ -621,7 +684,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\incidentService.js",
       "source_location": "L26",
       "id": "incidentservice_incidentservice_getbyid",
-      "community": 3,
+      "community": 4,
       "norm_label": ".getbyid()"
     },
     {
@@ -630,7 +693,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\incidentService.js",
       "source_location": "L30",
       "id": "incidentservice_incidentservice_create",
-      "community": 3,
+      "community": 4,
       "norm_label": ".create()"
     },
     {
@@ -639,7 +702,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\incidentService.js",
       "source_location": "L46",
       "id": "incidentservice_incidentservice_update",
-      "community": 3,
+      "community": 4,
       "norm_label": ".update()"
     },
     {
@@ -648,8 +711,71 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\index.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_services_index_js",
-      "community": 64,
+      "community": 70,
       "norm_label": "index.js"
+    },
+    {
+      "label": "openai.service.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_backend_src_services_openai_service_js",
+      "community": 1,
+      "norm_label": "openai.service.js"
+    },
+    {
+      "label": "OpenAIService",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L26",
+      "id": "openai_service_openaiservice",
+      "community": 1,
+      "norm_label": "openaiservice"
+    },
+    {
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L27",
+      "id": "openai_service_openaiservice_constructor",
+      "community": 1,
+      "norm_label": ".constructor()"
+    },
+    {
+      "label": ".initClient()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L32",
+      "id": "openai_service_openaiservice_initclient",
+      "community": 1,
+      "norm_label": ".initclient()"
+    },
+    {
+      "label": ".validateInputContext()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L44",
+      "id": "openai_service_openaiservice_validateinputcontext",
+      "community": 1,
+      "norm_label": ".validateinputcontext()"
+    },
+    {
+      "label": ".validateAIOutput()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L74",
+      "id": "openai_service_openaiservice_validateaioutput",
+      "community": 1,
+      "norm_label": ".validateaioutput()"
+    },
+    {
+      "label": ".analyzeContext()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L104",
+      "id": "openai_service_openaiservice_analyzecontext",
+      "community": 1,
+      "norm_label": ".analyzecontext()"
     },
     {
       "label": "operationsService.js",
@@ -657,7 +783,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\operationsService.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_services_operationsservice_js",
-      "community": 6,
+      "community": 7,
       "norm_label": "operationsservice.js"
     },
     {
@@ -666,7 +792,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\operationsService.js",
       "source_location": "L3",
       "id": "operationsservice_operationsservice",
-      "community": 6,
+      "community": 7,
       "norm_label": "operationsservice"
     },
     {
@@ -675,7 +801,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\operationsService.js",
       "source_location": "L4",
       "id": "operationsservice_operationsservice_getsummary",
-      "community": 6,
+      "community": 7,
       "norm_label": ".getsummary()"
     },
     {
@@ -684,7 +810,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\roomService.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_services_roomservice_js",
-      "community": 4,
+      "community": 5,
       "norm_label": "roomservice.js"
     },
     {
@@ -693,7 +819,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\roomService.js",
       "source_location": "L3",
       "id": "roomservice_roomservice",
-      "community": 4,
+      "community": 5,
       "norm_label": "roomservice"
     },
     {
@@ -702,7 +828,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\roomService.js",
       "source_location": "L4",
       "id": "roomservice_roomservice_getall",
-      "community": 4,
+      "community": 5,
       "norm_label": ".getall()"
     },
     {
@@ -711,7 +837,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\roomService.js",
       "source_location": "L25",
       "id": "roomservice_roomservice_getbyid",
-      "community": 4,
+      "community": 5,
       "norm_label": ".getbyid()"
     },
     {
@@ -720,7 +846,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\roomService.js",
       "source_location": "L29",
       "id": "roomservice_roomservice_create",
-      "community": 4,
+      "community": 5,
       "norm_label": ".create()"
     },
     {
@@ -729,7 +855,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\roomService.js",
       "source_location": "L43",
       "id": "roomservice_roomservice_update",
-      "community": 4,
+      "community": 5,
       "norm_label": ".update()"
     },
     {
@@ -738,7 +864,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\staffService.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_backend_src_services_staffservice_js",
-      "community": 5,
+      "community": 6,
       "norm_label": "staffservice.js"
     },
     {
@@ -747,7 +873,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\staffService.js",
       "source_location": "L3",
       "id": "staffservice_staffservice",
-      "community": 5,
+      "community": 6,
       "norm_label": "staffservice"
     },
     {
@@ -756,7 +882,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\staffService.js",
       "source_location": "L4",
       "id": "staffservice_staffservice_getall",
-      "community": 5,
+      "community": 6,
       "norm_label": ".getall()"
     },
     {
@@ -765,7 +891,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\staffService.js",
       "source_location": "L18",
       "id": "staffservice_staffservice_getbyid",
-      "community": 5,
+      "community": 6,
       "norm_label": ".getbyid()"
     },
     {
@@ -774,7 +900,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\staffService.js",
       "source_location": "L22",
       "id": "staffservice_staffservice_create",
-      "community": 5,
+      "community": 6,
       "norm_label": ".create()"
     },
     {
@@ -783,7 +909,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\staffService.js",
       "source_location": "L35",
       "id": "staffservice_staffservice_update",
-      "community": 5,
+      "community": 6,
       "norm_label": ".update()"
     },
     {
@@ -846,7 +972,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\next.config.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_next_config_js",
-      "community": 65,
+      "community": 71,
       "norm_label": "next.config.js"
     },
     {
@@ -855,7 +981,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\postcss.config.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_postcss_config_js",
-      "community": 66,
+      "community": 72,
       "norm_label": "postcss.config.js"
     },
     {
@@ -864,7 +990,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\tailwind.config.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_tailwind_config_js",
-      "community": 67,
+      "community": 73,
       "norm_label": "tailwind.config.js"
     },
     {
@@ -873,7 +999,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\layout.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_app_layout_js",
-      "community": 16,
+      "community": 17,
       "norm_label": "layout.js"
     },
     {
@@ -882,7 +1008,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\layout.js",
       "source_location": "L9",
       "id": "layout_rootlayout",
-      "community": 16,
+      "community": 17,
       "norm_label": "rootlayout()"
     },
     {
@@ -891,7 +1017,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\page.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_app_page_js",
-      "community": 17,
+      "community": 18,
       "norm_label": "page.js"
     },
     {
@@ -900,7 +1026,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\page.js",
       "source_location": "L17",
       "id": "page_homepage",
-      "community": 17,
+      "community": 18,
       "norm_label": "homepage()"
     },
     {
@@ -909,7 +1035,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\dashboard\\page.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_app_dashboard_page_js",
-      "community": 18,
+      "community": 19,
       "norm_label": "page.js"
     },
     {
@@ -918,8 +1044,26 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\dashboard\\page.js",
       "source_location": "L13",
       "id": "page_dashboardpage",
-      "community": 18,
+      "community": 19,
       "norm_label": "dashboardpage()"
+    },
+    {
+      "label": "page.js",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\dashboard\\agents\\page.js",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_app_dashboard_agents_page_js",
+      "community": 20,
+      "norm_label": "page.js"
+    },
+    {
+      "label": "AgentSwarmPage()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\dashboard\\agents\\page.js",
+      "source_location": "L21",
+      "id": "page_agentswarmpage",
+      "community": 20,
+      "norm_label": "agentswarmpage()"
     },
     {
       "label": "page.js",
@@ -927,7 +1071,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\sign-in\\page.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_app_sign_in_page_js",
-      "community": 19,
+      "community": 21,
       "norm_label": "page.js"
     },
     {
@@ -936,7 +1080,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\sign-in\\page.js",
       "source_location": "L8",
       "id": "page_signinpage",
-      "community": 19,
+      "community": 21,
       "norm_label": "signinpage()"
     },
     {
@@ -945,7 +1089,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\sign-up\\page.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_app_sign_up_page_js",
-      "community": 20,
+      "community": 22,
       "norm_label": "page.js"
     },
     {
@@ -954,7 +1098,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\sign-up\\page.js",
       "source_location": "L8",
       "id": "page_signuppage",
-      "community": 20,
+      "community": 22,
       "norm_label": "signuppage()"
     },
     {
@@ -963,8 +1107,26 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\index.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_index_js",
-      "community": 68,
+      "community": 74,
       "norm_label": "index.js"
+    },
+    {
+      "label": "AgentCard.jsx",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\AgentCard.jsx",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_agents_agentcard_jsx",
+      "community": 23,
+      "norm_label": "agentcard.jsx"
+    },
+    {
+      "label": "AgentCard()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\AgentCard.jsx",
+      "source_location": "L20",
+      "id": "agentcard_agentcard",
+      "community": 23,
+      "norm_label": "agentcard()"
     },
     {
       "label": "AgentSection.jsx",
@@ -972,7 +1134,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\AgentSection.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_agents_agentsection_jsx",
-      "community": 21,
+      "community": 24,
       "norm_label": "agentsection.jsx"
     },
     {
@@ -981,8 +1143,26 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\AgentSection.jsx",
       "source_location": "L6",
       "id": "agentsection_agentsection",
-      "community": 21,
+      "community": 24,
       "norm_label": "agentsection()"
+    },
+    {
+      "label": "ScenarioSelector.jsx",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\ScenarioSelector.jsx",
+      "source_location": "L1",
+      "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_agents_scenarioselector_jsx",
+      "community": 25,
+      "norm_label": "scenarioselector.jsx"
+    },
+    {
+      "label": "ScenarioSelector()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\ScenarioSelector.jsx",
+      "source_location": "L263",
+      "id": "scenarioselector_scenarioselector",
+      "community": 25,
+      "norm_label": "scenarioselector()"
     },
     {
       "label": "OperationalStrip.jsx",
@@ -990,7 +1170,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\analytics\\OperationalStrip.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_analytics_operationalstrip_jsx",
-      "community": 22,
+      "community": 26,
       "norm_label": "operationalstrip.jsx"
     },
     {
@@ -999,7 +1179,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\analytics\\OperationalStrip.jsx",
       "source_location": "L6",
       "id": "operationalstrip_operationalstrip",
-      "community": 22,
+      "community": 26,
       "norm_label": "operationalstrip()"
     },
     {
@@ -1008,7 +1188,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\consensus\\MultiAgentConsensus.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_consensus_multiagentconsensus_jsx",
-      "community": 23,
+      "community": 27,
       "norm_label": "multiagentconsensus.jsx"
     },
     {
@@ -1017,7 +1197,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\consensus\\MultiAgentConsensus.jsx",
       "source_location": "L6",
       "id": "multiagentconsensus_multiagentconsensus",
-      "community": 23,
+      "community": 27,
       "norm_label": "multiagentconsensus()"
     },
     {
@@ -1026,7 +1206,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\cta\\FinalCTA.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_cta_finalcta_jsx",
-      "community": 24,
+      "community": 28,
       "norm_label": "finalcta.jsx"
     },
     {
@@ -1035,7 +1215,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\cta\\FinalCTA.jsx",
       "source_location": "L6",
       "id": "finalcta_finalcta",
-      "community": 24,
+      "community": 28,
       "norm_label": "finalcta()"
     },
     {
@@ -1044,7 +1224,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\ActiveTasks.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_dashboard_activetasks_jsx",
-      "community": 25,
+      "community": 29,
       "norm_label": "activetasks.jsx"
     },
     {
@@ -1053,7 +1233,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\ActiveTasks.jsx",
       "source_location": "L6",
       "id": "activetasks_activetasks",
-      "community": 25,
+      "community": 29,
       "norm_label": "activetasks()"
     },
     {
@@ -1062,7 +1242,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\AttentionPanel.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_dashboard_attentionpanel_jsx",
-      "community": 26,
+      "community": 30,
       "norm_label": "attentionpanel.jsx"
     },
     {
@@ -1071,7 +1251,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\AttentionPanel.jsx",
       "source_location": "L6",
       "id": "attentionpanel_attentionpanel",
-      "community": 26,
+      "community": 30,
       "norm_label": "attentionpanel()"
     },
     {
@@ -1080,7 +1260,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\DashboardShell.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_dashboard_dashboardshell_jsx",
-      "community": 27,
+      "community": 31,
       "norm_label": "dashboardshell.jsx"
     },
     {
@@ -1089,7 +1269,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\DashboardShell.jsx",
       "source_location": "L7",
       "id": "dashboardshell_dashboardshell",
-      "community": 27,
+      "community": 31,
       "norm_label": "dashboardshell()"
     },
     {
@@ -1098,7 +1278,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\Header.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_dashboard_header_jsx",
-      "community": 28,
+      "community": 32,
       "norm_label": "header.jsx"
     },
     {
@@ -1107,7 +1287,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\Header.jsx",
       "source_location": "L7",
       "id": "header_header",
-      "community": 28,
+      "community": 32,
       "norm_label": "header()"
     },
     {
@@ -1116,7 +1296,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\IncidentOverview.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_dashboard_incidentoverview_jsx",
-      "community": 29,
+      "community": 33,
       "norm_label": "incidentoverview.jsx"
     },
     {
@@ -1125,7 +1305,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\IncidentOverview.jsx",
       "source_location": "L6",
       "id": "incidentoverview_incidentoverview",
-      "community": 29,
+      "community": 33,
       "norm_label": "incidentoverview()"
     },
     {
@@ -1134,7 +1314,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\RoomOverview.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_dashboard_roomoverview_jsx",
-      "community": 30,
+      "community": 34,
       "norm_label": "roomoverview.jsx"
     },
     {
@@ -1143,7 +1323,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\RoomOverview.jsx",
       "source_location": "L6",
       "id": "roomoverview_roomoverview",
-      "community": 30,
+      "community": 34,
       "norm_label": "roomoverview()"
     },
     {
@@ -1152,7 +1332,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\Sidebar.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_dashboard_sidebar_jsx",
-      "community": 31,
+      "community": 35,
       "norm_label": "sidebar.jsx"
     },
     {
@@ -1161,7 +1341,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\Sidebar.jsx",
       "source_location": "L21",
       "id": "sidebar_sidebar",
-      "community": 31,
+      "community": 35,
       "norm_label": "sidebar()"
     },
     {
@@ -1170,7 +1350,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\StatCard.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_dashboard_statcard_jsx",
-      "community": 32,
+      "community": 36,
       "norm_label": "statcard.jsx"
     },
     {
@@ -1179,7 +1359,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\dashboard\\StatCard.jsx",
       "source_location": "L5",
       "id": "statcard_statcard",
-      "community": 32,
+      "community": 36,
       "norm_label": "statcard()"
     },
     {
@@ -1188,7 +1368,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\execution\\LiveExecution.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_execution_liveexecution_jsx",
-      "community": 33,
+      "community": 37,
       "norm_label": "liveexecution.jsx"
     },
     {
@@ -1197,7 +1377,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\execution\\LiveExecution.jsx",
       "source_location": "L6",
       "id": "liveexecution_liveexecution",
-      "community": 33,
+      "community": 37,
       "norm_label": "liveexecution()"
     },
     {
@@ -1206,7 +1386,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\faq\\FAQ.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_faq_faq_jsx",
-      "community": 34,
+      "community": 38,
       "norm_label": "faq.jsx"
     },
     {
@@ -1215,7 +1395,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\faq\\FAQ.jsx",
       "source_location": "L6",
       "id": "faq_faq",
-      "community": 34,
+      "community": 38,
       "norm_label": "faq()"
     },
     {
@@ -1224,7 +1404,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\footer\\Footer.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_footer_footer_jsx",
-      "community": 35,
+      "community": 39,
       "norm_label": "footer.jsx"
     },
     {
@@ -1233,7 +1413,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\footer\\Footer.jsx",
       "source_location": "L6",
       "id": "footer_footer",
-      "community": 35,
+      "community": 39,
       "norm_label": "footer()"
     },
     {
@@ -1242,7 +1422,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\hero\\Hero.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_hero_hero_jsx",
-      "community": 36,
+      "community": 40,
       "norm_label": "hero.jsx"
     },
     {
@@ -1251,7 +1431,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\hero\\Hero.jsx",
       "source_location": "L7",
       "id": "hero_hero",
-      "community": 36,
+      "community": 40,
       "norm_label": "hero()"
     },
     {
@@ -1260,7 +1440,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\incidents\\LiveIncidentSection.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_incidents_liveincidentsection_jsx",
-      "community": 37,
+      "community": 41,
       "norm_label": "liveincidentsection.jsx"
     },
     {
@@ -1269,7 +1449,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\incidents\\LiveIncidentSection.jsx",
       "source_location": "L18",
       "id": "liveincidentsection_liveincidentsection",
-      "community": 37,
+      "community": 41,
       "norm_label": "liveincidentsection()"
     },
     {
@@ -1278,7 +1458,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\navbar\\Navbar.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_navbar_navbar_jsx",
-      "community": 38,
+      "community": 42,
       "norm_label": "navbar.jsx"
     },
     {
@@ -1287,7 +1467,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\navbar\\Navbar.jsx",
       "source_location": "L8",
       "id": "navbar_navbar",
-      "community": 38,
+      "community": 42,
       "norm_label": "navbar()"
     },
     {
@@ -1296,7 +1476,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\CoreProblem.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_operations_coreproblem_jsx",
-      "community": 39,
+      "community": 43,
       "norm_label": "coreproblem.jsx"
     },
     {
@@ -1305,7 +1485,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\CoreProblem.jsx",
       "source_location": "L6",
       "id": "coreproblem_coreproblem",
-      "community": 39,
+      "community": 43,
       "norm_label": "coreproblem()"
     },
     {
@@ -1314,7 +1494,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\HowItWorks.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_operations_howitworks_jsx",
-      "community": 40,
+      "community": 44,
       "norm_label": "howitworks.jsx"
     },
     {
@@ -1323,7 +1503,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\HowItWorks.jsx",
       "source_location": "L6",
       "id": "howitworks_howitworks",
-      "community": 40,
+      "community": 44,
       "norm_label": "howitworks()"
     },
     {
@@ -1332,7 +1512,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\HumanControl.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_operations_humancontrol_jsx",
-      "community": 41,
+      "community": 45,
       "norm_label": "humancontrol.jsx"
     },
     {
@@ -1341,7 +1521,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\HumanControl.jsx",
       "source_location": "L6",
       "id": "humancontrol_humancontrol",
-      "community": 41,
+      "community": 45,
       "norm_label": "humancontrol()"
     },
     {
@@ -1350,7 +1530,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\OperationalUseCases.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_operations_operationalusecases_jsx",
-      "community": 42,
+      "community": 46,
       "norm_label": "operationalusecases.jsx"
     },
     {
@@ -1359,7 +1539,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\OperationalUseCases.jsx",
       "source_location": "L6",
       "id": "operationalusecases_operationalusecases",
-      "community": 42,
+      "community": 46,
       "norm_label": "operationalusecases()"
     },
     {
@@ -1368,7 +1548,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\ProductExplanation.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_operations_productexplanation_jsx",
-      "community": 43,
+      "community": 47,
       "norm_label": "productexplanation.jsx"
     },
     {
@@ -1377,7 +1557,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\ProductExplanation.jsx",
       "source_location": "L6",
       "id": "productexplanation_productexplanation",
-      "community": 43,
+      "community": 47,
       "norm_label": "productexplanation()"
     },
     {
@@ -1386,7 +1566,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\WhyResort360.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_operations_whyresort360_jsx",
-      "community": 44,
+      "community": 48,
       "norm_label": "whyresort360.jsx"
     },
     {
@@ -1395,7 +1575,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\operations\\WhyResort360.jsx",
       "source_location": "L6",
       "id": "whyresort360_whyresort360",
-      "community": 44,
+      "community": 48,
       "norm_label": "whyresort360()"
     },
     {
@@ -1404,7 +1584,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\AgentsSection.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_agentssection_jsx",
-      "community": 45,
+      "community": 49,
       "norm_label": "agentssection.jsx"
     },
     {
@@ -1413,7 +1593,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\AgentsSection.jsx",
       "source_location": "L6",
       "id": "agentssection_agentssection",
-      "community": 45,
+      "community": 49,
       "norm_label": "agentssection()"
     },
     {
@@ -1422,7 +1602,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\CoreScenarioSection.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_corescenariosection_jsx",
-      "community": 46,
+      "community": 50,
       "norm_label": "corescenariosection.jsx"
     },
     {
@@ -1431,7 +1611,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\CoreScenarioSection.jsx",
       "source_location": "L7",
       "id": "corescenariosection_corescenariosection",
-      "community": 46,
+      "community": 50,
       "norm_label": "corescenariosection()"
     },
     {
@@ -1440,7 +1620,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\CtaSection.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_ctasection_jsx",
-      "community": 47,
+      "community": 51,
       "norm_label": "ctasection.jsx"
     },
     {
@@ -1449,7 +1629,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\CtaSection.jsx",
       "source_location": "L7",
       "id": "ctasection_ctasection",
-      "community": 47,
+      "community": 51,
       "norm_label": "ctasection()"
     },
     {
@@ -1458,7 +1638,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\ExecutionTimeline.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_executiontimeline_jsx",
-      "community": 48,
+      "community": 52,
       "norm_label": "executiontimeline.jsx"
     },
     {
@@ -1467,7 +1647,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\ExecutionTimeline.jsx",
       "source_location": "L6",
       "id": "executiontimeline_executiontimeline",
-      "community": 48,
+      "community": 52,
       "norm_label": "executiontimeline()"
     },
     {
@@ -1476,7 +1656,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\HumanControlSection.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_humancontrolsection_jsx",
-      "community": 49,
+      "community": 53,
       "norm_label": "humancontrolsection.jsx"
     },
     {
@@ -1485,7 +1665,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\HumanControlSection.jsx",
       "source_location": "L6",
       "id": "humancontrolsection_humancontrolsection",
-      "community": 49,
+      "community": 53,
       "norm_label": "humancontrolsection()"
     },
     {
@@ -1494,7 +1674,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\ProblemSection.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_problemsection_jsx",
-      "community": 50,
+      "community": 54,
       "norm_label": "problemsection.jsx"
     },
     {
@@ -1503,7 +1683,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\ProblemSection.jsx",
       "source_location": "L6",
       "id": "problemsection_problemsection",
-      "community": 50,
+      "community": 54,
       "norm_label": "problemsection()"
     },
     {
@@ -1512,7 +1692,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\ProcessFlow.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_processflow_jsx",
-      "community": 51,
+      "community": 55,
       "norm_label": "processflow.jsx"
     },
     {
@@ -1521,7 +1701,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\ProcessFlow.jsx",
       "source_location": "L6",
       "id": "processflow_processflow",
-      "community": 51,
+      "community": 55,
       "norm_label": "processflow()"
     },
     {
@@ -1530,7 +1710,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\UseCasesGrid.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_usecasesgrid_jsx",
-      "community": 52,
+      "community": 56,
       "norm_label": "usecasesgrid.jsx"
     },
     {
@@ -1539,7 +1719,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\UseCasesGrid.jsx",
       "source_location": "L5",
       "id": "usecasesgrid_usecasesgrid",
-      "community": 52,
+      "community": 56,
       "norm_label": "usecasesgrid()"
     },
     {
@@ -1548,7 +1728,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\WhySection.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_sections_whysection_jsx",
-      "community": 53,
+      "community": 57,
       "norm_label": "whysection.jsx"
     },
     {
@@ -1557,7 +1737,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\sections\\WhySection.jsx",
       "source_location": "L6",
       "id": "whysection_whysection",
-      "community": 53,
+      "community": 57,
       "norm_label": "whysection()"
     },
     {
@@ -1566,7 +1746,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\ui\\ThemeProvider.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_ui_themeprovider_jsx",
-      "community": 7,
+      "community": 8,
       "norm_label": "themeprovider.jsx"
     },
     {
@@ -1575,7 +1755,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\ui\\ThemeProvider.jsx",
       "source_location": "L11",
       "id": "themeprovider_themeprovider",
-      "community": 7,
+      "community": 8,
       "norm_label": "themeprovider()"
     },
     {
@@ -1584,7 +1764,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\ui\\ThemeProvider.jsx",
       "source_location": "L55",
       "id": "themeprovider_usetheme",
-      "community": 7,
+      "community": 8,
       "norm_label": "usetheme()"
     },
     {
@@ -1593,7 +1773,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\ui\\ThemeToggle.jsx",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_components_ui_themetoggle_jsx",
-      "community": 7,
+      "community": 8,
       "norm_label": "themetoggle.jsx"
     },
     {
@@ -1602,7 +1782,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\ui\\ThemeToggle.jsx",
       "source_location": "L7",
       "id": "themetoggle_themetoggle",
-      "community": 7,
+      "community": 8,
       "norm_label": "themetoggle()"
     },
     {
@@ -1611,7 +1791,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L1",
       "id": "c_web_devlopment_hackathonproject_resort360_frontend_lib_api_js",
-      "community": 1,
+      "community": 2,
       "norm_label": "api.js"
     },
     {
@@ -1620,7 +1800,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L7",
       "id": "api_fetchfromapi",
-      "community": 1,
+      "community": 2,
       "norm_label": "fetchfromapi()"
     },
     {
@@ -1629,7 +1809,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L32",
       "id": "api_checkbackendhealth",
-      "community": 1,
+      "community": 2,
       "norm_label": "checkbackendhealth()"
     },
     {
@@ -1638,7 +1818,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L39",
       "id": "api_getoperationssummary",
-      "community": 1,
+      "community": 2,
       "norm_label": "getoperationssummary()"
     },
     {
@@ -1647,7 +1827,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L46",
       "id": "api_getrooms",
-      "community": 1,
+      "community": 2,
       "norm_label": "getrooms()"
     },
     {
@@ -1656,7 +1836,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L59",
       "id": "api_getincidents",
-      "community": 1,
+      "community": 2,
       "norm_label": "getincidents()"
     },
     {
@@ -1665,7 +1845,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L73",
       "id": "api_gettasks",
-      "community": 1,
+      "community": 2,
       "norm_label": "gettasks()"
     },
     {
@@ -1674,7 +1854,7 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L87",
       "id": "api_getguests",
-      "community": 1,
+      "community": 2,
       "norm_label": "getguests()"
     },
     {
@@ -1683,11 +1863,56 @@
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
       "source_location": "L99",
       "id": "api_getstaff",
-      "community": 1,
+      "community": 2,
       "norm_label": "getstaff()"
+    },
+    {
+      "label": "analyzeOperationsContext()",
+      "file_type": "code",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
+      "source_location": "L112",
+      "id": "api_analyzeoperationscontext",
+      "community": 2,
+      "norm_label": "analyzeoperationscontext()"
     }
   ],
   "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-ai-route.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_backend_test_ai_route_js",
+      "_tgt": "test_ai_route_postjson",
+      "source": "c_web_devlopment_hackathonproject_resort360_backend_test_ai_route_js",
+      "target": "test_ai_route_postjson",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-ai-route.js",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_backend_test_ai_route_js",
+      "_tgt": "test_ai_route_testendpoint",
+      "source": "c_web_devlopment_hackathonproject_resort360_backend_test_ai_route_js",
+      "target": "test_ai_route_testendpoint",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\test-ai-route.js",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_src": "test_ai_route_testendpoint",
+      "_tgt": "test_ai_route_postjson",
+      "source": "test_ai_route_postjson",
+      "target": "test_ai_route_testendpoint",
+      "confidence_score": 1.0
+    },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
@@ -1749,6 +1974,30 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice_validateinputcontext",
+      "_tgt": "test_schemas_validatecontext",
+      "source": "test_schemas_validatecontext",
+      "target": "openai_service_openaiservice_validateinputcontext"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L80",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice_validateaioutput",
+      "_tgt": "test_schemas_validateresponse",
+      "source": "test_schemas_validateresponse",
+      "target": "openai_service_openaiservice_validateaioutput"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\database\\migrations\\migrate.js",
@@ -1807,6 +2056,30 @@
       "_tgt": "healthcontroller_gethealth",
       "source": "db_checkdatabasehealth",
       "target": "healthcontroller_gethealth"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\ai.controller.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_backend_src_controllers_ai_controller_js",
+      "_tgt": "ai_controller_analyzeoperationalcontext",
+      "source": "c_web_devlopment_hackathonproject_resort360_backend_src_controllers_ai_controller_js",
+      "target": "ai_controller_analyzeoperationalcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\controllers\\ai.controller.js",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_src": "ai_controller_analyzeoperationalcontext",
+      "_tgt": "openai_service_openaiservice_analyzecontext",
+      "source": "ai_controller_analyzeoperationalcontext",
+      "target": "openai_service_openaiservice_analyzecontext"
     },
     {
       "relation": "contains",
@@ -2555,6 +2828,138 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_backend_src_services_openai_service_js",
+      "_tgt": "openai_service_openaiservice",
+      "source": "c_web_devlopment_hackathonproject_resort360_backend_src_services_openai_service_js",
+      "target": "openai_service_openaiservice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice",
+      "_tgt": "openai_service_openaiservice_constructor",
+      "source": "openai_service_openaiservice",
+      "target": "openai_service_openaiservice_constructor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice",
+      "_tgt": "openai_service_openaiservice_initclient",
+      "source": "openai_service_openaiservice",
+      "target": "openai_service_openaiservice_initclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice",
+      "_tgt": "openai_service_openaiservice_validateinputcontext",
+      "source": "openai_service_openaiservice",
+      "target": "openai_service_openaiservice_validateinputcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L74",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice",
+      "_tgt": "openai_service_openaiservice_validateaioutput",
+      "source": "openai_service_openaiservice",
+      "target": "openai_service_openaiservice_validateaioutput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L104",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice",
+      "_tgt": "openai_service_openaiservice_analyzecontext",
+      "source": "openai_service_openaiservice",
+      "target": "openai_service_openaiservice_analyzecontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice_constructor",
+      "_tgt": "openai_service_openaiservice_initclient",
+      "source": "openai_service_openaiservice_constructor",
+      "target": "openai_service_openaiservice_initclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L116",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice_analyzecontext",
+      "_tgt": "openai_service_openaiservice_initclient",
+      "source": "openai_service_openaiservice_initclient",
+      "target": "openai_service_openaiservice_analyzecontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice_analyzecontext",
+      "_tgt": "openai_service_openaiservice_validateinputcontext",
+      "source": "openai_service_openaiservice_validateinputcontext",
+      "target": "openai_service_openaiservice_analyzecontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L197",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice_analyzecontext",
+      "_tgt": "openai_service_openaiservice_validateaioutput",
+      "source": "openai_service_openaiservice_validateaioutput",
+      "target": "openai_service_openaiservice_analyzecontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\openai.service.js",
+      "source_location": "L134",
+      "weight": 1.0,
+      "_src": "openai_service_openaiservice_analyzecontext",
+      "_tgt": "taskservice_taskservice_create",
+      "source": "openai_service_openaiservice_analyzecontext",
+      "target": "taskservice_taskservice_create"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\backend\\src\\services\\operationsService.js",
       "source_location": "L3",
       "weight": 1.0,
@@ -2795,6 +3200,18 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\dashboard\\agents\\page.js",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_frontend_app_dashboard_agents_page_js",
+      "_tgt": "page_agentswarmpage",
+      "source": "c_web_devlopment_hackathonproject_resort360_frontend_app_dashboard_agents_page_js",
+      "target": "page_agentswarmpage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\app\\sign-in\\page.js",
       "source_location": "L8",
       "weight": 1.0,
@@ -2819,6 +3236,18 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\AgentCard.jsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_frontend_components_agents_agentcard_jsx",
+      "_tgt": "agentcard_agentcard",
+      "source": "c_web_devlopment_hackathonproject_resort360_frontend_components_agents_agentcard_jsx",
+      "target": "agentcard_agentcard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\AgentSection.jsx",
       "source_location": "L6",
       "weight": 1.0,
@@ -2826,6 +3255,18 @@
       "_tgt": "agentsection_agentsection",
       "source": "c_web_devlopment_hackathonproject_resort360_frontend_components_agents_agentsection_jsx",
       "target": "agentsection_agentsection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\components\\agents\\ScenarioSelector.jsx",
+      "source_location": "L263",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_frontend_components_agents_scenarioselector_jsx",
+      "_tgt": "scenarioselector_scenarioselector",
+      "source": "c_web_devlopment_hackathonproject_resort360_frontend_components_agents_scenarioselector_jsx",
+      "target": "scenarioselector_scenarioselector",
       "confidence_score": 1.0
     },
     {
@@ -3357,6 +3798,18 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
+      "source_location": "L112",
+      "weight": 1.0,
+      "_src": "c_web_devlopment_hackathonproject_resort360_frontend_lib_api_js",
+      "_tgt": "api_analyzeoperationscontext",
+      "source": "c_web_devlopment_hackathonproject_resort360_frontend_lib_api_js",
+      "target": "api_analyzeoperationscontext",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
@@ -3438,6 +3891,18 @@
       "_tgt": "api_fetchfromapi",
       "source": "api_fetchfromapi",
       "target": "api_getstaff",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Web Devlopment\\HackathonProject\\resort360\\frontend\\lib\\api.js",
+      "source_location": "L113",
+      "weight": 1.0,
+      "_src": "api_analyzeoperationscontext",
+      "_tgt": "api_fetchfromapi",
+      "source": "api_fetchfromapi",
+      "target": "api_analyzeoperationscontext",
       "confidence_score": 1.0
     }
   ],

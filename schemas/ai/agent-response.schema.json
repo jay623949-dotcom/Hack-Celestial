@@ -16,8 +16,8 @@
   "properties": {
     "agent": {
       "type": "string",
-      "enum": ["front_desk", "housekeeping", "maintenance", "revenue", "guest_services"],
-      "description": "Identifier of the domain agent providing the analysis"
+      "enum": ["operations", "front_desk", "housekeeping", "maintenance", "revenue", "guest_services"],
+      "description": "Identifier of the domain agent or coordinator providing the analysis"
     },
     "schema_version": {
       "type": "string",

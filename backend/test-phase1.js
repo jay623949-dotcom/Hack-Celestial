@@ -237,6 +237,19 @@ server.listen(PORT, async () => {
     });
     assert(incidentInvalidRoom.status === 400 && incidentInvalidRoom.body.error.code === 'RELATIONSHIP_VALIDATION_ERROR', 'Associating incident to non-existent room returns 400 RELATIONSHIP_VALIDATION_ERROR');
 
+    console.log('\n--- 9. AI Operational Analysis API ---');
+    const aiMissingContext = await request('/ai/analyze', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+    assert(aiMissingContext.status === 400 && aiMissingContext.body.error.code === 'MISSING_CONTEXT', 'POST /ai/analyze without context returns 400 MISSING_CONTEXT');
+
+    const aiInvalidContext = await request('/ai/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ context: { invalid: true } }),
+    });
+    assert(aiInvalidContext.status === 400 && aiInvalidContext.body.error.code === 'INVALID_CONTEXT', 'POST /ai/analyze with malformed context returns 400 INVALID_CONTEXT');
+
     console.log('\n========================================');
     console.log(`Test Execution Finished: ${passed} Passed, ${failed} Failed`);
     console.log('========================================\n');
