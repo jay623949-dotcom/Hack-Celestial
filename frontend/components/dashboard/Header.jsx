@@ -3,15 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Menu, Bell, ChevronDown, LogOut, ShieldCheck } from 'lucide-react';
+import { Menu, Bell, ChevronDown, LogOut, ShieldCheck, HelpCircle, BookOpen } from 'lucide-react';
 import { useRole, DEMO_ROLES } from '../../lib/roleContext';
 import { getSocket } from '../../lib/socket';
+import HelpDocsModal from '../common/HelpDocsModal';
+import NotificationsDrawer from '../common/NotificationsDrawer';
 
 export default function Header({ onMenuClick = () => {} }) {
   const { role, roleData, setRole } = useRole();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   useEffect(() => {
     const socket = getSocket();
@@ -56,6 +60,10 @@ export default function Header({ onMenuClick = () => {} }) {
 
   return (
     <header className="sticky top-0 z-30 h-16 border-b border-border bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-sm">
+      {/* Modals & Drawers */}
+      <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+      <NotificationsDrawer isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+
       {/* Left Branding & Logo */}
       <div className="flex items-center gap-4">
         <button
@@ -94,10 +102,24 @@ export default function Header({ onMenuClick = () => {} }) {
           <span className={`w-1.5 h-1.5 rounded-full ${socketConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
           <span>{socketConnected ? 'Live' : 'Reconnecting...'}</span>
         </div>
+
+        {/* Global Help & Documentation Button */}
+        <button
+          onClick={() => setHelpOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 bg-teal-50 text-teal-800 hover:bg-teal-100 transition-colors shadow-xs text-xs font-bold"
+          title="Interactive Operations Documentation"
+          aria-label="Open Help Documentation"
+        >
+          <HelpCircle className="w-4 h-4 text-teal-600" />
+          <span className="hidden md:inline">Help &amp; Docs</span>
+        </button>
+
         {/* Notifications */}
         <button
+          onClick={() => setNotifOpen(true)}
           className="p-2 rounded-xl border border-border bg-white text-muted-foreground hover:text-foreground relative transition-colors shadow-sm"
           aria-label="Notifications"
+          title="View Live Notifications"
         >
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-pulse" />

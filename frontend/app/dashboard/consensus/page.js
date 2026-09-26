@@ -7,8 +7,9 @@ import {
   AlertTriangle, ShieldAlert, Users, BedDouble, Wrench, TrendingUp,
   Clock, Zap, CheckSquare, XCircle, Info, ArrowRight, Layers,
   UserCheck, ShieldCheck, Edit3, ThumbsUp, ThumbsDown, History,
-  FileText, CornerDownRight, Check
+  FileText, CornerDownRight, Check, HelpCircle
 } from 'lucide-react';
+import HelpDocsModal from '../../../components/common/HelpDocsModal';
 import { useRole } from '../../../lib/roleContext';
 import {
   getActionPlan,
@@ -55,6 +56,7 @@ export default function OperationalDecisionReviewPage() {
   const [modifyReason, setModifyReason] = useState('Reassigning to Room 205 which is already inspected and available.');
   const [editableActions, setEditableActions] = useState([]);
   const [activeTab, setActiveTab] = useState('decision'); // 'decision' | 'audit'
+  const [helpOpen, setHelpOpen] = useState(false);
 
   // Nugen Domain-Aligned AI State
   const [nugenIntelligence, setNugenIntelligence] = useState(null);
@@ -220,6 +222,17 @@ export default function OperationalDecisionReviewPage() {
 
         {/* View mode toggle */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard/consensus" />
+
+          <button
+            onClick={() => setHelpOpen(true)}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 transition-colors flex items-center gap-1.5 shadow-xs"
+            title="Consensus Governance Documentation & Guide"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <span>Help &amp; Guide</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('decision')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${

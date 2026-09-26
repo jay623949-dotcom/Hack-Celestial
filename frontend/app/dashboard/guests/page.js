@@ -15,9 +15,12 @@ import {
   ArrowLeft,
   UserCheck,
   ShieldCheck,
+  HelpCircle,
 } from 'lucide-react';
+import HelpDocsModal from '../../../components/common/HelpDocsModal';
 
 export default function GuestsPage() {
+  const [helpOpen, setHelpOpen] = useState(false);
   const [guests, setGuests] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -78,6 +81,8 @@ export default function GuestsPage() {
 
   return (
     <DashboardShell>
+      <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard/guests" />
+
       {/* Breadcrumb & Navigation Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
@@ -99,6 +104,15 @@ export default function GuestsPage() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => setHelpOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors shadow-xs"
+            title="Guests Hub Documentation & Guide"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <span>Help &amp; Guide</span>
+          </button>
+
           <button
             onClick={fetchGuestsData}
             disabled={loading}

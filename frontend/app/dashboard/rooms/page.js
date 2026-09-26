@@ -17,9 +17,12 @@ import {
   ArrowLeft,
   Sparkles,
   ShieldCheck,
+  HelpCircle,
 } from 'lucide-react';
+import HelpDocsModal from '../../../components/common/HelpDocsModal';
 
 export default function RoomsPage() {
+  const [helpOpen, setHelpOpen] = useState(false);
   const [rooms, setRooms] = useState([]);
   const [summary, setSummary] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -96,6 +99,8 @@ export default function RoomsPage() {
 
   return (
     <DashboardShell>
+      <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard/rooms" />
+
       {/* Breadcrumb & Navigation Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
@@ -117,6 +122,15 @@ export default function RoomsPage() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => setHelpOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors shadow-xs"
+            title="Rooms Hub Documentation & Guide"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <span>Help &amp; Guide</span>
+          </button>
+
           <button
             onClick={() => fetchRoomsData(activeFilter)}
             disabled={loading}

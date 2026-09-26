@@ -163,6 +163,46 @@ export async function getStaff(params = {}) {
 }
 
 /**
+ * Update incident status or resolution notes
+ */
+export async function updateIncident(id, updates) {
+  return fetchFromApi(`/incidents/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * Update task status or assignment
+ */
+export async function updateTask(id, updates) {
+  return fetchFromApi(`/tasks/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * Update guest record
+ */
+export async function updateGuest(id, updates) {
+  return fetchFromApi(`/guests/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * Update staff duty status
+ */
+export async function updateStaff(id, updates) {
+  return fetchFromApi(`/staff/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
  * Fetch Canonical AI Context dynamically assembled from database state
  */
 export async function getOperationalContext(trigger = { type: 'multiple_incidents' }) {

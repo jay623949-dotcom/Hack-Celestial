@@ -8,8 +8,9 @@ import {
   Play, CheckCircle2, Clock, AlertTriangle, ShieldCheck,
   RotateCw, ArrowLeft, Users, BedDouble, Wrench, Radio,
   Activity, Check, Pause, ArrowRight, CornerDownRight,
-  Sparkles, Layers, ChevronRight, AlertCircle, RefreshCw
+  Sparkles, Layers, ChevronRight, AlertCircle, RefreshCw, HelpCircle
 } from 'lucide-react';
+import HelpDocsModal from '../../../../components/common/HelpDocsModal';
 import { useRole } from '../../../../lib/roleContext';
 import {
   getActionPlan,
@@ -50,6 +51,7 @@ export default function ActionPlanExecutionPage() {
   const [timeline, setTimeline] = useState([]);
   const [socketConnected, setSocketConnected] = useState(false);
   const [actionInProgress, setActionInProgress] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const timelineContainerRef = useRef(null);
 
@@ -232,6 +234,17 @@ export default function ActionPlanExecutionPage() {
               <span className={`w-2 h-2 rounded-full ${socketConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
               <span>{socketConnected ? 'Live Socket.IO' : 'Reconnecting...'}</span>
             </div>
+
+            <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard/execution" />
+
+            <button
+              onClick={() => setHelpOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 border border-teal-200 text-teal-800 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors shadow-xs"
+              title="Execution Engine Documentation & Guide"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+              <span>Help &amp; Guide</span>
+            </button>
 
             <button
               onClick={syncStateFromApi}

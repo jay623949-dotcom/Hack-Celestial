@@ -33,10 +33,13 @@ import {
   X,
   ShieldAlert,
   UserCheck,
+  HelpCircle,
 } from 'lucide-react';
+import HelpDocsModal from '../../components/common/HelpDocsModal';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const [helpOpen, setHelpOpen] = useState(false);
   const [summary, setSummary] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -175,6 +178,8 @@ export default function DashboardPage() {
   return (
     <DashboardShell>
       {/* Overview Greeting & Context */}
+      <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard" />
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
@@ -186,6 +191,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => setHelpOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors shadow-xs"
+            title="Operations Console Help & Guide"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <span>Help &amp; Guide</span>
+          </button>
+
           <button
             onClick={handleDemoReset}
             disabled={isResetting}
