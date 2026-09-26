@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import DashboardShell from '../../../components/dashboard/DashboardShell';
 import AgentCard from '../../../components/agents/AgentCard';
@@ -513,17 +514,26 @@ function AgentSwarmPageContent() {
             />
           </div>
 
-          {/* Human Approval Notice */}
-          <div className="p-4 rounded-xl border border-border bg-surface-secondary/30 flex items-start gap-3 text-xs text-muted-foreground">
-            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="font-semibold text-foreground">
-                Human-in-the-Loop Governance Notice
-              </p>
-              <p className="leading-relaxed">
-                The Swarm Consensus Engine generates advisory recommendations. All cross-departmental room reassignments or resource reallocations require explicit Duty Manager authorization.
-              </p>
+          {/* Human Approval Notice & Direct Link to Consensus Report */}
+          <div className="p-4 rounded-xl border border-border bg-surface-secondary/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+            <div className="flex items-start gap-3">
+              <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-semibold text-foreground">
+                  Human-in-the-Loop Governance Notice
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  The Swarm Consensus Engine generates advisory recommendations. All cross-departmental room reassignments or resource reallocations require explicit Duty Manager authorization.
+                </p>
+              </div>
             </div>
+            <Link
+              href="/dashboard/consensus"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-xs hover:bg-primary/90 transition-colors shrink-0 shadow-xs"
+            >
+              <span>Review in Consensus Report</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       )}
