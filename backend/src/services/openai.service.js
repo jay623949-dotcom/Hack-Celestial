@@ -250,15 +250,20 @@ class AIService {
       }
 
       // Standard Chat Completions (works for OpenAI, Ollama, LM Studio, vLLM)
-      const chatCompletion = await client.chat.completions.create({
+      // Note: response_format json_object is only supported by OpenAI — local/Ollama models
+      // enforce JSON output via system prompt reinforcement instead.
+      const completionParams = {
         model,
         messages: [
-          { role: 'system', content: systemInstructions },
+          { role: 'system', content: `${systemInstructions}\n\nCRITICAL: You MUST respond with ONLY a valid JSON object. No markdown, no prose, no code fences. Start your response with { and end with }.` },
           { role: 'user', content: userPrompt },
         ],
-        response_format: { type: 'json_object' },
         temperature: 0.2,
-      });
+      };
+      if (providerLabel === 'OpenAI') {
+        completionParams.response_format = { type: 'json_object' };
+      }
+      const chatCompletion = await client.chat.completions.create(completionParams);
 
       return chatCompletion.choices[0]?.message?.content;
     } catch (err) {
