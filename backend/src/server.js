@@ -13,4 +13,12 @@ const server = app.listen(config.port, () => {
 // Attach Socket.IO
 socketService.init(server);
 
+// Start Telegram Bot if TELEGRAM_BOT_TOKEN is configured
+if (process.env.TELEGRAM_BOT_TOKEN) {
+  require('./services/telegramBot');
+} else {
+  console.log('[Telegram Bot] TELEGRAM_BOT_TOKEN not configured. Skipping bot initialization.');
+}
+
 module.exports = { app, server };
+

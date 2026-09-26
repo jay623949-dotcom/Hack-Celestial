@@ -28,6 +28,8 @@ class GuestService {
       vip: Boolean(data.vip),
       vip_tier: data.vip_tier || (data.vip ? 'VIP' : 'Standard'),
       room_id: data.room_id || null,
+      room_number: data.room_number || null,
+      telegram_id: data.telegram_id || null,
       check_in: data.check_in || new Date().toISOString(),
       check_out: data.check_out || null,
       notes: data.notes || '',
