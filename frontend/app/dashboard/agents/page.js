@@ -30,7 +30,9 @@ export default function AgentSwarmPage() {
       setSwarmState('ANALYZING');
       setErrorMessage(null);
 
-      const response = await analyzeOperationsContext(scenario.context);
+      // Pass scenario trigger to backend so canonical context is generated dynamically from DB state
+      const trigger = scenario.trigger || scenario.context?.trigger || { type: scenario.id ? scenario.id.toLowerCase() : 'multiple_incidents' };
+      const response = await analyzeOperationsContext({ trigger });
       if (response && response.success && response.data?.analysis) {
         setAnalysisResult(response.data.analysis);
         setSwarmState('COMPLETED');

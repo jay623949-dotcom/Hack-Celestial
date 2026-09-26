@@ -153,13 +153,19 @@ resort360/
 ### 5.2 Multi-Agent Orchestration & Operational Context Pipeline
 
 ```
-Operational Database (Rooms, Guests, Staff, Incidents, Tasks) [IMPLEMENTED]
+PostgreSQL / Operational Database State [IMPLEMENTED]
          │
          ▼
-Context Builder Service (Extracts compact canonical snapshot) [IMPLEMENTED]
+Operational Services (RoomService, GuestService, StaffService, IncidentService, TaskService) [IMPLEMENTED]
          │
          ▼
-AI Analysis Layer (POST /api/v1/ai/analyze via OpenAI Responses API) [IMPLEMENTED]
+Context Builder Service (context-builder.service.js) [IMPLEMENTED]
+         │ (Maps database state into Canonical AI Context matching agent-context.schema.json)
+         ▼
+Canonical AI Context (POST /api/v1/ai/context & POST /api/v1/ai/analyze) [IMPLEMENTED]
+         │
+         ▼
+AI Analysis Layer (OpenAI Responses API with schema validation) [IMPLEMENTED]
          │
          ▼
 Agent Perspectives (Front Desk, Housekeeping, Maintenance, Revenue) [IMPLEMENTED]
@@ -177,9 +183,12 @@ Human Approval (Approve / Modify / Reject by Duty Manager) [PLANNED - Phase 3]
 Task Execution & Socket.IO Real-Time Dispatch [PLANNED - Phase 3]
 ```
 
-#### Implemented Endpoints (Phase 2):
+#### Implemented Endpoints (Phase 2 & 2.1):
+- `POST /api/v1/ai/context`  
+  Accepts an operational trigger (`{ trigger: { type: "multiple_incidents" } }` or `{ trigger: { type: "hvac_failure", room_id: "room-401" } }`), queries database state via backend services, compiles a compact canonical context, strictly derives operational constraints, and returns a verified context snapshot adhering 100% to `agent-context.schema.json`.
+
 - `POST /api/v1/ai/analyze`  
-  Validates input context against `agent-context.schema.json`, queries OpenAI via Responses API, verifies output schema against `agent-response.schema.json`, and returns structured operational analysis.
+  Accepts either a `{ trigger: { ... } }` or `{ context: { ... } }`. If a trigger is provided, dynamically invokes `context-builder.service.js` to extract current database state before querying OpenAI via Responses API. Validates AI response structure against `agent-response.schema.json`.
 
 #### Planned Endpoints (Phase 2.3 & 3):
   ```json

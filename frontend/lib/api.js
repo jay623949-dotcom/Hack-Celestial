@@ -106,13 +106,26 @@ export async function getStaff(params = {}) {
 }
 
 /**
- * AI Operations Analysis
- * Submits operational context to backend OpenAI service
+ * Fetch Canonical AI Context dynamically assembled from database state
  */
-export async function analyzeOperationsContext(context) {
-  return fetchFromApi('/ai/analyze', {
+export async function getOperationalContext(trigger = { type: 'multiple_incidents' }) {
+  return fetchFromApi('/ai/context', {
     method: 'POST',
-    body: JSON.stringify({ context }),
+    body: JSON.stringify({ trigger }),
   });
 }
+
+/**
+ * AI Operations Analysis
+ * Submits trigger or operational context to backend OpenAI service
+ */
+export async function analyzeOperationsContext(payload) {
+  // If payload has context or trigger, send as-is; otherwise treat payload as trigger
+  const body = payload?.context || payload?.trigger ? payload : { trigger: payload };
+  return fetchFromApi('/ai/analyze', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
 

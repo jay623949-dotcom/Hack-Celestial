@@ -237,12 +237,20 @@ server.listen(PORT, async () => {
     });
     assert(incidentInvalidRoom.status === 400 && incidentInvalidRoom.body.error.code === 'RELATIONSHIP_VALIDATION_ERROR', 'Associating incident to non-existent room returns 400 RELATIONSHIP_VALIDATION_ERROR');
 
-    console.log('\n--- 9. AI Operational Analysis API ---');
-    const aiMissingContext = await request('/ai/analyze', {
+    console.log('\n--- 9. AI Operational Analysis & Context Builder API ---');
+    const aiContextRes = await request('/ai/context', {
+      method: 'POST',
+      body: JSON.stringify({ trigger: { type: 'multiple_incidents' } }),
+    });
+    assert(aiContextRes.status === 200 && aiContextRes.body.success === true, 'POST /ai/context generates canonical context from DB state');
+    assert(aiContextRes.body.data.context.rooms.length > 0, 'Generated context contains relevant rooms');
+    assert(aiContextRes.body.data.context.constraints.length > 0, 'Generated context derives operational constraints');
+
+    const aiMissingTrigger = await request('/ai/analyze', {
       method: 'POST',
       body: JSON.stringify({}),
     });
-    assert(aiMissingContext.status === 400 && aiMissingContext.body.error.code === 'MISSING_CONTEXT', 'POST /ai/analyze without context returns 400 MISSING_CONTEXT');
+    assert(aiMissingTrigger.status === 400 && aiMissingTrigger.body.error.code === 'MISSING_TRIGGER_OR_CONTEXT', 'POST /ai/analyze without trigger or context returns 400 MISSING_TRIGGER_OR_CONTEXT');
 
     const aiInvalidContext = await request('/ai/analyze', {
       method: 'POST',

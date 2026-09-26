@@ -1,12 +1,12 @@
 # Graph Report - C:\Web Devlopment\HackathonProject\resort360  (2026-09-26)
 
 ## Corpus Check
-- 85 files · ~54,033 words
+- 87 files · ~57,533 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 208 nodes · 169 edges · 75 communities detected
-- Extraction: 80% EXTRACTED · 20% INFERRED · 0% AMBIGUOUS · INFERRED: 33 edges (avg confidence: 0.8)
+- 215 nodes · 180 edges · 75 communities detected
+- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 38 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -87,16 +87,16 @@
 - [[_COMMUNITY_Community 74|Community 74]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `fetchFromApi()` - 9 edges
+1. `fetchFromApi()` - 10 edges
 2. `OpenAIService` - 6 edges
 3. `GuestService` - 5 edges
 4. `IncidentService` - 5 edges
 5. `RoomService` - 5 edges
 6. `StaffService` - 5 edges
 7. `TaskService` - 5 edges
-8. `createGuest()` - 3 edges
-9. `updateGuest()` - 3 edges
-10. `createIncident()` - 3 edges
+8. `testPhase21()` - 3 edges
+9. `getOperationalContext()` - 3 edges
+10. `analyzeOperationalContext()` - 3 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `checkDatabaseHealth()` --calls--> `getHealth()`  [INFERRED]
@@ -111,12 +111,12 @@ Cohesion: 0.11
 Nodes (21): createGuest(), getAllGuests(), getGuestById(), updateGuest(), createIncident(), getAllIncidents(), getIncidentById(), updateIncident() (+13 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.22
-Nodes (4): analyzeOperationalContext(), OpenAIService, validateContext(), validateResponse()
+Cohesion: 0.15
+Nodes (7): analyzeOperationalContext(), getOperationalContext(), ContextBuilderService, OpenAIService, testPhase21(), validateContext(), validateResponse()
 
 ### Community 2 - "Community 2"
-Cohesion: 0.38
-Nodes (9): analyzeOperationsContext(), checkBackendHealth(), fetchFromApi(), getGuests(), getIncidents(), getOperationsSummary(), getRooms(), getStaff() (+1 more)
+Cohesion: 0.35
+Nodes (10): analyzeOperationsContext(), checkBackendHealth(), fetchFromApi(), getGuests(), getIncidents(), getOperationalContext(), getOperationsSummary(), getRooms() (+2 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.33
