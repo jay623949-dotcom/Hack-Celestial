@@ -125,7 +125,7 @@ class ConsensusService {
         type: 'inventory_conflict',
         description: 'Front Desk / Housekeeping expedited room allocation must respect Floor 4 group block locks designated by Revenue.',
         agents: ['front_desk', 'revenue'],
-        resolution: 'Allocate Suite 505 as primary alternative room, preserving Floor 4 blocked rooms for incoming wedding party.',
+        resolution: 'Allocate Room 205 (Deluxe) as primary alternative room, preserving remaining high-occupancy Deluxe inventory.',
       });
     }
 

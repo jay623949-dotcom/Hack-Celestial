@@ -39,7 +39,7 @@
       "number": "103",
       "floor": 1,
       "type": "Standard Deluxe",
-      "status": "available",
+      "status": "occupied",
       "housekeeping_status": "clean",
       "features": [
         "Garden View",
@@ -157,7 +157,7 @@
       "number": "202",
       "floor": 2,
       "type": "Deluxe Ocean View",
-      "status": "available",
+      "status": "occupied",
       "housekeeping_status": "clean",
       "features": [
         "Ocean View",
@@ -198,7 +198,7 @@
       "id": "room-205",
       "number": "205",
       "floor": 2,
-      "type": "Deluxe Ocean View",
+      "type": "Deluxe",
       "status": "available",
       "housekeeping_status": "clean",
       "features": [
@@ -311,7 +311,7 @@
       "number": "303",
       "floor": 3,
       "type": "Premium Garden Villa",
-      "status": "available",
+      "status": "occupied",
       "housekeeping_status": "clean",
       "features": [
         "Private Plunge Pool",
@@ -422,7 +422,7 @@
       "id": "room-401",
       "number": "401",
       "floor": 4,
-      "type": "Executive Suite",
+      "type": "Deluxe",
       "status": "maintenance",
       "housekeeping_status": "blocked",
       "features": [
@@ -430,7 +430,9 @@
         "Ocean View",
         "Living Room"
       ],
-      "last_cleaned": "2026-09-25T14:00:00Z"
+      "last_cleaned": "2026-09-25T14:00:00Z",
+      "current_issue": "AC failure",
+      "incident_id": "INC-401-AC"
     },
     {
       "id": "room-402",
@@ -591,7 +593,7 @@
       "number": "503",
       "floor": 5,
       "type": "Presidential Suite",
-      "status": "available",
+      "status": "occupied",
       "housekeeping_status": "clean",
       "features": [
         "Panoramic Ocean View",
@@ -619,7 +621,7 @@
       "number": "505",
       "floor": 5,
       "type": "Presidential Suite",
-      "status": "available",
+      "status": "occupied",
       "housekeeping_status": "clean",
       "features": [
         "Panoramic Ocean View",
@@ -632,14 +634,19 @@
   "guests": [
     {
       "id": "guest-001",
-      "name": "Alexander Vance",
+      "name": "Arjun Mehta",
       "vip": true,
-      "vip_tier": "Diamond VIP",
+      "vip_tier": "VIP",
       "room_id": "room-401",
-      "check_in": "2026-09-26T10:40:00Z",
-      "check_out": "2026-09-30T11:00:00Z",
+      "check_in": "2026-09-27T14:00:00Z",
+      "check_out": "2026-09-29T11:00:00Z",
       "arrival_type": "early",
-      "notes": "Arrived early in lobby; assigned Suite 401 has AC defect. High lifetime loyalty spend."
+      "notes": "VIP guest — priority handling. Arrived early at 14:00 (expected 16:00) while assigned Room 401 has AC failure.",
+      "reservation": "RES-VIP-401",
+      "expected_arrival": "16:00",
+      "actual_arrival": "14:00",
+      "stay_nights": 2,
+      "guests_count": 2
     },
     {
       "id": "guest-002",
@@ -909,11 +916,11 @@
   "staff": [
     {
       "id": "staff-001",
-      "name": "Aarav Sharma",
+      "name": "Amit Shah",
       "department": "front_desk",
-      "role": "Front Desk Manager",
+      "role": "Front Desk Supervisor",
       "status": "on_duty",
-      "current_task": "Lobby arrivals concierge"
+      "current_task": "Front Desk Reception"
     },
     {
       "id": "staff-002",
@@ -925,11 +932,11 @@
     },
     {
       "id": "staff-003",
-      "name": "Sunita Gaonkar",
+      "name": "Priya Sharma",
       "department": "housekeeping",
-      "role": "Housekeeping Supervisor",
-      "status": "on_duty",
-      "current_task": "Floor 3 inspection"
+      "role": "Senior Housekeeping Attendant",
+      "status": "available",
+      "current_task": "Standby"
     },
     {
       "id": "staff-004",
@@ -941,11 +948,12 @@
     },
     {
       "id": "staff-005",
-      "name": "Ramesh Sawant",
+      "name": "Rohan Mehta",
       "department": "maintenance",
-      "role": "Chief HVAC Technician",
-      "status": "on_duty",
-      "current_task": "Evaluating AC breakdown in Room 401"
+      "role": "HVAC Technician",
+      "status": "available",
+      "current_task": "Standby",
+      "skill": "HVAC / AC"
     },
     {
       "id": "staff-006",
@@ -1006,15 +1014,15 @@
   ],
   "incidents": [
     {
-      "id": "incident-001",
-      "title": "HVAC Compressor Failure in Suite 401",
-      "description": "Room 401 air conditioner failed with capacitor error. Room temp 82°F. 75-minute repair required.",
+      "id": "INC-401-AC",
+      "title": "Room 401 AC Failure",
+      "description": "Guest room 401 has an air-conditioning failure and cannot currently be handed over to the guest.",
       "severity": "critical",
       "status": "open",
       "department": "maintenance",
       "room_id": "room-401",
       "guest_id": "guest-001",
-      "reported_at": "2026-09-26T10:41:00Z"
+      "reported_at": "2026-09-27T14:00:00Z"
     },
     {
       "id": "incident-002",
@@ -1029,13 +1037,13 @@
     {
       "id": "incident-003",
       "title": "VIP Early Arrival Lobby Wait",
-      "description": "Diamond VIP Alexander Vance waiting in lobby while assigned Suite 401 is unavailable.",
+      "description": "VIP Arjun Mehta waiting in lobby while assigned Room 401 is unavailable due to AC failure.",
       "severity": "high",
       "status": "in_progress",
       "department": "front_desk",
       "room_id": "room-401",
       "guest_id": "guest-001",
-      "reported_at": "2026-09-26T10:40:00Z"
+      "reported_at": "2026-09-27T14:00:00Z"
     },
     {
       "id": "incident-004",

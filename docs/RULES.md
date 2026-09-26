@@ -243,4 +243,18 @@ A feature or task is **DONE** only when:
 10. **Frontend Must Not Fabricate Execution State**:
     - Progress bars (`completed_tasks / total_tasks`), timeline logs, and status badges must be derived entirely from genuine backend execution records.
 
+---
+
+## 13. Fixed Demo Integrity & Deterministic Scenario Rules
+
+1. **Deterministic Single Story**:
+   - The primary judge-facing demonstration is fixed: VIP Early Arrival (Arjun Mehta, RES-VIP-401, expected 16:00, actual 14:00) with Room 401 AC Failure and alternative Room 205 (Deluxe).
+2. **Never Fake Final State**:
+   - Do not hardcode "Resolved" in UI components. Every state shift (`open` → `in_progress` → `resolved`, Room 401 `maintenance` → `ready`, staff `available` → `busy` → `available`) must be backed by genuine REST/WebSocket transitions.
+3. **Deterministic Reset Guarantee**:
+   - Running `npm run seed:demo` or triggering `POST /demo/reset` must restore the database and in-memory store to the exact initial scenario without requiring application restarts.
+4. **No Premature Feature Creep**:
+   - Focus exclusively on the end-to-end loop: Incident → Context → 4 Agents → Consensus → Manager Approval → Task Dispatch → Real-time Execution → Incident Resolution.
+
+
 

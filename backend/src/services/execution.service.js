@@ -526,6 +526,16 @@ class ExecutionService {
 
     return record;
   }
+
+  resetExecution(planId) {
+    if (planId) {
+      inMemoryExecutions.delete(planId);
+      inMemoryTimeline.delete(planId);
+    } else {
+      inMemoryExecutions.clear();
+      inMemoryTimeline.clear();
+    }
+  }
 }
 
 module.exports = new ExecutionService();

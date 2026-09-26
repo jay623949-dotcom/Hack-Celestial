@@ -598,4 +598,46 @@ The deployment architecture is optimized for low friction and zero devops overhe
    - Real-time task board with interactive status progression controls.
    - Database-backed execution timeline that survives page refreshes and socket disconnections.
 
+---
+
+## 11. Complete End-to-End Incident Lifecycle & Data Flow
+
+The complete end-to-end loop operates as an integrated, deterministic pipeline:
+
+```
+INCIDENT DETECTED (Room 401 AC Failure + VIP Early Arrival Arjun Mehta)
+        │
+        ▼
+CANONICAL CONTEXT BUILDER (Filters relevant rooms 401 & 205, staff, guests, 82% occupancy)
+        │
+        ▼
+4 DOMAIN AGENTS DELIBERATE (Front Desk, Housekeeping, Maintenance, Revenue)
+        │
+        ▼
+CONSENSUS SYNTHESIS (Synthesizes Action Plan in ai_action_plans with status: "pending_review")
+        │
+        ▼
+DUTY MANAGER REVIEWS (/dashboard/consensus — Approve, Modify, or Reject)
+        │
+        ▼ [MANAGER APPROVES]
+EXECUTION ENGINE (execution.service.js — Converts approved items into tasks)
+        │
+        ▼
+REAL-TIME SOCKET.IO EVENT FANOUT (task.dispatched, room.status_changed, staff.status_changed)
+        │
+        ▼
+STAFF DASHBOARDS & REAL STATE UPDATES:
+   - Priya Sharma prepares Room 205 (Room 205: available → cleaning → clean/ready)
+   - Rohan Mehta inspects Room 401 AC (Room 401: maintenance → repair completed)
+   - Amit Shah escorts VIP Arjun Mehta (Guest status: checked-in to Room 205)
+   - Staff workloads return to available
+        │
+        ▼
+INCIDENT RESOLVED (INC-401-AC: open → in_progress → resolved)
+        │
+        ▼
+EXECUTION COMPLETE (Progress: 100%, timeline closed, full audit trail persisted)
+```
+
+
 

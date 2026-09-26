@@ -41,6 +41,16 @@ export async function getOperationsSummary() {
 }
 
 /**
+ * Reset Demo Environment to deterministic VIP Early Arrival Scenario
+ */
+export async function triggerDemoReset() {
+  return fetchFromApi('/demo/reset', {
+    method: 'POST',
+    body: JSON.stringify({ scenario: 'vip_early_arrival' }),
+  });
+}
+
+/**
  * Rooms list with optional filtering
  */
 export async function getRooms(params = {}) {

@@ -20,7 +20,7 @@ import {
 } from '../../../lib/api';
 
 const SCENARIOS = [
-  { id: 'vip_arrival', label: 'VIP Early Arrival', desc: 'Diamond VIP Alexander Vance arrives 2 hrs early while Suite 401 has an HVAC compressor breakdown.' },
+  { id: 'vip_arrival', label: 'VIP Early Arrival — Room 401 AC Failure', desc: 'VIP guest Arjun Mehta arrives 2 hrs early (14:00) while assigned Room 401 has an AC compressor failure.' },
   { id: 'multiple_incidents', label: 'Multiple Active Incidents', desc: 'HVAC breakdown on 4th floor, housekeeping turnover bottleneck, wedding group incoming.' },
   { id: 'group_arrival', label: 'Large Group Check-in', desc: '24-room wedding block arriving at 2:00 PM with Floor 4 inventory constraints.' },
 ];
@@ -234,14 +234,14 @@ export default function OperationalDecisionReviewPage() {
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-100 text-rose-800 border border-rose-200">
                 CRITICAL OPERATIONAL EVENT
               </span>
-              <span className="text-[11px] font-mono text-muted-foreground">EVENT #OP-2026-0926</span>
-              <span className="text-[11px] font-mono text-muted-foreground">Detected: 10:41 AM IST</span>
+              <span className="text-[11px] font-mono text-muted-foreground">EVENT #INC-401-AC</span>
+              <span className="text-[11px] font-mono text-muted-foreground">Reported: 14:00 IST</span>
             </div>
             <h2 className="text-base font-bold text-foreground">
-              VIP Early Arrival Conflict — Assigned Suite 401 Offline
+              VIP Early Arrival — Room 401 AC Failure
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Diamond VIP Alexander Vance arrived 2 hours ahead of standard 2:00 PM check-in while assigned Executive Suite 401 experienced an unpredicted HVAC compressor failure.
+              VIP guest Arjun Mehta arrived 2 hours early (14:00, expected 16:00) while assigned Room 401 has an active AC compressor failure. Four operational departments require immediate coordination.
             </p>
           </div>
 
@@ -252,11 +252,11 @@ export default function OperationalDecisionReviewPage() {
             </div>
             <div className="p-2 rounded-lg bg-surface-secondary/70 border border-border">
               <div className="text-[10px] font-mono uppercase text-muted-foreground">Affected Rooms</div>
-              <div className="text-xs font-bold text-foreground mt-0.5">Suite 401, 205</div>
+              <div className="text-xs font-bold text-foreground mt-0.5">Room 401, 205</div>
             </div>
             <div className="p-2 rounded-lg bg-surface-secondary/70 border border-border">
               <div className="text-[10px] font-mono uppercase text-muted-foreground">Affected Guest</div>
-              <div className="text-xs font-bold text-foreground mt-0.5">Alexander Vance</div>
+              <div className="text-xs font-bold text-foreground mt-0.5">Arjun Mehta (VIP)</div>
             </div>
             <div className="p-2 rounded-lg bg-surface-secondary/70 border border-border">
               <div className="text-[10px] font-mono uppercase text-muted-foreground">Departments</div>
@@ -367,7 +367,7 @@ export default function OperationalDecisionReviewPage() {
               <span className="text-[10px] font-mono text-muted-foreground">AI Consensus Synthesis</span>
             </div>
             <p className="text-xs text-foreground leading-relaxed">
-              The AI Swarm recommends an immediate lateral reassignment: coordinate expedited turnover of <strong>Room 205 (Executive Ocean View)</strong> for Diamond VIP Alexander Vance, escort the guest to the Private Club Lounge with complimentary beverage service during the 25-minute cleaning window, and dispatch Chief HVAC Technician Ramesh Sawant to complete the capacitor repair on Suite 401.
+              The AI Swarm recommends an immediate coordinated action plan: keep <strong>Room 401</strong> blocked for AC repair, prepare alternative <strong>Room 205 (Deluxe)</strong> for VIP guest <strong>Arjun Mehta</strong>, escort the guest to the Private Club Lounge with beverage service via Amit Shah, and assign technician Rohan Mehta to inspect the Room 401 AC compressor.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
@@ -395,13 +395,13 @@ export default function OperationalDecisionReviewPage() {
             </h2>
             <div className="p-3.5 rounded-lg bg-surface-secondary/50 border border-border/80 text-xs text-foreground leading-relaxed space-y-1.5">
               <p>
-                <strong>Root Cause:</strong> Assigned Suite 401 air conditioner compressor relay tripped, causing internal ambient temperature to reach 82°F. Diagnostic pressure tests confirm a 45-minute repair window.
+                <strong>Root Cause:</strong> Assigned Room 401 air conditioner has failed and cannot be handed over. Technician Rohan Mehta is on standby to diagnose and execute repairs.
               </p>
               <p>
-                <strong>VIP Priority:</strong> Alexander Vance is a Diamond Tier loyalty guest with 42 lifetime resort stays. A delay in lobby check-in introduces unacceptable service failure risks.
+                <strong>VIP Priority:</strong> Arjun Mehta has VIP priority status with a 2-night stay. Waiting time in the lobby must be minimized through lounge hospitality and fast reassignment.
               </p>
               <p>
-                <strong>Inventory Match:</strong> Room 205 is currently vacant dirty with identical Executive Ocean View amenities. Housekeeping has attendant Lakshmi Naik available on Floor 2, allowing a 25-minute express turnaround.
+                <strong>Inventory Match:</strong> Alternative Room 205 (Deluxe) is available on Floor 2. Priya Sharma is available to perform priority preparation and inspection.
               </p>
             </div>
           </section>
@@ -416,23 +416,23 @@ export default function OperationalDecisionReviewPage() {
               {[
                 {
                   dept: 'front_desk',
-                  obs: 'VIP Alexander Vance waiting in lobby. Immediate suite needed to avoid churn.',
-                  rec: 'Reassign to Room 205 immediately; offer lounge escort & beverage amenity.',
+                  obs: 'VIP Arjun Mehta waiting in lobby. Room 401 is unavailable due to AC failure.',
+                  rec: 'Reassign to alternative Deluxe Room 205; escort guest to Private Club Lounge.',
                 },
                 {
                   dept: 'housekeeping',
-                  obs: 'Floor 4 turnover congested. Floor 2 attendant available for priority clean.',
-                  rec: 'Expedite Room 205 turnover in 25 min; defer Floor 4 until repair resolves.',
+                  obs: 'Room 205 is clean & available. Attendant Priya Sharma available on Floor 2.',
+                  rec: 'Prioritize Room 205 for immediate preparation & inspection before reassignment.',
                 },
                 {
                   dept: 'maintenance',
-                  obs: 'Room 401 HVAC compressor capacitor blown; room temp 82°F. Blocked.',
-                  rec: 'Replace capacitor, purge line, and run 15-min thermal test before release.',
+                  obs: 'Room 401 AC compressor failure. Room must remain offline until repair is verified.',
+                  rec: 'Keep Room 401 blocked; assign technician Rohan Mehta to inspect and repair AC.',
                 },
                 {
                   dept: 'revenue',
-                  obs: '82% occupancy today. 24-room group block arriving 2:00 PM on Floor 4.',
-                  rec: 'Protect Room 205 rate integrity; release Suite 401 back to inventory by 12:30 PM.',
+                  obs: '82% hotel occupancy. Deluxe category inventory is limited today.',
+                  rec: 'Moving VIP to Room 205 consumes inventory; hold from general OTA pool.',
                 },
               ].map((d) => {
                 const meta = AGENT_META[d.dept];
@@ -477,7 +477,7 @@ export default function OperationalDecisionReviewPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
-                  <span>VIP guest Alexander Vance cannot be kept waiting past 11:15 AM without escalated service recovery.</span>
+                  <span>VIP guest Arjun Mehta cannot be kept waiting in lobby without escalated service recovery.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
