@@ -11,9 +11,11 @@ function errorHandler(err, req, res, next) {
   }
 
   res.status(statusCode).json({
-    status: 'error',
-    message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+    success: false,
+    error: {
+      code: err.code || (statusCode === 404 ? 'RESOURCE_NOT_FOUND' : statusCode === 400 ? 'VALIDATION_ERROR' : 'INTERNAL_SERVER_ERROR'),
+      message,
+    },
   });
 }
 
@@ -22,8 +24,11 @@ function errorHandler(err, req, res, next) {
  */
 function notFoundHandler(req, res, next) {
   res.status(404).json({
-    status: 'error',
-    message: `Route not found: ${req.method} ${req.originalUrl}`,
+    success: false,
+    error: {
+      code: 'ROUTE_NOT_FOUND',
+      message: `Endpoint not found: ${req.method} ${req.originalUrl}`,
+    },
   });
 }
 

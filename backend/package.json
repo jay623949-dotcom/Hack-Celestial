@@ -7,11 +7,18 @@
   "type": "commonjs",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "test": "node test-phase1.js",
+    "db:migrate": "node database/migrations/migrate.js",
+    "db:seed": "node database/seeds/seed.js",
+    "db:reset": "node database/migrations/reset.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "helmet": "^8.3.0",
+    "morgan": "^1.12.1",
+    "pg": "^8.13.3"
   }
 }
