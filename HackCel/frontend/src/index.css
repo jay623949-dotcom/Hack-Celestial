@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sand: #F4F1DE;
+  --color-sand-muted: #E8E4CE;
+  --color-sand-surface: #FAF8EE;
+  --color-surface: #FFFFFF;
+  --color-slate: #3D405B;
+  --color-slate-muted: #5C6082;
+  --color-slate-light: #7E82A3;
+  --color-sage: #81B29A;
+  --color-sage-hover: #6D9E86;
+  --color-sage-subtle: #E8F2EC;
+  --color-terracotta: #E07A5F;
+  --color-terracotta-hover: #D4694E;
+  --color-terracotta-subtle: #FBECE8;
+  --color-sunlight: #F2CC8F;
+  --color-sunlight-hover: #E8BF7D;
+  --color-sunlight-subtle: #FDF7EC;
+}
+
+@layer base {
+  body {
+    background-color: #F4F1DE;
+    color: #3D405B;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+}
+
+/* Custom scrollbars matching Warm Sand & Deep Ocean Slate */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(244, 241, 222, 0.7);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(61, 64, 91, 0.25);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(61, 64, 91, 0.5);
+}

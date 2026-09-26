@@ -1,41 +1,92 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import DashboardShell from '../../../components/dashboard/DashboardShell';
 import AgentCard from '../../../components/agents/AgentCard';
 import ScenarioSelector, { SCENARIO_CATALOG } from '../../../components/agents/ScenarioSelector';
 import { analyzeOperationsContext } from '../../../lib/api';
-import { 
-  Bot, 
-  Sparkles, 
-  Play, 
-  RefreshCw, 
-  AlertCircle, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Layers, 
+import { useEventStream } from '../../../lib/autonomous/useEventStream';
+
+// Smart Resort 360 Autonomous Agent Components
+import AutonomousOverview from '../../../components/autonomous/AutonomousOverview';
+import FrontDeskAgentStudio from '../../../components/autonomous/FrontDeskAgentStudio';
+import HousekeepingAgentStudio from '../../../components/autonomous/HousekeepingAgentStudio';
+import MaintenanceAgentStudio from '../../../components/autonomous/MaintenanceAgentStudio';
+import RevenueAgentStudio from '../../../components/autonomous/RevenueAgentStudio';
+import LiveEventBusFeed from '../../../components/autonomous/LiveEventBusFeed';
+
+import {
+  Bot,
+  Sparkles,
+  Play,
+  RefreshCw,
+  AlertCircle,
+  ShieldCheck,
+  CheckCircle2,
+  Layers,
   ArrowRight,
-  Info
+  Info,
+  Activity,
+  Mic,
+  BedDouble,
+  Wrench,
+  TrendingUp,
+  Radio,
+  X
 } from 'lucide-react';
 
-export default function AgentSwarmPage() {
+function AgentSwarmPageContent() {
+  const searchParams = useSearchParams();
+  const initialSystem = searchParams.get('tab') === 'consensus' ? 'consensus' : 'autonomous';
+
+  // Primary Architecture Tab: 'autonomous' | 'consensus'
+  const [activeSystemTab, setActiveSystemTab] = useState(initialSystem);
+
+
+  // Sub-tabs for Autonomous System: 'overview' | 'frontdesk' | 'housekeeping' | 'maintenance' | 'revenue' | 'eventbus'
+  const [activeSubTab, setActiveSubTab] = useState('overview');
+
+  // Real-time Event Stream & Toasts
+  const [streamEvents, setStreamEvents] = useState([]);
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = (title, message = '') => {
+    const id = `toast-${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [{ id, title, message, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 4));
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4500);
+  };
+
+  const handleServerEvent = useCallback((event) => {
+    setStreamEvents((prev) => [event, ...prev].slice(0, 100));
+    const eventName = event.event || event.event_type || 'SYSTEM_EVENT';
+    const payload = event.payload || event.data || {};
+    addToast(`Event: ${eventName}`, payload.reason || payload.message || payload.description || 'Payload received');
+  }, []);
+
+  const { isConnected } = useEventStream(handleServerEvent);
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // ORIGINAL SWARM CONSENSUS STATE & LOGIC
+  // ───────────────────────────────────────────────────────────────────────────
   const [selectedScenario, setSelectedScenario] = useState(SCENARIO_CATALOG[0]);
-  const [swarmState, setSwarmState] = useState('IDLE'); // 'IDLE' | 'ANALYZING' | 'COMPLETED' | 'ERROR'
+  const [swarmState, setSwarmState] = useState('IDLE');
   const [analysisResult, setAnalysisResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  // Trigger analysis for selected scenario
   const handleRunSwarmAnalysis = async (scenario = selectedScenario) => {
     try {
       setSwarmState('ANALYZING');
       setErrorMessage(null);
 
-      // Pass scenario trigger to backend so canonical context is generated dynamically from DB state
       const trigger = scenario.trigger || scenario.context?.trigger || { type: scenario.id ? scenario.id.toLowerCase() : 'multiple_incidents' };
       const response = await analyzeOperationsContext({ trigger });
       if (response && response.success && response.data?.analysis) {
         setAnalysisResult(response.data.analysis);
         setSwarmState('COMPLETED');
+        addToast('Swarm Consensus Complete', `Resolved scenario: ${scenario.name || scenario.id}`);
       } else {
         throw new Error(response?.error?.message || 'Invalid response from AI analysis API');
       }
@@ -46,14 +97,12 @@ export default function AgentSwarmPage() {
     }
   };
 
-  // Helper to map general analysis into departmental perspectives
   const getDepartmentalPerspective = (deptKey) => {
     if (!analysisResult) return { observation: null, recommendation: null, focus: 'Awaiting analysis', confidence: 0.85 };
 
     const observations = analysisResult.observations || [];
     const recommendations = analysisResult.recommendations || [];
 
-    // Filter relevant observations and recommendations by keywords/departments
     let relevantObs = null;
     let relevantRec = null;
     let defaultFocus = '';
@@ -102,178 +151,370 @@ export default function AgentSwarmPage() {
 
   return (
     <DashboardShell>
-      {/* Page Title & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-4">
+      {/* Toast Notification Container */}
+      <div className="fixed bottom-4 right-4 z-50 space-y-2 max-w-sm pointer-events-none">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className="p-3 rounded-xl border border-primary/30 bg-surface/95 backdrop-blur-md shadow-lg pointer-events-auto flex items-start justify-between gap-3 text-xs animate-in slide-in-from-bottom-2"
+          >
+            <div className="space-y-0.5 min-w-0">
+              <div className="font-bold text-foreground flex items-center gap-1.5 truncate">
+                <Sparkles className="w-3 h-3 text-primary shrink-0" />
+                <span>{t.title}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground line-clamp-2">{t.message}</p>
+            </div>
+            <button
+              onClick={() => setToasts((prev) => prev.filter((item) => item.id !== t.id))}
+              className="text-muted-foreground hover:text-foreground shrink-0"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-border gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-200">
-              <Layers className="w-5 h-5" />
-            </span>
             <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-              Departmental Intelligence
+              AI Agent Intelligence Systems
             </h1>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary border border-primary/20">
+              DUAL VERIFICATION
+            </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Coordinated departmental perspectives analyzing current resort operations.
+            Compare both AI architectures side by side: The event-driven Autonomous Multi-Agent OS and the Consensus Swarm Engine.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
-          <button
-            onClick={() => handleRunSwarmAnalysis(selectedScenario)}
-            disabled={swarmState === 'ANALYZING'}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs hover:opacity-90 transition-opacity shadow-sm disabled:opacity-50"
-          >
-            {swarmState === 'ANALYZING' ? (
-              <>
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>Synthesizing Perspectives...</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Run Departmental Analysis</span>
-              </>
-            )}
-          </button>
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+            isConnected ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+            {isConnected ? 'SSE Event Bus Active' : 'Connecting Event Bus...'}
+          </span>
         </div>
       </div>
 
-      {/* Scenario Benchmark Selector */}
-      <ScenarioSelector
-        selectedId={selectedScenario.id}
-        onSelect={(scen) => {
-          setSelectedScenario(scen);
-          setSwarmState('IDLE');
-          setAnalysisResult(null);
-          setErrorMessage(null);
-        }}
-        disabled={swarmState === 'ANALYZING'}
-      />
+      {/* Top Architecture Navigation Tabs */}
+      <div className="flex items-center p-1 rounded-xl bg-surface-secondary border border-border w-fit">
+        <button
+          onClick={() => setActiveSystemTab('autonomous')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+            activeSystemTab === 'autonomous'
+              ? 'bg-surface text-foreground shadow-sm border border-border'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
+          <span>Autonomous 360 Multi-Agent OS (New)</span>
+        </button>
 
-      {/* Error Banner */}
-      {swarmState === 'ERROR' && (
-        <div className="p-3.5 rounded-lg border border-rose-300 bg-rose-50 text-xs text-rose-800 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-            <div>
-              <strong className="font-semibold">Analysis Failed: </strong>
-              <span>{errorMessage}</span>
-            </div>
+        <button
+          onClick={() => setActiveSystemTab('consensus')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+            activeSystemTab === 'consensus'
+              ? 'bg-surface text-foreground shadow-sm border border-border'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Bot className="w-3.5 h-3.5 text-blue-500" />
+          <span>Swarm Consensus Engine (Original)</span>
+        </button>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════════════════
+          TAB 1: AUTONOMOUS 360 MULTI-AGENT OS (NEW INTEGRATED CLONED SYSTEM)
+         ═══════════════════════════════════════════════════════════════════════════ */}
+      {activeSystemTab === 'autonomous' && (
+        <div className="space-y-6">
+          {/* Sub Navigation Tabs */}
+          <div className="flex flex-wrap items-center gap-1.5 border-b border-border pb-2">
+            {[
+              { id: 'overview', label: 'Overview & Mission Control', icon: Activity },
+              { id: 'frontdesk', label: 'Front Desk Agent', icon: Mic },
+              { id: 'housekeeping', label: 'Housekeeping Agent', icon: BedDouble },
+              { id: 'maintenance', label: 'Maintenance Agent', icon: Wrench },
+              { id: 'revenue', label: 'Revenue Agent', icon: TrendingUp },
+              { id: 'eventbus', label: 'Live Event Stream', icon: Radio },
+            ].map((sub) => {
+              const Icon = sub.icon;
+              const isActive = activeSubTab === sub.id;
+              return (
+                <button
+                  key={sub.id}
+                  onClick={() => setActiveSubTab(sub.id)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? 'bg-primary/10 text-primary border border-primary/20 font-bold'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-surface-secondary'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{sub.label}</span>
+                </button>
+              );
+            })}
           </div>
-          <button
-            onClick={() => handleRunSwarmAnalysis(selectedScenario)}
-            className="px-2.5 py-1 rounded bg-rose-600 text-white font-medium text-xs hover:bg-rose-700 transition-colors shrink-0"
-          >
-            Retry
-          </button>
-        </div>
-      )}
 
-      {/* Swarm State Header & Executive Synthesis */}
-      {swarmState === 'COMPLETED' && analysisResult && (
-        <div className="p-4 rounded-xl border border-teal-200 bg-teal-50/40 space-y-3 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-teal-200/60 pb-2.5">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-teal-600"></span>
-              <h2 className="text-xs font-bold text-teal-950 uppercase tracking-wide">
-                Consensus & Operational Synthesis
-              </h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-surface border border-border text-foreground font-semibold">
-                Priority: {analysisResult.assessment?.priority?.toUpperCase() || 'HIGH'}
-              </span>
-              <span className="text-[10px] font-mono text-teal-700 font-bold">
-                Confidence: {Math.round((analysisResult.confidence || 0.88) * 100)}%
-              </span>
-            </div>
-          </div>
+          {/* Sub Tab Views */}
+          {activeSubTab === 'overview' && (
+            <AutonomousOverview
+              events={streamEvents}
+              isConnected={isConnected}
+              onClearEvents={() => setStreamEvents([])}
+              onActionSuccess={(title, data) => addToast(title, typeof data === 'string' ? data : '')}
+              onNavigateTab={(tabKey) => setActiveSubTab(tabKey)}
+            />
+          )}
 
-          <p className="text-xs text-slate-800 leading-relaxed font-normal">
-            {analysisResult.assessment?.summary}
-          </p>
+          {activeSubTab === 'frontdesk' && (
+            <FrontDeskAgentStudio
+              onActionSuccess={(title, data) => addToast(title, typeof data === 'string' ? data : '')}
+            />
+          )}
 
-          {analysisResult.constraints?.length > 0 && (
-            <div className="pt-2 border-t border-teal-200/50 flex flex-wrap gap-2 text-[11px] font-mono text-slate-600">
-              <span className="font-semibold text-slate-800">Operational Constraints:</span>
-              {analysisResult.constraints.map((c, idx) => (
-                <span key={idx} className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
-                  • {c}
-                </span>
-              ))}
-            </div>
+          {activeSubTab === 'housekeeping' && (
+            <HousekeepingAgentStudio
+              onActionSuccess={(title, data) => addToast(title, typeof data === 'string' ? data : '')}
+            />
+          )}
+
+          {activeSubTab === 'maintenance' && (
+            <MaintenanceAgentStudio
+              onActionSuccess={(title, data) => addToast(title, typeof data === 'string' ? data : '')}
+            />
+          )}
+
+          {activeSubTab === 'revenue' && (
+            <RevenueAgentStudio
+              onActionSuccess={(title, data) => addToast(title, typeof data === 'string' ? data : '')}
+            />
+          )}
+
+          {activeSubTab === 'eventbus' && (
+            <LiveEventBusFeed
+              events={streamEvents}
+              isConnected={isConnected}
+              onClear={() => setStreamEvents([])}
+            />
           )}
         </div>
       )}
 
-      {/* 4 Agent Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* 1. Front Desk Agent */}
-        <AgentCard
-          name="Front Desk Agent"
-          department="front_desk"
-          status={swarmState}
-          focus={frontDeskData.focus}
-          observation={frontDeskData.observation}
-          recommendation={frontDeskData.recommendation}
-          confidence={frontDeskData.confidence}
-          affectedRooms={frontDeskData.recommendation?.affected_rooms || []}
-          affectedStaff={frontDeskData.recommendation?.required_staff || ['staff-001']}
-        />
+      {/* ═══════════════════════════════════════════════════════════════════════════
+          TAB 2: ORIGINAL SWARM CONSENSUS ENGINE (UNTOUCHED & PRESERVED)
+         ═══════════════════════════════════════════════════════════════════════════ */}
+      {activeSystemTab === 'consensus' && (
+        <div className="space-y-6">
+          <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500 text-white">
+                  ORIGINAL CONSENSUS ENGINE
+                </span>
+                <span className="text-xs text-muted-foreground font-mono">Arbitration & Constraint Solver</span>
+              </div>
+              <h2 className="text-base sm:text-lg font-bold text-foreground mt-1">
+                Multi-Agent Consensus Arbitration Engine
+              </h2>
+              <p className="text-xs text-muted-foreground max-w-2xl mt-1">
+                Synthesizes conflicting operational priorities across Front Desk, Housekeeping, Maintenance, and Revenue into a single unified action plan with arbitration protocols.
+              </p>
+            </div>
 
-        {/* 2. Housekeeping Agent */}
-        <AgentCard
-          name="Housekeeping Agent"
-          department="housekeeping"
-          status={swarmState}
-          focus={housekeepingData.focus}
-          observation={housekeepingData.observation}
-          recommendation={housekeepingData.recommendation}
-          confidence={housekeepingData.confidence}
-          affectedRooms={housekeepingData.recommendation?.affected_rooms || ['room-505']}
-          affectedStaff={housekeepingData.recommendation?.required_staff || ['staff-003', 'staff-004']}
-        />
+            <div className="flex items-center gap-2 self-start md:self-auto">
+              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                swarmState === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                swarmState === 'ANALYZING' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                swarmState === 'ERROR' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
+                'bg-surface-secondary text-muted-foreground border-border'
+              }`}>
+                State: {swarmState}
+              </span>
+            </div>
+          </div>
 
-        {/* 3. Maintenance Agent */}
-        <AgentCard
-          name="Maintenance Agent"
-          department="maintenance"
-          status={swarmState}
-          focus={maintenanceData.focus}
-          observation={maintenanceData.observation}
-          recommendation={maintenanceData.recommendation}
-          confidence={maintenanceData.confidence}
-          affectedRooms={maintenanceData.recommendation?.affected_rooms || ['room-401']}
-          affectedStaff={maintenanceData.recommendation?.required_staff || ['staff-005']}
-        />
+          {/* Scenario Catalog Selector */}
+          <ScenarioSelector
+            selectedScenario={selectedScenario}
+            onSelectScenario={(sc) => {
+              setSelectedScenario(sc);
+              setAnalysisResult(null);
+              setErrorMessage(null);
+            }}
+            onRunAnalysis={handleRunSwarmAnalysis}
+            disabled={swarmState === 'ANALYZING'}
+          />
 
-        {/* 4. Revenue Agent */}
-        <AgentCard
-          name="Revenue Agent"
-          department="revenue"
-          status={swarmState}
-          focus={revenueData.focus}
-          observation={revenueData.observation}
-          recommendation={revenueData.recommendation}
-          confidence={revenueData.confidence}
-          affectedRooms={revenueData.recommendation?.affected_rooms || []}
-          affectedStaff={revenueData.recommendation?.required_staff || ['staff-007']}
-        />
-      </div>
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="p-3.5 rounded-lg border border-rose-300 bg-rose-50 text-xs text-rose-800 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
 
-      {/* Human Approval Notice & Next Steps */}
-      <div className="p-4 rounded-2xl border border-border bg-surface-secondary/30 flex items-start gap-3 text-xs text-muted-foreground">
-        <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <p className="font-semibold text-foreground">
-            Human-in-the-Loop Governance Notice
-          </p>
-          <p className="leading-relaxed">
-            The AI Agent Swarm provides cross-departmental situational intelligence and advisory proposals. In accordance with Resort 360 safety rules, no operational dispatch or room reassignment is executed automatically without explicit Duty Manager review and authorization.
-          </p>
+          {/* Swarm State Active Indicator */}
+          {swarmState === 'ANALYZING' && (
+            <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 flex items-center justify-between gap-4 text-xs animate-pulse">
+              <div className="flex items-center gap-3">
+                <RefreshCw className="w-4 h-4 text-primary animate-spin" />
+                <div>
+                  <div className="font-semibold text-foreground">AI Swarm Arbitration in Progress...</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Synthesizing Front Desk, Housekeeping, Maintenance, and Revenue constraints...
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Consensus Decision & Unified Action Plan */}
+          {analysisResult && (
+            <div className="p-5 rounded-2xl border border-primary/30 bg-surface shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-primary" />
+                  <h3 className="font-bold text-foreground text-sm">
+                    Consensus Resolution & Action Plan
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono text-muted-foreground">
+                    Arbitration Confidence: {Math.round((analysisResult.confidence || 0.88) * 100)}%
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-secondary/60 text-xs text-foreground leading-relaxed">
+                {analysisResult.summary || 'Operational situation resolved through departmental consensus.'}
+              </div>
+
+              {analysisResult.arbitration && (
+                <div className="p-3.5 rounded-lg border border-amber-500/20 bg-amber-500/5 space-y-1">
+                  <div className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5 font-mono">
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Cross-Departmental Arbitration Protocol</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {analysisResult.arbitration.ruling || analysisResult.arbitration.resolution || 'Direct priority assigned to front desk guest arrival.'}
+                  </p>
+                </div>
+              )}
+
+              {/* Recommendations list */}
+              {analysisResult.recommendations?.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-[11px] font-bold text-muted-foreground font-mono uppercase">
+                    Consensus Action Tasks ({analysisResult.recommendations.length})
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {analysisResult.recommendations.map((rec, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-lg border border-border bg-surface-secondary/40 text-xs space-y-1"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-foreground capitalize">{rec.department || 'Operations'}</span>
+                          <span className="text-[10px] font-mono text-primary font-semibold">{rec.priority || 'High'}</span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">{rec.action || rec.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 4 Agent Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <AgentCard
+              name="Front Desk Agent"
+              department="front_desk"
+              status={swarmState}
+              focus={frontDeskData.focus}
+              observation={frontDeskData.observation}
+              recommendation={frontDeskData.recommendation}
+              confidence={frontDeskData.confidence}
+              affectedRooms={frontDeskData.recommendation?.affected_rooms || []}
+              affectedStaff={frontDeskData.recommendation?.required_staff || ['staff-001']}
+            />
+
+            <AgentCard
+              name="Housekeeping Agent"
+              department="housekeeping"
+              status={swarmState}
+              focus={housekeepingData.focus}
+              observation={housekeepingData.observation}
+              recommendation={housekeepingData.recommendation}
+              confidence={housekeepingData.confidence}
+              affectedRooms={housekeepingData.recommendation?.affected_rooms || ['room-505']}
+              affectedStaff={housekeepingData.recommendation?.required_staff || ['staff-003', 'staff-004']}
+            />
+
+            <AgentCard
+              name="Maintenance Agent"
+              department="maintenance"
+              status={swarmState}
+              focus={maintenanceData.focus}
+              observation={maintenanceData.observation}
+              recommendation={maintenanceData.recommendation}
+              confidence={maintenanceData.confidence}
+              affectedRooms={maintenanceData.recommendation?.affected_rooms || ['room-401']}
+              affectedStaff={maintenanceData.recommendation?.required_staff || ['staff-005']}
+            />
+
+            <AgentCard
+              name="Revenue Agent"
+              department="revenue"
+              status={swarmState}
+              focus={revenueData.focus}
+              observation={revenueData.observation}
+              recommendation={revenueData.recommendation}
+              confidence={revenueData.confidence}
+              affectedRooms={revenueData.recommendation?.affected_rooms || []}
+              affectedStaff={revenueData.recommendation?.required_staff || ['staff-007']}
+            />
+          </div>
+
+          {/* Human Approval Notice */}
+          <div className="p-4 rounded-xl border border-border bg-surface-secondary/30 flex items-start gap-3 text-xs text-muted-foreground">
+            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground">
+                Human-in-the-Loop Governance Notice
+              </p>
+              <p className="leading-relaxed">
+                The Swarm Consensus Engine generates advisory recommendations. All cross-departmental room reassignments or resource reallocations require explicit Duty Manager authorization.
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </DashboardShell>
   );
 }
+
+export default function AgentSwarmPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <DashboardShell>
+          <div className="py-20 text-center text-xs text-muted-foreground font-mono">
+            Loading AI Agent Systems...
+          </div>
+        </DashboardShell>
+      }
+    >
+      <AgentSwarmPageContent />
+    </React.Suspense>
+  );
+}
+

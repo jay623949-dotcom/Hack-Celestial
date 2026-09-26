@@ -1,0 +1,6 @@
+{
+  "name": "Smart Resort 360 - Intelligence Engine",
+  "description": "Autonomous multi-agent resort operating system intelligence engine providing structured reasoning and event dispatch across Front Desk, Housekeeping, Maintenance, and Revenue agents.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

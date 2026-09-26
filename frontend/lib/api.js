@@ -138,5 +138,73 @@ export async function createGuest(guestData) {
   });
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SMART RESORT 360 AUTONOMOUS AGENT API WRAPPERS
+// ─────────────────────────────────────────────────────────────────────────────
+const BACKEND_ROOT = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace(/\/api\/v1\/?$/, '');
+
+export async function smartApiRequest(path, method = 'GET', body = null) {
+  const url = `${BACKEND_ROOT}${path.startsWith('/') ? path : `/${path}`}`;
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`API error ${res.status}: ${errText}`);
+    }
+    return res.json();
+  } catch (err) {
+    console.error(`[SmartApi Error] ${path}:`, err.message);
+    throw err;
+  }
+}
+
+export const smartResortApi = {
+  // Demo Reset & Ping
+  resetDemo: () => smartApiRequest('/demo/reset', 'POST'),
+  ping: () => smartApiRequest('/api/test/ping', 'POST'),
+  getGuardrails: () => smartApiRequest('/api/guardrails'),
+  getEventHistory: () => smartApiRequest('/api/events/history'),
+
+  // Front Desk
+  checkIn: (data) => smartApiRequest('/api/frontdesk/checkin', 'POST', data),
+  getCheckedInGuests: () => smartApiRequest('/api/frontdesk/guests'),
+  serviceRecovery: (guestId, action) => smartApiRequest('/api/frontdesk/service-recovery', 'POST', { guest_id: guestId, action }),
+  getPriorityQueue: () => smartApiRequest('/api/frontdesk/priority-queue'),
+
+  // Housekeeping
+  getHousekeepingTasks: () => smartApiRequest('/api/housekeeping/tasks'),
+  reorderHousekeeping: (taskIds) => smartApiRequest('/api/housekeeping/reorder', 'POST', { task_ids_in_order: taskIds }),
+  completeHousekeepingTask: (id) => smartApiRequest('/api/housekeeping/complete', 'POST', { task_id: id }),
+
+  // Maintenance
+  uploadTicket: (data) => smartApiRequest('/api/maintenance/upload-ticket', 'POST', data),
+  resolveWorkOrder: (workOrderId, resolutionNotes) => smartApiRequest('/api/maintenance/resolve', 'POST', { work_order_id: workOrderId, resolution_notes: resolutionNotes }),
+  getAvailableSafeRooms: () => smartApiRequest('/api/maintenance/rooms/available-safe'),
+  imageTriage: (data) => smartApiRequest('/api/maintenance/diagnostics/image-triage', 'POST', data),
+  scanAnomalies: () => smartApiRequest('/api/maintenance/anomaly/scan', 'POST'),
+  getActiveAnomalies: () => smartApiRequest('/api/maintenance/anomaly/active'),
+
+  // Revenue
+  recalculatePricing: (data) => smartApiRequest('/api/revenue/pricing', 'POST', data),
+  getCurrentPricing: (category) => smartApiRequest(`/api/revenue/pricing/current/${category}`),
+  getNetRevPar: () => smartApiRequest('/api/revenue/net-revpar'),
+  createFlashSale: (data) => smartApiRequest('/api/revenue/flash-sale', 'POST', data),
+  simulateWingShutdown: (wingId) => smartApiRequest('/api/revenue/wing-shutdown-simulate', 'POST', { wing_id: wingId }),
+
+  // Intelligence Engine
+  guestIntake: (data) => smartApiRequest('/api/engine/guest-intake', 'POST', data),
+  maintenanceCv: (data) => smartApiRequest('/api/engine/maintenance-cv', 'POST', data),
+  costIncident: (data) => smartApiRequest('/api/engine/cost-incident', 'POST', data),
+  flashSale: (data) => smartApiRequest('/api/engine/flash-sale', 'POST', data),
+  housekeepingReorder: (data) => smartApiRequest('/api/engine/housekeeping-reorder', 'POST', data),
+};
+
+
 
 

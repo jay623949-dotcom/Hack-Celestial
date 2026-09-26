@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   CheckSquare,
   Bot,
+  Sparkles,
   Settings,
   HelpCircle,
   MapPin,
@@ -35,13 +36,15 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
   ];
 
   const intelligenceNav = [
-    { label: 'AI Agents', href: '/dashboard/agents', icon: Bot },
+    { label: 'Autonomous 360 OS', href: '/dashboard/agents?tab=autonomous', icon: Sparkles },
+    { label: 'Swarm Consensus', href: '/dashboard/agents?tab=consensus', icon: Bot },
   ];
 
   const secondaryNav = [
     { label: 'Settings', href: '/dashboard#settings', icon: Settings },
     { label: 'Help', href: '/dashboard#help', icon: HelpCircle },
   ];
+
 
   const renderNavGroup = (title, items) => (
     <div className="space-y-1">
