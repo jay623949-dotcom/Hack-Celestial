@@ -28,6 +28,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
   const operationsNav = [
     { label: 'Rooms', href: '/dashboard#rooms', icon: BedDouble },
     { label: 'Guests', href: '/dashboard#guests', icon: Users },
+    { label: 'Revenue', href: '/dashboard#revenue', icon: Radio },
     { label: 'Staff', href: '/dashboard#staff', icon: UserCheck },
     { label: 'Incidents', href: '/dashboard#incidents', icon: AlertTriangle },
     { label: 'Tasks', href: '/dashboard#tasks', icon: CheckSquare },

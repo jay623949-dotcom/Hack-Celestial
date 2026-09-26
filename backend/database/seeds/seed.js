@@ -21,6 +21,18 @@ async function seedDatabase() {
     console.log('[Seed] Starting database seed transaction...');
     await client.query('BEGIN');
 
+    // Clean existing tables to guarantee consistent idempotent re-seeding
+    await client.query(`
+      DELETE FROM tasks;
+      DELETE FROM incidents;
+      UPDATE rooms SET guest_id = NULL;
+      DELETE FROM guests;
+      DELETE FROM staff;
+      DELETE FROM rooms;
+      DELETE FROM resorts;
+    `);
+
+
     // 1. Seed Resort
     const resort = demoData.resort || {
       id: 'resort-001',
