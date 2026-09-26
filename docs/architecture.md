@@ -598,4 +598,85 @@ The deployment architecture is optimized for low friction and zero devops overhe
    - Real-time task board with interactive status progression controls.
    - Database-backed execution timeline that survives page refreshes and socket disconnections.
 
+---
+
+## 11. Complete End-to-End Incident Lifecycle & Data Flow
+
+The complete end-to-end loop operates as an integrated, deterministic pipeline:
+
+```
+INCIDENT DETECTED (Room 401 AC Failure + VIP Early Arrival Arjun Mehta)
+        │
+        ▼
+CANONICAL CONTEXT BUILDER (Filters relevant rooms 401 & 205, staff, guests, 82% occupancy)
+        │
+        ▼
+4 DOMAIN AGENTS DELIBERATE (Front Desk, Housekeeping, Maintenance, Revenue)
+        │
+        ▼
+CONSENSUS SYNTHESIS (Synthesizes Action Plan in ai_action_plans with status: "pending_review")
+        │
+        ▼
+DUTY MANAGER REVIEWS (/dashboard/consensus — Approve, Modify, or Reject)
+        │
+        ▼ [MANAGER APPROVES]
+EXECUTION ENGINE (execution.service.js — Converts approved items into tasks)
+        │
+        ▼
+REAL-TIME SOCKET.IO EVENT FANOUT (task.dispatched, room.status_changed, staff.status_changed)
+        │
+        ▼
+STAFF DASHBOARDS & REAL STATE UPDATES:
+   - Priya Sharma prepares Room 205 (Room 205: available → cleaning → clean/ready)
+   - Rohan Mehta inspects Room 401 AC (Room 401: maintenance → repair completed)
+   - Amit Shah escorts VIP Arjun Mehta (Guest status: checked-in to Room 205)
+   - Staff workloads return to available
+        │
+        ▼
+INCIDENT RESOLVED (INC-401-AC: open → in_progress → resolved)
+        │
+        ▼
+EXECUTION COMPLETE (Progress: 100%, timeline closed, full audit trail persisted)
+```
+
+---
+
+## 12. Failure Handling, Resilience & Demo Safety Architecture
+
+Resort 360 is engineered to maintain operational integrity under common failure conditions:
+
+### 12.1 Standardized API Error Handling
+All backend endpoints funnel through centralized middleware (`errorHandler.js`), guaranteeing a deterministic JSON error contract:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "DATABASE_UNAVAILABLE | VALIDATION_ERROR | AI_TIMEOUT | STATE_CONFLICT",
+    "message": "Human-readable failure explanation without leaked credentials",
+    "details": [...],
+    "timestamp": "2026-09-27T01:30:00.000Z",
+    "path": "/api/v1/..."
+  }
+}
+```
+
+### 12.2 Multi-Agent AI Timeout & Error Isolation
+- External AI calls (Gemini / OpenAI / Local) are guarded by a 45-second `Promise.race` timeout, preventing connection hangs.
+- Each domain agent executes inside an isolated error boundary. If a single agent (e.g. Maintenance) encounters a timeout or rate limit, its status is tagged as `unavailable`.
+- The remaining active agents continue deliberation, and the `ConsensusService` synthesizes a valid operational consensus with explicit notification of missing inputs.
+
+### 12.3 Deterministic Rule-Based Consensus Fallback
+If the entire AI synthesis engine encounters a network partition, `ConsensusService.buildFallbackConsensus()` engages deterministic operational rules to produce a schema-valid action plan that prioritizes VIP guest recovery and marks `requires_human_approval: true`.
+
+### 12.4 Frontend React Error Boundary & Multi-Endpoint Resilience
+- Component crashes are intercepted by `<ErrorBoundary>`, rendering an isolated error card with `[Try Again]` and `[Reload Page]` actions while keeping global navigation and the header intact.
+- The Executive Dashboard fetches resources using `Promise.allSettled`, preventing a single degraded endpoint from crashing the entire operational console.
+- `fetchFromApi` enforces a 25-second `AbortController` timeout and validates JSON content types.
+
+### 12.5 Real-Time Socket.IO Reconnection & State Reconciliation
+- The header displays a live connection status pill (`Live` vs. `Reconnecting...`).
+- When network reconnects, clients immediately resynchronize with the authoritative REST endpoints and re-subscribe to their active action plan execution rooms.
+
+
+
 

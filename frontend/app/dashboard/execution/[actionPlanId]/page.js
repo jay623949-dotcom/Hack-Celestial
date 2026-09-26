@@ -271,6 +271,9 @@ export default function ActionPlanExecutionPage() {
                   </span>
                 )}
               </div>
+              <p className="text-xs text-primary font-mono font-semibold tracking-wide">
+                Approved → Dispatched → In Progress → Resolved
+              </p>
               <p className="text-sm text-slate-600">
                 {plan?.description || 'Approved multi-agent consensus translated into active operational tasks across Housekeeping, Maintenance, and Front Desk.'}
               </p>

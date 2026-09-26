@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 export default function DashboardShell({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -22,12 +23,14 @@ export default function DashboardShell({ children }) {
           {/* Operations Header */}
           <Header onMenuClick={() => setMobileSidebarOpen(true)} />
 
-          {/* Dynamic Internal Content Area - Only this container scrolls independently */}
-          <main className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6 max-w-7xl mx-auto w-full">
+        {/* Dynamic Content Area with React Error Boundary */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
+          <ErrorBoundary>
             {children}
-          </main>
-        </div>
+          </ErrorBoundary>
+        </main>
       </div>
     </div>
-  );
+  </div>
+);
 }

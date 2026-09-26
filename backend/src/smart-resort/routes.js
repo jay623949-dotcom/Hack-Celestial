@@ -262,14 +262,30 @@ router.get('/debug/revenue-state', (req, res) => {
 function performReset(req, res) {
   eventBus.clearHistory();
   resetState();
+
+  try {
+    const dataStore = require('../data/dataStore');
+    dataStore.resetStore();
+    const executionService = require('../services/execution.service');
+    executionService.resetExecution();
+  } catch (e) {
+    console.warn('[DemoReset] Warning during in-memory reset:', e.message);
+  }
+
   res.json({
     ok: true,
-    message: 'Demo environment reset successfully. All tables truncated and reseeded.',
-    next_step: 'Ready for demo cascade: POST /api/frontdesk/checkin to begin.',
+    success: true,
+    message: 'Demo environment reset successfully. VIP scenario initialized with Room 401 AC failure and alternative Room 205.',
+    scenario: {
+      guest: 'Arjun Mehta (VIP)',
+      room_401: 'Maintenance (AC failure)',
+      room_205: 'Deluxe (Available)',
+      incident: 'INC-401-AC',
+    },
   });
 }
 
-router.post(['/demo/reset', '/reset'], performReset);
+router.post(['/demo/reset', '/reset', '/operations/demo-reset'], performReset);
 
 module.exports = {
   smartResortRouter: router,

@@ -307,8 +307,22 @@ The core philosophy of Resort 360 is **"AI Recommends, Manager Understands, Mana
    - **Staff Workload**: Transitions assigned staff to `busy`; recalculates active workload on task completion (`busy` → `available` only when active workload reaches 0).
    - **Room Readiness**: Shifts room housekeeping status (`dirty` → `in_progress` → `clean`/`ready`).
    - **Incident Lifecycle**: Resolves active incident when all linked work orders complete.
-5. **Real-Time Broadcast & Live Execution Console**:
-   - Centralized Socket.IO event architecture (`task.dispatched`, `staff.status_changed`, `room.status_changed`, etc.).
-   - Manager execution console (`/dashboard/execution/:id`) with live task board and persistent execution timeline that survives page refreshes and socket disconnections.
+
+---
+
+## 14. Final Judge-Ready Demo Scenario: VIP Early Arrival — Room 401 AC Failure
+
+### 14.1 Objective & The Single Story
+Demonstrate Resort 360's autonomous multi-agent operational orchestration and human-in-the-loop governance through one deterministic, unified scenario:
+- **Incident**: Diamond VIP guest **Arjun Mehta** arrives at 14:00 (2 hours early for a 16:00 reservation, RES-VIP-401). Assigned **Room 401 (Deluxe)** suffers an active rooftop air-conditioning compressor failure.
+- **Conflict**: Front Desk faces severe VIP dissatisfaction risk; Housekeeping faces turnover delays; Maintenance must diagnose and repair the AC compressor; Revenue faces high resort occupancy (82%) with limited Deluxe inventory.
+- **Multi-Agent Consensus**: Front Desk, Housekeeping, Maintenance, and Revenue agents deliberate and formulate a coordinated strategy:
+  1. Keep Room 401 blocked until technician **Rohan Mehta** completes the AC repair.
+  2. Reassign guest to alternative **Room 205 (Deluxe)**.
+  3. Dispatch attendant **Priya Sharma** to expedite Room 205 preparation.
+  4. Escort guest to Private Club Lounge via **Amit Shah** with complimentary beverage service.
+  5. Protect Deluxe inventory and hold Room 205 from OTA channels.
+- **Human Approval & Execution**: Duty Manager reviews and approves the plan on the Consensus Report (`/dashboard/consensus`). Tasks are dispatched in real-time over Socket.IO, updating room, staff, and incident states until final resolution.
+
 
 

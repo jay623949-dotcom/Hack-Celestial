@@ -4,23 +4,60 @@
  */
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
+/**
+ * Resilient API fetcher with timeout protection, safe non-JSON error handling,
+ * and structured error normalization.
+ */
 async function fetchFromApi(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const timeoutMs = options.timeoutMs || 25000; // 25s default timeout
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      signal: controller.signal,
       ...options,
     });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data?.error?.message || `API request failed with status ${response.status}`);
+    clearTimeout(timeoutId);
+
+    // Safely parse JSON or text response
+    let data = null;
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = { error: { message: text || `HTTP ${response.status}` } };
     }
+
+    if (!response.ok) {
+      const errorMsg = data?.error?.message || `API request failed with status ${response.status}`;
+      const err = new Error(errorMsg);
+      err.status = response.status;
+      err.code = data?.error?.code || (response.status === 404 ? 'RESOURCE_NOT_FOUND' : 'API_ERROR');
+      err.details = data?.error?.details || null;
+      throw err;
+    }
+
     return data;
   } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error.name === 'AbortError') {
+      const timeoutErr = new Error(`Request to ${endpoint} timed out after ${timeoutMs / 1000}s. Please check backend connection.`);
+      timeoutErr.code = 'REQUEST_TIMEOUT';
+      timeoutErr.status = 504;
+      console.warn(`[API Timeout] ${endpoint}`);
+      throw timeoutErr;
+    }
+
     console.error(`[API Error] ${endpoint}:`, error.message);
     throw error;
   }
@@ -38,6 +75,16 @@ export async function checkBackendHealth() {
  */
 export async function getOperationsSummary() {
   return fetchFromApi('/operations/summary');
+}
+
+/**
+ * Reset Demo Environment to deterministic VIP Early Arrival Scenario
+ */
+export async function triggerDemoReset() {
+  return fetchFromApi('/demo/reset', {
+    method: 'POST',
+    body: JSON.stringify({ scenario: 'vip_early_arrival' }),
+  });
 }
 
 /**
@@ -231,8 +278,7 @@ export async function smartApiRequest(path, method = 'GET', body = null) {
 }
 
 export const smartResortApi = {
-  // Demo Reset & Ping
-  resetDemo: () => smartApiRequest('/demo/reset', 'POST'),
+  // Ping & Telemetry
   ping: () => smartApiRequest('/api/test/ping', 'POST'),
   getGuardrails: () => smartApiRequest('/api/guardrails'),
   getEventHistory: () => smartApiRequest('/api/events/history'),
@@ -261,15 +307,14 @@ export const smartResortApi = {
   getCurrentPricing: (category) => smartApiRequest(`/api/revenue/pricing/current/${category}`),
   getNetRevPar: () => smartApiRequest('/api/revenue/net-revpar'),
   createFlashSale: (data) => smartApiRequest('/api/revenue/flash-sale', 'POST', data),
-  simulateWingShutdown: (wingId) => smartApiRequest('/api/revenue/wing-shutdown-simulate', 'POST', { wing_id: wingId }),
 
   // Intelligence Engine
   guestIntake: (data) => smartApiRequest('/api/engine/guest-intake', 'POST', data),
-  maintenanceCv: (data) => smartApiRequest('/api/engine/maintenance-cv', 'POST', data),
   costIncident: (data) => smartApiRequest('/api/engine/cost-incident', 'POST', data),
   flashSale: (data) => smartApiRequest('/api/engine/flash-sale', 'POST', data),
   housekeepingReorder: (data) => smartApiRequest('/api/engine/housekeeping-reorder', 'POST', data),
 };
+
 
 
 

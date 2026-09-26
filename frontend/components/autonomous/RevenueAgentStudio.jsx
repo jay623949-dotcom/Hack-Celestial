@@ -9,12 +9,12 @@ import {
   Clock,
   Sparkles,
   RefreshCw,
-  Building,
   Tag,
   AlertCircle,
   CheckCircle2,
   Send
 } from 'lucide-react';
+
 
 export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
   const [netRevPar, setNetRevPar] = useState(null);
@@ -33,10 +33,6 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
   const [flashExpiry, setFlashExpiry] = useState(45);
   const [flashResult, setFlashResult] = useState(null);
   const [flashLoading, setFlashLoading] = useState(false);
-
-  // Wing shutdown state
-  const [wingShutdownResult, setWingShutdownResult] = useState(null);
-  const [wingLoading, setWingLoading] = useState(false);
 
   const fetchNetRevPar = async () => {
     try {
@@ -90,20 +86,8 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
     }
   };
 
-  const handleSimulateWingShutdown = async (wingId) => {
-    try {
-      setWingLoading(true);
-      const res = await smartResortApi.simulateWingShutdown(wingId);
-      setWingShutdownResult(res);
-      onActionSuccess(`Wing ${wingId} shutdown simulation calculated`, res);
-    } catch (err) {
-      alert(`Simulation error: ${err.message}`);
-    } finally {
-      setWingLoading(false);
-    }
-  };
-
   return (
+
     <div className="space-y-6">
       {/* Top Banner */}
       <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -325,52 +309,7 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
           )}
         </div>
       </div>
-
-      {/* Wing Shutdown Simulator */}
-      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between border-b border-border pb-2.5">
-          <div className="flex items-center gap-2">
-            <Building className="w-4 h-4 text-primary" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider font-mono">
-              Wing Shutdown Profit Simulator
-            </h3>
-          </div>
-          <span className="text-[10px] font-mono text-muted-foreground">
-            Target Net Margin Preservation
-          </span>
-        </div>
-
-        <p className="text-[11px] text-muted-foreground">
-          Evaluates safety feasibility of shutting down an entire wing for maintenance or low season, and calculates required average daily rate (ADR) on remaining rooms to match total resort net revenue.
-        </p>
-
-        <div className="flex items-center gap-2 pt-1">
-          <button
-            onClick={() => handleSimulateWingShutdown('B')}
-            disabled={wingLoading}
-            className="px-3 py-1.5 rounded-lg border border-border bg-surface-secondary hover:bg-surface-secondary/80 text-xs font-medium text-foreground transition-colors"
-          >
-            Simulate Wing B Closure (Suites)
-          </button>
-          <button
-            onClick={() => handleSimulateWingShutdown('C')}
-            disabled={wingLoading}
-            className="px-3 py-1.5 rounded-lg border border-border bg-surface-secondary hover:bg-surface-secondary/80 text-xs font-medium text-foreground transition-colors"
-          >
-            Simulate Wing C Closure (Villas)
-          </button>
-        </div>
-
-        {wingShutdownResult && (
-          <div className="p-3.5 rounded-lg border border-border bg-surface-secondary/40 text-xs space-y-1 font-mono animate-in fade-in">
-            <div className="flex items-center justify-between font-bold text-foreground">
-              <span>Feasibility: {wingShutdownResult.feasible ? 'FEASIBLE' : 'NOT FEASIBLE'}</span>
-              <span className="text-primary font-mono">Required ADR: ${wingShutdownResult.revised_rate_required}/night</span>
-            </div>
-            <p className="text-[11px] text-muted-foreground">{wingShutdownResult.reasoning}</p>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
+

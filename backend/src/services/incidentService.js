@@ -24,6 +24,9 @@ class IncidentService {
   }
 
   getById(id) {
+    if (id === 'incident-001' || id === 'INC-401-AC') {
+      return dataStore.findById('incidents', 'INC-401-AC') || dataStore.findById('incidents', 'incident-001');
+    }
     return dataStore.findById('incidents', id);
   }
 

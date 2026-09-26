@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import DashboardShell from '../../../components/dashboard/DashboardShell';
 import { Users, BedDouble, AlertTriangle, CalendarCheck, Clock, Star, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getGuests, getRooms, getIncidents } from '../../../lib/api';
+import { getSocket } from '../../../lib/socket';
 
 function StatCard({ label, value, sub, color = 'text-foreground' }) {
   return (
@@ -48,7 +49,7 @@ export default function FrontDeskDashboard() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = () => {
     Promise.all([getGuests(), getRooms({}), getIncidents({ status: 'open' })])
       .then(([g, r, i]) => {
         setGuests(g?.data || []);
@@ -56,6 +57,25 @@ export default function FrontDeskDashboard() {
         setIncidents(i?.data || []);
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadData();
+
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.on('room.status_changed', loadData);
+    socket.on('incident.status_changed', loadData);
+    socket.on('task.completed', loadData);
+    socket.on('task.dispatched', loadData);
+
+    return () => {
+      socket.off('room.status_changed', loadData);
+      socket.off('incident.status_changed', loadData);
+      socket.off('task.completed', loadData);
+      socket.off('task.dispatched', loadData);
+    };
   }, []);
 
   const vipGuests = guests.filter(g => g.vip || g.vip_tier !== 'Standard');

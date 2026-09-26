@@ -35,17 +35,18 @@ export default function LiveEventBusFeed({ events = [], isConnected = false, onC
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-foreground">Cross-Agent Event Bus & Live SSE Stream</h3>
+              <h3 className="text-sm font-bold text-foreground">Cross-Agent Event Bus &amp; Live Real-Time Stream</h3>
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                 isConnected ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
               }`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                {isConnected ? 'ONLINE (SSE)' : 'DISCONNECTED'}
+                {isConnected ? 'ONLINE (SOCKET.IO)' : 'DISCONNECTED'}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Autonomous pub/sub broadcast channel streaming agent state mutations in real time.
+              Autonomous pub/sub broadcast channel streaming operational agent events in real time.
             </p>
+
           </div>
         </div>
 

@@ -4,10 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { INTAKE_BENCHMARKS } from '../../lib/autonomous/benchmarks';
 import { smartResortApi } from '../../lib/api';
 import {
-  Mic,
   Sparkles,
   Play,
-  Volume2,
+  FileText,
   ShieldAlert,
   CheckCircle2,
   Users,
@@ -96,13 +95,13 @@ export default function FrontDeskAgentStudio({ onActionSuccess = () => {} }) {
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-primary text-primary-foreground">
               FRONT DESK AGENT
             </span>
-            <span className="text-xs text-muted-foreground font-mono">Differentiator: Ambient Voice Intake & Instant Service Recovery</span>
+            <span className="text-xs text-muted-foreground font-mono">Guest Intake & Sentiment Triage</span>
           </div>
           <h2 className="text-base sm:text-lg font-bold text-foreground mt-1">
-            Ambient Voice Intake & Persona Classification Studio
+            Guest Sentiment & Persona Triage Studio
           </h2>
           <p className="text-xs text-muted-foreground max-w-2xl mt-1">
-            Listens to guest dialogue at check-in, runs structured sentiment & persona classification, triggers immediate room readiness priority adjustments, and activates service recovery perks for at-risk travelers.
+            Analyzes guest dialogue and check-in context, runs structured sentiment & persona classification, and activates service recovery perks for at-risk travelers.
           </p>
         </div>
 
@@ -118,11 +117,11 @@ export default function FrontDeskAgentStudio({ onActionSuccess = () => {} }) {
 
       {/* Main Studio Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Scenarios & Voice Intake */}
+        {/* Left Column: Scenarios & Intake */}
         <div className="lg:col-span-7 space-y-4">
           <div className="rounded-xl border border-border bg-surface p-4 space-y-3 shadow-sm">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider font-mono">
-              1. Select Benchmark Ambient Audio Scenario
+              1. Select Benchmark Guest Scenario
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -140,7 +139,7 @@ export default function FrontDeskAgentStudio({ onActionSuccess = () => {} }) {
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-foreground">{sc.title}</span>
-                      <Volume2 className="w-3.5 h-3.5 text-primary shrink-0 ml-1" />
+                      <Users className="w-3.5 h-3.5 text-primary shrink-0 ml-1" />
                     </div>
                     <div className="text-[11px] text-muted-foreground mt-1 line-clamp-1 font-mono">
                       {sc.guest_name} • {sc.reservation_context.membership_tier}
@@ -155,11 +154,11 @@ export default function FrontDeskAgentStudio({ onActionSuccess = () => {} }) {
           <div className="rounded-xl border border-border bg-surface p-4 space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Mic className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bold text-foreground">Front Desk Microphone Stream</span>
+                <FileText className="w-4 h-4 text-primary" />
+                <span className="text-xs font-bold text-foreground">Guest Check-In Notes & Dialogue</span>
               </div>
               <span className="text-[10px] font-mono text-muted-foreground">
-                Audio Duration: {selectedScenario.audio_duration_seconds}s
+                Tier: {selectedScenario.reservation_context.membership_tier}
               </span>
             </div>
 
@@ -168,7 +167,7 @@ export default function FrontDeskAgentStudio({ onActionSuccess = () => {} }) {
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
               className="w-full p-3 rounded-lg border border-border bg-surface-secondary text-xs text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-primary"
-              placeholder="Guest intake dialogue transcript..."
+              placeholder="Guest intake dialogue notes..."
             />
 
             <div className="flex items-center justify-between pt-1">
@@ -189,12 +188,13 @@ export default function FrontDeskAgentStudio({ onActionSuccess = () => {} }) {
                 ) : (
                   <>
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Process Voice Intake</span>
+                    <span>Analyze Sentiment &amp; Triage</span>
                   </>
                 )}
               </button>
             </div>
           </div>
+
 
           {/* Classification Output Result */}
           {intakeResult && (

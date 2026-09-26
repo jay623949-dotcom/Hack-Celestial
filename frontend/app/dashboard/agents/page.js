@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import DashboardShell from '../../../components/dashboard/DashboardShell';
 import AgentCard from '../../../components/agents/AgentCard';
 import ScenarioSelector, { SCENARIO_CATALOG } from '../../../components/agents/ScenarioSelector';
 import { analyzeOperationsContext } from '../../../lib/api';
-import { useEventStream } from '../../../lib/autonomous/useEventStream';
+import { getSocket } from '../../../lib/socket';
 
 // Smart Resort 360 Autonomous Agent Components
+
 import AutonomousOverview from '../../../components/autonomous/AutonomousOverview';
 import FrontDeskAgentStudio from '../../../components/autonomous/FrontDeskAgentStudio';
 import HousekeepingAgentStudio from '../../../components/autonomous/HousekeepingAgentStudio';
@@ -79,14 +81,50 @@ function AgentSwarmPageContent() {
     setToasts((prev) => [newToast, ...prev].slice(0, 4));
   };
 
+<<<<<<< HEAD
   const handleServerEvent = useCallback((event) => {
     setStreamEvents((prev) => [event, ...prev].slice(0, 100));
     const eventName = event.event || event.event_type || 'SYSTEM_EVENT';
     const payload = event.payload || event.data || {};
     addToast(`Event: ${eventName}`, payload.reason || payload.message || payload.description || 'Payload received', 'info');
+=======
+  const [isConnected, setIsConnected] = useState(false);
+
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    if (socket.connected) setIsConnected(true);
+
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
+
+    const handleAny = (event, ...args) => {
+      const data = args[0] || {};
+      const record = {
+        id: `evt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        event,
+        event_type: event,
+        payload: data,
+        timestamp: new Date().toISOString(),
+      };
+      setStreamEvents((prev) => [record, ...prev].slice(0, 100));
+      addToast(`Event: ${event}`, data.title || data.message || data.description || 'Payload received');
+    };
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.onAny(handleAny);
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.offAny(handleAny);
+    };
+>>>>>>> 00f776105b598c149978b85fdff0a302606a0568
   }, []);
 
-  const { isConnected } = useEventStream(handleServerEvent);
 
   // ───────────────────────────────────────────────────────────────────────────
   // ORIGINAL SWARM CONSENSUS STATE & LOGIC
@@ -513,17 +551,26 @@ function AgentSwarmPageContent() {
             />
           </div>
 
-          {/* Human Approval Notice */}
-          <div className="p-4 rounded-xl border border-border bg-surface-secondary/30 flex items-start gap-3 text-xs text-muted-foreground">
-            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="font-semibold text-foreground">
-                Human-in-the-Loop Governance Notice
-              </p>
-              <p className="leading-relaxed">
-                The Swarm Consensus Engine generates advisory recommendations. All cross-departmental room reassignments or resource reallocations require explicit Duty Manager authorization.
-              </p>
+          {/* Human Approval Notice & Direct Link to Consensus Report */}
+          <div className="p-4 rounded-xl border border-border bg-surface-secondary/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+            <div className="flex items-start gap-3">
+              <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-semibold text-foreground">
+                  Human-in-the-Loop Governance Notice
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  The Swarm Consensus Engine generates advisory recommendations. All cross-departmental room reassignments or resource reallocations require explicit Duty Manager authorization.
+                </p>
+              </div>
             </div>
+            <Link
+              href="/dashboard/consensus"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-xs hover:bg-primary/90 transition-colors shrink-0 shadow-xs"
+            >
+              <span>Review in Consensus Report</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       )}
