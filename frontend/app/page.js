@@ -1,36 +1,75 @@
+'use client';
+
+import React from 'react';
+import Navbar from '../components/navbar/Navbar';
+import Hero from '../components/hero/Hero';
+import OperationalStrip from '../components/analytics/OperationalStrip';
+import CoreProblem from '../components/operations/CoreProblem';
+import ProductExplanation from '../components/operations/ProductExplanation';
+import AgentSection from '../components/agents/AgentSection';
+import MultiAgentConsensus from '../components/consensus/MultiAgentConsensus';
+import LiveIncidentSection from '../components/incidents/LiveIncidentSection';
+import HumanControl from '../components/operations/HumanControl';
+import LiveExecution from '../components/execution/LiveExecution';
+import HowItWorks from '../components/operations/HowItWorks';
+import OperationalUseCases from '../components/operations/OperationalUseCases';
+import WhyResort360 from '../components/operations/WhyResort360';
+import FAQ from '../components/faq/FAQ';
+import FinalCTA from '../components/cta/FinalCTA';
+import Footer from '../components/footer/Footer';
+
 export default function HomePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 text-white">
-      <div className="max-w-2xl w-full text-center space-y-8 p-10 bg-slate-800/60 border border-slate-700/60 rounded-2xl shadow-2xl backdrop-blur-sm">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Phase 0 Foundation ✓
-        </div>
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-primary">
+      {/* 01. Sticky Minimal Navbar */}
+      <Navbar />
 
-        <div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
-            RESORT 360
-          </h1>
-          <p className="mt-3 text-lg text-slate-300 font-medium">
-            AI-Powered Resort Operations Platform
-          </p>
-        </div>
+      <main className="flex-1">
+        {/* 02. Hero with Integrated Real Command Center Mockup */}
+        <Hero />
 
-        <div className="grid grid-cols-2 gap-4 text-left pt-4 border-t border-slate-700/60 text-sm">
-          <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-700/40">
-            <span className="text-xs text-slate-400 block uppercase font-mono">Frontend</span>
-            <span className="font-semibold text-sky-400">Next.js App Router (Active)</span>
-          </div>
-          <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-700/40">
-            <span className="text-xs text-slate-400 block uppercase font-mono">Backend</span>
-            <span className="font-semibold text-emerald-400">Express API (:5000)</span>
-          </div>
-        </div>
+        {/* 03. Trust / Context Operational Capabilities Strip */}
+        <OperationalStrip />
 
-        <p className="text-xs text-slate-400">
-          Ready for parallel feature development on individual branches.
-        </p>
-      </div>
-    </main>
+        {/* 04. The Core Problem: Departmental Fragmentation */}
+        <CoreProblem />
+
+        {/* 05. Product Explanation: Signals to Decision */}
+        <ProductExplanation />
+
+        {/* 06. Specialized AI Agents */}
+        <AgentSection />
+
+        {/* 07. Multi-Agent Consensus */}
+        <MultiAgentConsensus />
+
+        {/* 08. Live Incident Command Center Simulation */}
+        <LiveIncidentSection />
+
+        {/* 09. Human Control: AI Recommends. Managers Decide. */}
+        <HumanControl />
+
+        {/* 10. Real-Time Execution Timeline */}
+        <LiveExecution />
+
+        {/* 11. Six-Stage Operational Pipeline: How It Works */}
+        <HowItWorks />
+
+        {/* 12. Real-World Hospitality Use Cases */}
+        <OperationalUseCases />
+
+        {/* 13. Four Principles: Why Resort 360 */}
+        <WhyResort360 />
+
+        {/* 14. Frequently Asked Questions */}
+        <FAQ />
+
+        {/* 15. Final Restrained Call to Action */}
+        <FinalCTA />
+      </main>
+
+      {/* 16. Enterprise Footer */}
+      <Footer />
+    </div>
   );
 }

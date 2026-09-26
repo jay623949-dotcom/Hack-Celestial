@@ -2,15 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 15, 23, 42;
-  --background-rgb: 248, 250, 252;
+@layer base {
+  :root {
+    /* LIGHT THEME: Warm white, refined charcoal, balanced hospitality teal */
+    --background: #FBFBFA;
+    --foreground: #1E293B;
+
+    --surface: #FFFFFF;
+    --surface-secondary: #F5F5F3;
+    --surface-hover: #ECECE8;
+
+    --border: #E2E8F0;
+    --muted: #F1F5F9;
+    --muted-foreground: #64748B;
+
+    /* Primary Teal (Brand Accent) */
+    --primary: #0F766E;
+    --primary-foreground: #FFFFFF;
+    --primary-hover: #0D9488;
+    --primary-light: #F0FDFA;
+    --primary-border: #99F6E4;
+
+    --card: #FFFFFF;
+    --card-foreground: #1E293B;
+    --card-secondary: #F8F9FA;
+
+    /* Semantic Status Indicators */
+    --success: #15803D;
+    --warning: #B45309;
+    --danger: #DC2626;
+  }
+
+  .dark {
+    /* DARK THEME: Deep Bluish Charcoal (Atmospheric Operations Deck) */
+    --background: #07111F;
+    --foreground: #F1F5F9;
+
+    --surface: #0B1626;
+    --surface-secondary: #0F1C2E;
+    --surface-hover: #16263D;
+
+    --border: #1E2E45;
+    --muted: #132238;
+    --muted-foreground: #94A3B8;
+
+    /* Dark Mode Teal Accent (Legible, Calm, Non-Neon) */
+    --primary: #14B8A6;
+    --primary-foreground: #042F2E;
+    --primary-hover: #2DD4BF;
+    --primary-light: #062326;
+    --primary-border: #115E59;
+
+    --card: #0B1626;
+    --card-foreground: #F1F5F9;
+    --card-secondary: #091321;
+
+    /* Semantic Status Indicators */
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  color: var(--foreground);
+  background-color: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   padding: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }
