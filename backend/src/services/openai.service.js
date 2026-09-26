@@ -72,6 +72,8 @@ class AIService {
         this.localClient = new OpenAI({
           apiKey: 'local-no-key-required',
           baseURL: localBaseURL,
+          timeout: 120000, // 120s — local models like gemma2:2b can be slow
+          maxRetries: 0,   // Don't retry on local — fail fast and surface error
         });
       } catch (e) {
         console.warn('[AIService] Failed to initialize Local AI client:', e.message);
@@ -315,13 +317,19 @@ class AIService {
           { role: 'user', content: userPrompt },
         ],
         temperature: 0.2,
+        stream: false, // Disable streaming — required for Ollama/local models to avoid connection drops
       };
       if (providerLabel === 'OpenAI') {
         completionParams.response_format = { type: 'json_object' };
       }
       const chatCompletion = await client.chat.completions.create(completionParams);
 
-      return chatCompletion.choices[0]?.message?.content;
+      const rawContent = chatCompletion.choices[0]?.message?.content || '';
+      // Strip markdown fences if local model wrapped JSON in ```json ... ```
+      if (rawContent.startsWith('```')) {
+        return rawContent.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+      }
+      return rawContent;
     } catch (err) {
       console.error(`[AIService] ${providerLabel} API error:`, err.message);
       const error = new Error(`${providerLabel} API error: ${err.message}`);
