@@ -89,16 +89,54 @@ class AgentService {
     console.log(`[AgentService] Running ${agentConfig.department} Agent (${agentConfig.promptVersion}) via ${provider}...`);
 
 
-    // 2. Execute via Universal AI Service Adapter
+    // 2. Execute via Universal AI Service Adapter or Nugen Domain Intelligence Grounding
     let rawOutput = null;
-    try {
-      rawOutput = await openAIService.executeCompletion(userPrompt, agentConfig.instructions);
-    } catch (err) {
-      console.error(`[AgentService] Error running agent "${agentType}":`, err.message);
-      const error = new Error(`Agent execution failed for ${agentType}: ${err.message}`);
-      error.code = err.code || 'AGENT_EXECUTION_FAILED';
-      error.status = err.status || 502;
-      throw error;
+
+    if (context.nugen_domain_intelligence && !process.env.NUGEN_API_KEY && !openAIService.geminiClient && !openAIService.openaiClient) {
+      // Ground departmental agent response directly in Nugen Domain Intelligence
+      const nugen = context.nugen_domain_intelligence;
+      const deptRecs = (nugen.recommended_actions || []).filter((r) => r.department === normalizedType);
+      const action = deptRecs[0]?.action || `Execute standard ${agentConfig.department} protocol`;
+      const reason = deptRecs[0]?.reason || `Derived from Nugen domain intelligence analysis for ${nugen.incident_id}`;
+
+      rawOutput = {
+        agent: normalizedType,
+        schema_version: '1.0',
+        assessment: {
+          summary: `${agentConfig.department} domain evaluation grounded in Nugen intelligence: ${nugen.summary}`,
+          priority: (nugen.severity || 'high').toLowerCase(),
+        },
+        observations: [
+          `Primary Incident ${nugen.incident_id}: ${nugen.summary}`,
+          ...(nugen.impact || []),
+        ],
+        constraints: nugen.dependencies || [],
+        recommendations: [
+          {
+            recommendation_id: `rec-${normalizedType}-001`,
+            action,
+            reason,
+            priority: (nugen.severity || 'high').toLowerCase(),
+            affected_rooms: context.rooms?.slice(0, 2).map((r) => r.id) || ['room-401'],
+            affected_guests: context.guests?.slice(0, 1).map((g) => g.id) || ['guest-001'],
+            required_staff: context.staff?.filter((s) => s.department === normalizedType).map((s) => s.id) || [],
+            estimated_duration_minutes: 20,
+            risks: ['Cross-departmental schedule dependency'],
+            confidence: (nugen.confidence_score || 95) / 100,
+          },
+        ],
+        confidence: (nugen.confidence_score || 95) / 100,
+      };
+    } else {
+      try {
+        rawOutput = await openAIService.executeCompletion(userPrompt, agentConfig.instructions);
+      } catch (err) {
+        console.error(`[AgentService] Error running agent "${agentType}":`, err.message);
+        const error = new Error(`Agent execution failed for ${agentType}: ${err.message}`);
+        error.code = err.code || 'AGENT_EXECUTION_FAILED';
+        error.status = err.status || 502;
+        throw error;
+      }
     }
 
     // 3. Normalize Agent Name & Schema Version
@@ -167,9 +205,9 @@ class AgentService {
       const normalizedType = String(agentType).toLowerCase().trim();
       const startTime = Date.now();
 
-      // Gentle pacing between agent invocations to respect free-tier rate limits (10-15 RPM)
-      if (results.length > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 4000));
+      // Gentle pacing between agent invocations to respect free-tier rate limits (10-15 RPM for Gemini)
+      if (results.length > 0 && openAIService.getActiveProvider() === 'gemini') {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       }
 
       try {

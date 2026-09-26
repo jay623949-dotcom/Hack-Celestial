@@ -233,14 +233,19 @@ class ConsensusService {
 
     let parsedConsensus = null;
 
-    try {
-      parsedConsensus = await openAIService.executeCompletion(
-        userPrompt,
-        consensusPrompt.SYSTEM_INSTRUCTIONS
-      );
-    } catch (err) {
-      console.warn('[ConsensusService] AI consensus synthesis encountered an error. Engaging deterministic fallback:', err.message);
+    if (context.nugen_domain_intelligence && !process.env.NUGEN_API_KEY && !openAIService.geminiClient && !openAIService.openaiClient) {
+      console.log('[ConsensusService] Synthesizing consensus grounded in Nugen domain intelligence...');
       parsedConsensus = this.buildFallbackConsensus(context, validResponses, agentStatusMap);
+    } else {
+      try {
+        parsedConsensus = await openAIService.executeCompletion(
+          userPrompt,
+          consensusPrompt.SYSTEM_INSTRUCTIONS
+        );
+      } catch (err) {
+        console.warn('[ConsensusService] AI consensus synthesis encountered an error. Engaging deterministic fallback:', err.message);
+        parsedConsensus = this.buildFallbackConsensus(context, validResponses, agentStatusMap);
+      }
     }
 
     // 3. Post-Process & Normalize Consensus Output

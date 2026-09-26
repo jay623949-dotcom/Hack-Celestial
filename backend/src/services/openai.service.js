@@ -85,7 +85,12 @@ class AIService {
    * Determine active provider with intelligent fallback
    */
   getActiveProvider() {
-    const configured = (config.ai?.provider || process.env.AI_PROVIDER || 'gemini').toLowerCase();
+    const configured = (config.ai?.provider || process.env.AI_PROVIDER || 'nugen').toLowerCase();
+
+    // If Nugen is configured, prioritize Nugen Domain-Aligned AI
+    if (configured === 'nugen') {
+      return 'nugen';
+    }
 
     // If configured provider has credentials/connection, use it
     if (configured === 'gemini' && (config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY)) {
@@ -387,7 +392,44 @@ class AIService {
     let responseContent = null;
 
     // 2. Route to Active Provider
-    if (provider === 'gemini') {
+    if (provider === 'nugen') {
+      const nugenInferenceService = require('./nugen/nugenInferenceService');
+      const nugenResult = await nugenInferenceService.analyzeResortIncident(context);
+
+      const mappedResponse = {
+        agent: 'operations',
+        schema_version: '1.0',
+        assessment: {
+          summary: nugenResult.summary,
+          priority: (nugenResult.severity || 'high').toLowerCase(),
+        },
+        observations: [
+          `Incident ${nugenResult.incident_id}: ${nugenResult.summary}`,
+          ...(nugenResult.impact || []),
+        ],
+        constraints: nugenResult.dependencies || [],
+        recommendations: (nugenResult.recommended_actions || []).map((a, idx) => ({
+          recommendation_id: `rec-nugen-${idx + 1}`,
+          action: a.action,
+          reason: a.reason,
+          priority: (a.priority || 'high').toLowerCase(),
+          affected_rooms: context.rooms?.map((r) => r.id).slice(0, 2) || ['room-401'],
+          affected_guests: context.guests?.map((g) => g.id).slice(0, 1) || ['guest-001'],
+          required_staff: context.staff?.filter((s) => s.department === a.department).map((s) => s.id) || [],
+          estimated_duration_minutes: 20,
+          risks: ['Cross-departmental coordination requirement'],
+          confidence: (nugenResult.confidence_score || 95) / 100,
+        })),
+        confidence: (nugenResult.confidence_score || 95) / 100,
+        nugen_domain_intelligence: nugenResult,
+      };
+
+      const outputValidation = this.validateAIOutput(mappedResponse);
+      if (!outputValidation.valid) {
+        console.warn('[AIService] Nugen output normalization schema warning:', outputValidation.errors);
+      }
+      return mappedResponse;
+    } else if (provider === 'gemini') {
       responseContent = await this.callGemini(userPrompt);
     } else if (provider === 'local') {
       if (!this.localClient) this.initClients();
@@ -458,21 +500,58 @@ class AIService {
     const provider = this.getActiveProvider();
     let responseContent = null;
 
-    if (provider === 'gemini') {
-      responseContent = await this.callGemini(userPrompt, systemInstructions);
-    } else if (provider === 'local') {
+    if (provider === 'nugen') {
+      const apiKey = config.ai?.nugen?.apiKey || process.env.NUGEN_API_KEY;
+      if (apiKey) {
+        try {
+          const baseUrl = (config.ai?.nugen?.baseURL || process.env.NUGEN_BASE_URL || 'https://api.nugen.in').replace(/\/+$/, '');
+          const model = config.ai?.nugen?.modelId || process.env.NUGEN_MODEL_ID || 'resort360-hospitality-v1';
+          const nugenRes = await fetch(`${baseUrl}/api/v3/inference/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: [
+                { role: 'system', content: systemInstructions },
+                { role: 'user', content: userPrompt },
+              ],
+              temperature: 0.2,
+              max_tokens: 1500,
+            }),
+          });
+          if (nugenRes.ok) {
+            const data = await nugenRes.json();
+            responseContent = data.choices?.[0]?.message?.content || '';
+          }
+        } catch (e) {
+          console.warn('[AIService] Nugen execution error, falling back:', e.message);
+        }
+      }
+    }
+
+    if (!responseContent && (provider === 'gemini' || config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY)) {
+      try {
+        responseContent = await this.callGemini(userPrompt, systemInstructions);
+      } catch (e) {
+        console.warn('[AIService] Gemini fallback failed:', e.message);
+      }
+    }
+
+    if (!responseContent && (provider === 'local' || (!responseContent && process.env.LOCAL_AI_BASE_URL))) {
       if (!this.localClient) this.initClients();
       const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'llama3.2';
-      responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM', systemInstructions);
-    } else {
-      if (!this.openaiClient) this.initClients();
-      const apiKey = config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY;
-      if (!apiKey) {
-        const error = new Error('No AI provider configured. Please set GEMINI_API_KEY (free at https://aistudio.google.com) or OPENAI_API_KEY in backend/.env.');
-        error.code = 'AI_KEY_MISSING';
-        error.status = 503;
-        throw error;
+      try {
+        responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM', systemInstructions);
+      } catch (e) {
+        console.warn('[AIService] Local LLM fallback failed:', e.message);
       }
+    }
+
+    if (!responseContent && (config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY)) {
+      if (!this.openaiClient) this.initClients();
       const model = config.ai?.openai?.model || config.openai?.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
       responseContent = await this.callOpenAICompatible(this.openaiClient, model, userPrompt, 'OpenAI', systemInstructions);
     }

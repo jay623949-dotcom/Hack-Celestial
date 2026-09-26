@@ -46,7 +46,7 @@ Resort 360 uses a lightweight, decoupled monorepo architecture consisting of a *
 | **Frontend** | Next.js 14, React 18, Tailwind CSS | Dashboard UI, incident creation modal, multi-agent reasoning visualizer, manager approval interface, live task board. |
 | **Backend** | Node.js, Express.js | REST routing, input validation, context assembly, multi-agent dispatch, task generation, WebSocket server. |
 | **Database** | PostgreSQL / Supabase | Relational persistence for rooms, guests, staff, active incidents, generated action plans, and tasks. |
-| **AI Layer** | OpenAI API (`gpt-4o` or `gpt-4o-mini`) | 4 specialized agent prompts + 1 consensus orchestrator prompt producing strict structured JSON. |
+| **AI Layer** | **Nugen Intelligence** (Domain-Aligned Model `resort360-hospitality-v1`) + Universal Adapter (OpenAI / Gemini / Local) | Specialized domain reasoning layer producing calibrated confidence-scored evaluations, feeding 4 departmental agents and multi-agent consensus synthesis. |
 | **Real-Time** | Socket.IO (Server & Client) | Instant bi-directional event broadcast when incidents are created, plans approved, and tasks updated. |
 
 ---

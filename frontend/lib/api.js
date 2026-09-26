@@ -174,7 +174,7 @@ export async function getOperationalContext(trigger = { type: 'multiple_incident
 
 /**
  * AI Operations Analysis
- * Submits trigger or operational context to backend OpenAI service
+ * Submits trigger or operational context to backend AI service
  */
 export async function analyzeOperationsContext(payload) {
   // If payload has context or trigger, send as-is; otherwise treat payload as trigger
@@ -183,6 +183,25 @@ export async function analyzeOperationsContext(payload) {
     method: 'POST',
     body: JSON.stringify(body),
   });
+}
+
+/**
+ * Nugen Domain-Aligned AI Analysis
+ * Submits incident context to Nugen domain model
+ */
+export async function analyzeWithNugen(payload) {
+  const body = payload?.context || payload?.trigger ? payload : { trigger: payload };
+  return fetchFromApi('/ai/nugen/analyze', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * Fetch Nugen Platform and Model Status
+ */
+export async function getNugenStatus() {
+  return fetchFromApi('/ai/nugen/status');
 }
 
 /**

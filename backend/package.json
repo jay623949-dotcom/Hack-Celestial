@@ -9,6 +9,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test": "node test-phase1.js",
+    "test:nugen": "node test-nugen.js",
     "test:manager": "node test-manager-decision.js",
     "test:execution": "node test-phase5-execution.js",
     "db:migrate": "node database/migrations/migrate.js",

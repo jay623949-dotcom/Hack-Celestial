@@ -27,6 +27,13 @@ module.exports = {
       baseURL: process.env.LOCAL_AI_BASE_URL || 'http://localhost:11434/v1',
       model: process.env.LOCAL_AI_MODEL || 'llama3.2',
     },
+    nugen: {
+      apiKey: process.env.NUGEN_API_KEY || '',
+      baseURL: process.env.NUGEN_BASE_URL || 'https://api.nugen.in',
+      modelId: process.env.NUGEN_MODEL_ID || 'resort360-hospitality-v1',
+      alignmentId: process.env.NUGEN_ALIGNMENT_ID || '',
+      deploymentId: process.env.NUGEN_DEPLOYMENT_ID || '',
+    },
   },
   // Backward compatibility alias for openai
   openai: {

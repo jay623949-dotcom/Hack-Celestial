@@ -299,6 +299,60 @@ async function updatePlanStatus(req, res, next) {
   }
 }
 
+/**
+ * POST /api/v1/ai/nugen/analyze
+ * Direct Nugen Domain-Aligned Operational Analysis
+ */
+async function analyzeWithNugen(req, res, next) {
+  const nugenService = require('../services/nugen/nugenService');
+  try {
+    let context = req.body.context;
+    if (!context) {
+      const trigger = req.body.trigger || (req.body.type ? req.body : { type: 'vip_early_arrival', incident_id: 'INC-401-AC' });
+      context = await contextBuilder.buildContext(trigger);
+    }
+    const result = await nugenService.analyzeOperationalIncident(context);
+    return res.status(200).json({
+      success: true,
+      data: {
+        domain_analysis: result,
+        context,
+      },
+    });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      success: false,
+      error: {
+        code: error.code || 'NUGEN_ANALYSIS_ERROR',
+        message: error.message || 'An error occurred during Nugen domain analysis.',
+      },
+    });
+  }
+}
+
+/**
+ * GET /api/v1/ai/nugen/status
+ * Check Nugen platform & model readiness
+ */
+async function getNugenStatus(req, res, next) {
+  const nugenService = require('../services/nugen/nugenService');
+  try {
+    const status = await nugenService.getStatus();
+    return res.status(200).json({
+      success: true,
+      data: status,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'NUGEN_STATUS_ERROR',
+        message: error.message,
+      },
+    });
+  }
+}
+
 module.exports = {
   analyzeOperationalContext,
   getOperationalContext,
@@ -307,4 +361,6 @@ module.exports = {
   listAnalysisRuns,
   getAnalysisRun,
   updatePlanStatus,
+  analyzeWithNugen,
+  getNugenStatus,
 };

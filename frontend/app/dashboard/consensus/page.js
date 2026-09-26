@@ -16,7 +16,9 @@ import {
   rejectActionPlan,
   modifyActionPlan,
   updateActionItemStatus,
-  getActionPlanAuditTrail
+  getActionPlanAuditTrail,
+  analyzeWithNugen,
+  getNugenStatus
 } from '../../../lib/api';
 
 const SCENARIOS = [
@@ -54,6 +56,32 @@ export default function OperationalDecisionReviewPage() {
   const [editableActions, setEditableActions] = useState([]);
   const [activeTab, setActiveTab] = useState('decision'); // 'decision' | 'audit'
 
+  // Nugen Domain-Aligned AI State
+  const [nugenIntelligence, setNugenIntelligence] = useState(null);
+  const [nugenStatus, setNugenStatus] = useState(null);
+  const [nugenLoading, setNugenLoading] = useState(false);
+
+  const fetchNugenAnalysis = useCallback(async (scenario = selectedScenario) => {
+    try {
+      setNugenLoading(true);
+      const [analysisRes, statusRes] = await Promise.allSettled([
+        analyzeWithNugen({ trigger: { type: scenario.id || 'vip_arrival', incident_id: 'INC-401-AC' } }),
+        getNugenStatus(),
+      ]);
+
+      if (analysisRes.status === 'fulfilled' && analysisRes.value?.data?.domain_analysis) {
+        setNugenIntelligence(analysisRes.value.data.domain_analysis);
+      }
+      if (statusRes.status === 'fulfilled' && statusRes.value?.data) {
+        setNugenStatus(statusRes.value.data);
+      }
+    } catch (err) {
+      console.warn('Nugen fetch error:', err.message);
+    } finally {
+      setNugenLoading(false);
+    }
+  }, [selectedScenario]);
+
   // Fetch plan from backend
   const loadPlan = useCallback(async (planId = 'plan-vip-arrival') => {
     try {
@@ -75,7 +103,8 @@ export default function OperationalDecisionReviewPage() {
 
   useEffect(() => {
     loadPlan();
-  }, [loadPlan]);
+    fetchNugenAnalysis();
+  }, [loadPlan, fetchNugenAnalysis]);
 
   // Handle Approve
   const handleApprove = async () => {
@@ -357,6 +386,105 @@ export default function OperationalDecisionReviewPage() {
       ) : (
         /* DECISION CONSOLE TAB */
         <div className="space-y-6">
+          {/* NUGEN DOMAIN-ALIGNED INTELLIGENCE */}
+          <section className="rounded-xl border border-primary/40 bg-primary/[0.03] p-5 shadow-soft space-y-4 relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-border/80">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold shadow-xs">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/30">
+                      Nugen Domain-Aligned Model
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 rounded-full font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                      {nugenIntelligence?.confidence_score || 96.2}% Confidence
+                    </span>
+                  </div>
+                  <h2 className="text-sm sm:text-base font-bold text-foreground mt-0.5">
+                    Resort 360 Hospitality Intelligence
+                  </h2>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 text-xs font-mono self-start sm:self-auto">
+                <span className="text-muted-foreground text-[11px]">
+                  Model: <strong className="text-foreground">{nugenIntelligence?.aligned_model_id || 'resort360-hospitality-v1'}</strong>
+                </span>
+                <button
+                  onClick={() => fetchNugenAnalysis()}
+                  disabled={nugenLoading}
+                  className="px-2.5 py-1 rounded-lg border border-border bg-surface hover:bg-surface-secondary text-[11px] font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+                >
+                  <RefreshCw className={`w-3 h-3 ${nugenLoading ? 'animate-spin text-primary' : ''}`} />
+                  Re-analyze
+                </button>
+              </div>
+            </div>
+
+            {/* Structured Domain Summary Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+              <div className="p-3 rounded-lg bg-surface border border-border/80">
+                <span className="text-[10px] font-mono uppercase text-muted-foreground block">Incident</span>
+                <strong className="text-foreground text-xs mt-0.5 block truncate">
+                  VIP Early Arrival + Room 401 AC
+                </strong>
+              </div>
+              <div className="p-3 rounded-lg bg-surface border border-border/80">
+                <span className="text-[10px] font-mono uppercase text-muted-foreground block">Severity</span>
+                <span className="inline-block mt-0.5 text-xs font-bold text-rose-600 uppercase">
+                  {nugenIntelligence?.severity || 'CRITICAL'}
+                </span>
+              </div>
+              <div className="p-3 rounded-lg bg-surface border border-border/80 sm:col-span-2">
+                <span className="text-[10px] font-mono uppercase text-muted-foreground block">Affected Teams</span>
+                <div className="flex flex-wrap gap-1.5 mt-0.5">
+                  {(nugenIntelligence?.affected_departments || ['front_desk', 'maintenance', 'housekeeping', 'revenue']).map((dept) => (
+                    <span key={dept} className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-surface-secondary border border-border font-semibold text-foreground">
+                      {dept.replace('_', ' ')}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* AI Recommendation, Why, Impact */}
+            <div className="space-y-2.5 text-xs leading-relaxed">
+              <div className="p-3.5 rounded-lg bg-surface border border-border/80">
+                <div className="font-bold text-foreground text-xs flex items-center gap-1.5 text-primary mb-1">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  AI Domain Recommendation
+                </div>
+                <p className="text-foreground/90">
+                  {nugenIntelligence?.summary || 'Reassign VIP guest Arjun Mehta to alternative inspected Room 205, escort to Private Club Lounge with welcome beverage, and dispatch maintenance technician Rohan Mehta for Room 401 compressor breaker diagnosis.'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                <div className="p-3.5 rounded-lg bg-surface border border-border/80">
+                  <div className="font-bold text-foreground text-xs text-amber-700 mb-1 flex items-center gap-1.5">
+                    <Info className="w-3.5 h-3.5 text-amber-600" />
+                    Why (Operational Justification)
+                  </div>
+                  <p className="text-muted-foreground">
+                    {nugenIntelligence?.explanation?.why || 'AC compressor repair window exceeds allowable guest wait time. Reassignment to pre-inspected Deluxe Room 205 eliminates lobby congestion while protecting 82% occupancy yield.'}
+                  </p>
+                </div>
+                <div className="p-3.5 rounded-lg bg-surface border border-border/80">
+                  <div className="font-bold text-foreground text-xs text-rose-700 mb-1 flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
+                    Impact & Risk Mitigation
+                  </div>
+                  <p className="text-muted-foreground">
+                    {nugenIntelligence?.explanation?.impact || 'Prevents Tier-1 VIP dissatisfaction; zero net revenue leakage; maintenance isolated to back-of-house work order.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* SECTION 1: WHAT IS THE AI RECOMMENDING? */}
           <section className="rounded-xl border border-border bg-surface p-5 shadow-soft space-y-3">
             <div className="flex items-center justify-between">

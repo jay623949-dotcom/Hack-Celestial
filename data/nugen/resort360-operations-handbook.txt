@@ -1,0 +1,62 @@
+RESORT 360 OPERATIONAL INTELLIGENCE HANDBOOK
+STANDARD OPERATING PROCEDURES & MULTI-AGENT GOVERNANCE
+Document Version: 2.4-DOM
+Domain: Luxury Resort & Hospitality Operations
+
+SECTION 1: OVERVIEW AND MISSION
+Resort 360 operates as an automated, multi-agent hospitality operations platform. Real-time telemetry, guest requests, maintenance anomalies, and housekeeping readiness feed an AI Context Builder. The domain intelligence layer synthesizes operational incidents to prevent guest dissatisfaction, eliminate inter-departmental conflicts, and protect resort revenue. Under no circumstances may AI autonomous actions modify database state, reassign rooms, or dispatch work orders without explicit human manager authorization.
+
+SECTION 2: GUEST TIERS & VIP PROTOCOLS
+1. Tier 1 (VIP Presidential / Ultra High Net Worth):
+   - Mandatory escort to Private Club Lounge immediately upon arrival if assigned suite is not inspected and ready.
+   - Complementary beverage service and personal welcome from Assistant General Manager or Guest Relations Manager.
+   - In case of room maintenance defects (e.g. AC failure, plumbing leak), immediate reassignment to equal or higher tier suite (e.g. Executive Suite or Deluxe Suite) is required within 15 minutes.
+   - Max allowable lobby wait time: 0 minutes. Max room readiness delay: 25 minutes.
+
+2. Tier 2 (VIP Regular / Frequent Guest):
+   - Priority check-in, express luggage handling.
+   - In case of room issue, reassign to comparable room immediately. If not ready, provide F&B credit (INR 4,000) and lounge access.
+
+3. Tier 3 (Standard Leisure / Direct / OTA):
+   - Standard check-in time: 15:00 IST. Early arrival before 13:00 accommodated based on clean inventory.
+   - If clean inventory unavailable, store luggage, grant pool and dining access.
+
+SECTION 3: HVAC & ENGINEERING FAILURE PROTOCOL
+1. Suite AC Compressor Failure:
+   - Priority: CRITICAL.
+   - Technician dispatch SLA: 5 minutes.
+   - Diagnosis SLA: 10 minutes.
+   - If diagnosis indicates repair time > 30 minutes and guest is in residence or arriving within 60 minutes:
+     a) Front Desk must reassign guest to alternative inspected room.
+     b) Housekeeping must perform priority refresh on target reassigned room.
+     c) Room with failed AC must be shifted to 'maintenance' status and taken out of active inventory.
+     d) Revenue management must decrement available room count from PMS and OTA channels to prevent overbooking.
+
+2. Plumbing & Water Leakage Incidents:
+   - Severity: CRITICAL if active drip or pipe burst; HIGH if slow drainage.
+   - Action: Water isolation valve shutoff within 5 minutes. Floor drain inspection.
+   - Housekeeping dry-vacuum and sanitized towel deployment.
+
+SECTION 4: HOUSEKEEPING TURNOVER & BOTTLENECK ARBITRATION
+1. Room Cleaning Priorities:
+   - Priority 1: VIP early arrival alternative rooms (Express turnover: 20-25 minutes).
+   - Priority 2: Occupied room service requests.
+   - Priority 3: Regular checkout turnover for incoming arrivals.
+   - Priority 4: Stayover refreshes.
+2. Staffing Contention:
+   - If housekeeping availability is <= 2 attendants during peak checkout (11:00-14:00):
+     Manager must authorize express turn protocols (focus on sanitization, linen swap, bathroom deep clean; postpone carpet shampooing).
+
+SECTION 5: REVENUE & INVENTORY PROTECTION
+1. Occupancy Threshold Rules:
+   - Low Occupancy (< 60%): High flexibility for complimentary upgrades and early check-ins.
+   - Moderate Occupancy (60% - 85%): Upgrades restricted to 1 category tier. Reassigned rooms must be protected from general inventory pool.
+   - High Occupancy (> 85%): No complimentary double-upgrades. Every room reassignment must be cross-checked against incoming reservations to avoid displaced guests.
+
+SECTION 6: ESCALATION & HUMAN APPROVAL THRESHOLDS
+Manager Approval is strictly required when:
+1. Reassignment involves upgrading a guest more than 1 category tier.
+2. Estimated maintenance repair cost exceeds INR 10,000 or repair window exceeds 2 hours.
+3. Hotel occupancy exceeds 85% and a room must be taken out of order.
+4. Guest compensation exceeds INR 5,000 F&B credit.
+5. Multiple concurrent critical incidents compete for a single available technician.
