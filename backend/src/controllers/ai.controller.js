@@ -111,7 +111,131 @@ async function analyzeOperationalContext(req, res, next) {
   }
 }
 
+/**
+ * Controller for Batch / Single Departmental AI Agents Analysis
+ * POST /api/v1/ai/agents/analyze
+ * Request Body:
+ * {
+ *   "trigger": { "type": "multiple_incidents" },
+ *   "agents": ["front_desk", "housekeeping", "maintenance", "revenue"]
+ * }
+ */
+async function analyzeDepartmentalAgents(req, res, next) {
+  const agentService = require('../services/agent.service');
+
+  try {
+    let context = req.body.context;
+
+    // If trigger is provided instead of full context, build canonical context from database state
+    if (!context) {
+      const trigger = req.body.trigger || (req.body.type ? req.body : { type: 'multiple_incidents' });
+      context = await contextBuilder.buildContext(trigger);
+    }
+
+    // Validate context input
+    const validation = openAIService.validateInputContext(context);
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_CONTEXT',
+          message: `Invalid operational context: ${validation.errors.join(', ')}`,
+        },
+      });
+    }
+
+    const requestedAgents = Array.isArray(req.body.agents) && req.body.agents.length > 0
+      ? req.body.agents
+      : agentService.getSupportedAgents();
+
+    // Check for unknown agents
+    const supported = agentService.getSupportedAgents();
+    const unknown = requestedAgents.filter((a) => !supported.includes(String(a).toLowerCase().trim()));
+    if (unknown.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'UNKNOWN_AGENT',
+          message: `Unknown agent type(s): ${unknown.join(', ')}. Supported types: ${supported.join(', ')}`,
+        },
+      });
+    }
+
+    // Run batch analysis across requested domain agents
+    const agentResults = await agentService.runBatchAgents(requestedAgents, context);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        context_id: context.context_id,
+        trigger: context.trigger,
+        agents: agentResults,
+      },
+    });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      success: false,
+      error: {
+        code: error.code || 'AGENT_SERVICE_ERROR',
+        message: error.message || 'An unexpected error occurred during agent analysis.',
+      },
+    });
+  }
+}
+
+/**
+ * Controller for Multi-Agent Orchestration & Coordinated Consensus
+ * POST /api/v1/ai/consensus
+ * Request Body:
+ * {
+ *   "trigger": { "type": "multiple_incidents" },
+ *   "agents": ["front_desk", "housekeeping", "maintenance", "revenue"]
+ * }
+ */
+async function getConsensus(req, res, next) {
+  const orchestratorService = require('../services/orchestrator.service');
+
+  try {
+    const trigger = req.body.trigger || (req.body.type ? req.body : { type: 'multiple_incidents' });
+    const agents = req.body.agents;
+    const context = req.body.context;
+
+    const result = await orchestratorService.orchestrateConsensus({
+      trigger,
+      context,
+      agents,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    if (error.code === 'INVALID_CONTEXT' || error.code === 'UNKNOWN_AGENT') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: error.code,
+          message: error.message,
+          details: error.details || null,
+        },
+      });
+    }
+
+    return res.status(error.status || 500).json({
+      success: false,
+      error: {
+        code: error.code || 'ORCHESTRATION_ERROR',
+        message: error.message || 'An error occurred during multi-agent consensus orchestration.',
+      },
+    });
+  }
+}
+
 module.exports = {
   analyzeOperationalContext,
   getOperationalContext,
+  analyzeDepartmentalAgents,
+  getConsensus,
 };
+

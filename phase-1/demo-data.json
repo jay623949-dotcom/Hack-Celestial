@@ -1,8 +1,10 @@
 {
   "resort": {
     "id": "resort-001",
-    "name": "The Grand Azure Bay Resort & Villas",
-    "total_rooms": 20,
+    "name": "Azure Bay Resort & Spa",
+    "location": "Goa, India",
+    "timezone": "Asia/Kolkata",
+    "total_rooms": 45,
     "current_time": "10:40 AM"
   },
   "rooms": [
@@ -12,8 +14,12 @@
       "floor": 1,
       "type": "Standard Deluxe",
       "status": "occupied",
-      "features": ["Garden View", "King Bed"],
-      "last_cleaned": "2026-09-25T14:30:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-102",
@@ -21,8 +27,12 @@
       "floor": 1,
       "type": "Standard Deluxe",
       "status": "occupied",
-      "features": ["Garden View", "Twin Bed"],
-      "last_cleaned": "2026-09-25T15:00:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-103",
@@ -30,8 +40,12 @@
       "floor": 1,
       "type": "Standard Deluxe",
       "status": "available",
-      "features": ["Garden View", "King Bed"],
-      "last_cleaned": "2026-09-26T09:15:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-104",
@@ -39,17 +53,90 @@
       "floor": 1,
       "type": "Standard Deluxe",
       "status": "occupied",
-      "features": ["Pool View", "King Bed"],
-      "last_cleaned": "2026-09-25T16:00:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-105",
       "number": "105",
       "floor": 1,
-      "type": "Deluxe Ocean View",
+      "type": "Standard Deluxe",
       "status": "dirty",
-      "features": ["Ocean View", "King Bed", "Balcony"],
-      "last_cleaned": "2026-09-25T10:00:00Z"
+      "housekeeping_status": "in_progress",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-106",
+      "number": "106",
+      "floor": 1,
+      "type": "Standard Deluxe",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-107",
+      "number": "107",
+      "floor": 1,
+      "type": "Standard Deluxe",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-108",
+      "number": "108",
+      "floor": 1,
+      "type": "Standard Deluxe",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-109",
+      "number": "109",
+      "floor": 1,
+      "type": "Standard Deluxe",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-110",
+      "number": "110",
+      "floor": 1,
+      "type": "Standard Deluxe",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Garden View",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-201",
@@ -57,7 +144,12 @@
       "floor": 2,
       "type": "Deluxe Ocean View",
       "status": "occupied",
-      "features": ["Ocean View", "King Bed"],
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
       "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
@@ -66,8 +158,13 @@
       "floor": 2,
       "type": "Deluxe Ocean View",
       "status": "available",
-      "features": ["Ocean View", "King Bed"],
-      "last_cleaned": "2026-09-26T08:45:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-203",
@@ -75,116 +172,461 @@
       "floor": 2,
       "type": "Deluxe Ocean View",
       "status": "occupied",
-      "features": ["Ocean View", "Twin Bed"],
-      "last_cleaned": "2026-09-25T13:30:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-204",
       "number": "204",
       "floor": 2,
-      "type": "Junior Suite",
+      "type": "Deluxe Ocean View",
       "status": "occupied",
-      "features": ["Ocean Front", "Living Area"],
-      "last_cleaned": "2026-09-25T17:00:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-205",
       "number": "205",
       "floor": 2,
-      "type": "Junior Suite",
+      "type": "Deluxe Ocean View",
       "status": "available",
-      "features": ["Ocean Front", "Living Area"],
-      "last_cleaned": "2026-09-26T09:30:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-206",
+      "number": "206",
+      "floor": 2,
+      "type": "Deluxe Ocean View",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-207",
+      "number": "207",
+      "floor": 2,
+      "type": "Deluxe Ocean View",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-208",
+      "number": "208",
+      "floor": 2,
+      "type": "Deluxe Ocean View",
+      "status": "dirty",
+      "housekeeping_status": "in_progress",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-209",
+      "number": "209",
+      "floor": 2,
+      "type": "Deluxe Ocean View",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-210",
+      "number": "210",
+      "floor": 2,
+      "type": "Deluxe Ocean View",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Ocean View",
+        "Balcony",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-301",
       "number": "301",
       "floor": 3,
-      "type": "Junior Suite",
+      "type": "Premium Garden Villa",
       "status": "occupied",
-      "features": ["Panoramic View", "Balcony"],
-      "last_cleaned": "2026-09-25T12:00:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-302",
       "number": "302",
       "floor": 3,
-      "type": "Junior Suite",
+      "type": "Premium Garden Villa",
       "status": "occupied",
-      "features": ["Panoramic View", "Balcony"],
-      "last_cleaned": "2026-09-25T11:45:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-303",
       "number": "303",
       "floor": 3,
-      "type": "Executive Suite",
+      "type": "Premium Garden Villa",
       "status": "available",
-      "features": ["Private Terrace", "Jacuzzi", "King Bed"],
-      "last_cleaned": "2026-09-26T08:00:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-304",
       "number": "304",
       "floor": 3,
-      "type": "Executive Suite",
+      "type": "Premium Garden Villa",
       "status": "occupied",
-      "features": ["Private Terrace", "Jacuzzi", "King Bed"],
-      "last_cleaned": "2026-09-25T16:15:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-305",
+      "number": "305",
+      "floor": 3,
+      "type": "Premium Garden Villa",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-306",
+      "number": "306",
+      "floor": 3,
+      "type": "Premium Garden Villa",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-307",
+      "number": "307",
+      "floor": 3,
+      "type": "Premium Garden Villa",
+      "status": "dirty",
+      "housekeeping_status": "in_progress",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-308",
+      "number": "308",
+      "floor": 3,
+      "type": "Premium Garden Villa",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-309",
+      "number": "309",
+      "floor": 3,
+      "type": "Premium Garden Villa",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-310",
+      "number": "310",
+      "floor": 3,
+      "type": "Premium Garden Villa",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Private Plunge Pool",
+        "Patio",
+        "King Bed"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-401",
       "number": "401",
       "floor": 4,
-      "type": "Suite",
+      "type": "Executive Suite",
       "status": "maintenance",
-      "features": ["Penthouse Wing", "Ocean View", "Private Bar"],
-      "last_cleaned": "2026-09-25T18:00:00Z"
+      "housekeeping_status": "blocked",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-402",
       "number": "402",
       "floor": 4,
-      "type": "Suite",
+      "type": "Executive Suite",
       "status": "reserved",
-      "features": ["Penthouse Wing", "Ocean View", "Wedding Block"],
-      "last_cleaned": "2026-09-26T07:30:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-403",
       "number": "403",
       "floor": 4,
-      "type": "Suite",
+      "type": "Executive Suite",
       "status": "reserved",
-      "features": ["Penthouse Wing", "Wedding Block"],
-      "last_cleaned": "2026-09-26T07:45:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-404",
       "number": "404",
       "floor": 4,
-      "type": "Suite",
+      "type": "Executive Suite",
       "status": "maintenance",
-      "features": ["Penthouse Wing", "Balcony Check Required"],
-      "last_cleaned": "2026-09-24T15:00:00Z"
+      "housekeeping_status": "blocked",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-405",
+      "number": "405",
+      "floor": 4,
+      "type": "Executive Suite",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-406",
+      "number": "406",
+      "floor": 4,
+      "type": "Executive Suite",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-407",
+      "number": "407",
+      "floor": 4,
+      "type": "Executive Suite",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-408",
+      "number": "408",
+      "floor": 4,
+      "type": "Executive Suite",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-409",
+      "number": "409",
+      "floor": 4,
+      "type": "Executive Suite",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-410",
+      "number": "410",
+      "floor": 4,
+      "type": "Executive Suite",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Penthouse Wing",
+        "Ocean View",
+        "Living Room"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-501",
       "number": "501",
       "floor": 5,
-      "type": "Presidential Villa",
+      "type": "Presidential Suite",
       "status": "occupied",
-      "features": ["Private Pool", "Butler Service", "Helipad Access"],
+      "housekeeping_status": "clean",
+      "features": [
+        "Panoramic Ocean View",
+        "Butler Service",
+        "Private Terrace"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-502",
+      "number": "502",
+      "floor": 5,
+      "type": "Presidential Suite",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Panoramic Ocean View",
+        "Butler Service",
+        "Private Terrace"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-503",
+      "number": "503",
+      "floor": 5,
+      "type": "Presidential Suite",
+      "status": "available",
+      "housekeeping_status": "clean",
+      "features": [
+        "Panoramic Ocean View",
+        "Butler Service",
+        "Private Terrace"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
+    },
+    {
+      "id": "room-504",
+      "number": "504",
+      "floor": 5,
+      "type": "Presidential Suite",
+      "status": "occupied",
+      "housekeeping_status": "clean",
+      "features": [
+        "Panoramic Ocean View",
+        "Butler Service",
+        "Private Terrace"
+      ],
       "last_cleaned": "2026-09-25T14:00:00Z"
     },
     {
       "id": "room-505",
       "number": "505",
       "floor": 5,
-      "type": "Suite",
+      "type": "Presidential Suite",
       "status": "available",
-      "features": ["Penthouse Corner", "Panoramic View", "Executive Bar"],
-      "last_cleaned": "2026-09-26T10:15:00Z"
+      "housekeeping_status": "clean",
+      "features": [
+        "Panoramic Ocean View",
+        "Butler Service",
+        "Private Terrace"
+      ],
+      "last_cleaned": "2026-09-25T14:00:00Z"
     }
   ],
   "guests": [
@@ -196,85 +638,310 @@
       "room_id": "room-401",
       "check_in": "2026-09-26T10:40:00Z",
       "check_out": "2026-09-30T11:00:00Z",
-      "notes": "Arrived early in lobby; expects immediate executive check-in. High lifetime spend."
+      "arrival_type": "early",
+      "notes": "Arrived early in lobby; assigned Suite 401 has AC defect. High lifetime loyalty spend."
     },
     {
       "id": "guest-002",
-      "name": "Sophia Reynolds",
+      "name": "Ananya Deshmukh",
       "vip": true,
       "vip_tier": "Platinum VIP",
       "room_id": "room-501",
       "check_in": "2026-09-24T15:00:00Z",
       "check_out": "2026-09-28T11:00:00Z",
-      "notes": "Prefers late room makeup and morning espresso delivered."
+      "arrival_type": "standard",
+      "notes": "Prefers quiet morning hours and late housekeeping service."
     },
     {
       "id": "guest-003",
-      "name": "Marcus Sterling",
+      "name": "Rohan & Meera Singhania",
+      "vip": true,
+      "vip_tier": "Gold VIP",
+      "room_id": "room-502",
+      "check_in": "2026-09-25T13:00:00Z",
+      "check_out": "2026-09-29T12:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Anniversary celebration; requested sparkling wine."
+    },
+    {
+      "id": "guest-004",
+      "name": "Vikramaditya Oberoi",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-101",
+      "check_in": "2026-09-25T16:00:00Z",
+      "check_out": "2026-09-28T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Attending regional financial conference."
+    },
+    {
+      "id": "guest-005",
+      "name": "Devraj & Sunita Patel",
+      "vip": false,
+      "vip_tier": "Silver",
+      "room_id": "room-102",
+      "check_in": "2026-09-25T14:30:00Z",
+      "check_out": "2026-09-27T10:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Weekend leisure stay from Mumbai."
+    },
+    {
+      "id": "guest-006",
+      "name": "Pooja Chawla",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-104",
+      "check_in": "2026-09-25T17:00:00Z",
+      "check_out": "2026-09-28T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Solo wellness retreat booking."
+    },
+    {
+      "id": "guest-007",
+      "name": "Karan Mehra",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-106",
+      "check_in": "2026-09-25T12:00:00Z",
+      "check_out": "2026-09-27T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Business travel."
+    },
+    {
+      "id": "guest-008",
+      "name": "Siddharth & Priya Nair",
+      "vip": false,
+      "vip_tier": "Silver",
+      "room_id": "room-107",
+      "check_in": "2026-09-25T15:00:00Z",
+      "check_out": "2026-09-29T10:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Family with toddler; requested baby crib."
+    },
+    {
+      "id": "guest-009",
+      "name": "Gaurav Kulkarni",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-108",
+      "check_in": "2026-09-25T18:00:00Z",
+      "check_out": "2026-09-27T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "OTA direct booking."
+    },
+    {
+      "id": "guest-010",
+      "name": "Neha Saxena",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-109",
+      "check_in": "2026-09-25T19:00:00Z",
+      "check_out": "2026-09-28T10:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Requested late checkout."
+    },
+    {
+      "id": "guest-011",
+      "name": "Rajeev & Kavita Nambiar",
+      "vip": false,
+      "vip_tier": "Silver",
+      "room_id": "room-110",
+      "check_in": "2026-09-25T14:00:00Z",
+      "check_out": "2026-09-28T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Beach resort holiday."
+    },
+    {
+      "id": "guest-012",
+      "name": "Aditya Sen",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-201",
+      "check_in": "2026-09-25T13:30:00Z",
+      "check_out": "2026-09-27T12:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Corporate rate via Tata Group."
+    },
+    {
+      "id": "guest-013",
+      "name": "Marcus & Carlos Sterling",
       "vip": false,
       "vip_tier": "Standard",
       "room_id": "room-203",
       "check_in": "2026-09-25T14:00:00Z",
       "check_out": "2026-09-27T11:00:00Z",
-      "notes": "Requested extra towels for beach pavilion."
+      "arrival_type": "standard",
+      "notes": "Extra beach towels requested."
     },
     {
-      "id": "guest-004",
-      "name": "Helena & Carlos Dupont",
+      "id": "guest-014",
+      "name": "Ritu & Alok Bansal",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-204",
+      "check_in": "2026-09-25T15:30:00Z",
+      "check_out": "2026-09-28T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Early morning breakfast reservation."
+    },
+    {
+      "id": "guest-015",
+      "name": "Deepak Varma",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-206",
+      "check_in": "2026-09-25T16:00:00Z",
+      "check_out": "2026-09-27T10:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Direct web booking."
+    },
+    {
+      "id": "guest-016",
+      "name": "Shalini Kapoor",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-207",
+      "check_in": "2026-09-25T17:15:00Z",
+      "check_out": "2026-09-29T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Spa package reservation."
+    },
+    {
+      "id": "guest-017",
+      "name": "Ashwin & Tanya Bhat",
       "vip": false,
       "vip_tier": "Silver",
-      "room_id": "room-101",
-      "check_in": "2026-09-25T16:00:00Z",
-      "check_out": "2026-09-29T10:00:00Z",
-      "notes": "Anniversary trip."
+      "room_id": "room-209",
+      "check_in": "2026-09-25T18:00:00Z",
+      "check_out": "2026-09-28T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Couple getaway."
     },
     {
-      "id": "guest-005",
+      "id": "guest-018",
+      "name": "Tarun Joshi",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-210",
+      "check_in": "2026-09-25T19:30:00Z",
+      "check_out": "2026-09-27T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Digital nomad workspace requested."
+    },
+    {
+      "id": "guest-019",
+      "name": "Manish & Sunaina Roy",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-301",
+      "check_in": "2026-09-25T12:00:00Z",
+      "check_out": "2026-09-28T10:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Anniversary package."
+    },
+    {
+      "id": "guest-020",
+      "name": "Sameer Merchant",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-302",
+      "check_in": "2026-09-25T14:00:00Z",
+      "check_out": "2026-09-27T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Attending regional symposium."
+    },
+    {
+      "id": "guest-021",
       "name": "Jonathan Hastings",
-      "vip": true,
-      "vip_tier": "Gold VIP",
+      "vip": false,
+      "vip_tier": "Silver",
       "room_id": "room-304",
       "check_in": "2026-09-25T13:00:00Z",
       "check_out": "2026-09-27T12:00:00Z",
-      "notes": "Conference speaker attending tech symposium."
+      "arrival_type": "standard",
+      "notes": "Tech conference keynote speaker."
+    },
+    {
+      "id": "guest-022",
+      "name": "Harish & Rekha Hegde",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-305",
+      "check_in": "2026-09-25T15:00:00Z",
+      "check_out": "2026-09-29T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Ocean view villa stay."
+    },
+    {
+      "id": "guest-023",
+      "name": "Nikhil Kashyap",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-306",
+      "check_in": "2026-09-25T16:45:00Z",
+      "check_out": "2026-09-28T10:00:00Z",
+      "arrival_type": "standard",
+      "notes": "OTA booking via MakeMyTrip."
+    },
+    {
+      "id": "guest-024",
+      "name": "Preeti & Arvind Swaminathan",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-308",
+      "check_in": "2026-09-25T17:30:00Z",
+      "check_out": "2026-09-28T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Airport transfer arranged."
+    },
+    {
+      "id": "guest-025",
+      "name": "Farhan Akhtar Qureshi",
+      "vip": false,
+      "vip_tier": "Standard",
+      "room_id": "room-309",
+      "check_in": "2026-09-25T18:30:00Z",
+      "check_out": "2026-09-27T11:00:00Z",
+      "arrival_type": "standard",
+      "notes": "Express checkout requested."
     }
   ],
   "staff": [
     {
       "id": "staff-001",
-      "name": "Sarah Jenkins",
+      "name": "Aarav Sharma",
       "department": "front_desk",
-      "role": "Guest Relations Supervisor",
+      "role": "Front Desk Manager",
       "status": "on_duty",
       "current_task": "Lobby arrivals concierge"
     },
     {
       "id": "staff-002",
-      "name": "Liam Gallagher",
+      "name": "Tanvi Pillai",
       "department": "front_desk",
-      "role": "Receptionist",
+      "role": "Front Desk Executive",
       "status": "on_duty",
-      "current_task": "Check-in desk 1"
+      "current_task": "Check-in counter 1"
     },
     {
       "id": "staff-003",
-      "name": "Maria Santos",
+      "name": "Sunita Gaonkar",
       "department": "housekeeping",
-      "role": "Senior Room Attendant",
+      "role": "Housekeeping Supervisor",
       "status": "on_duty",
-      "current_task": "Finishing floor 3 corridor"
+      "current_task": "Floor 3 inspection"
     },
     {
       "id": "staff-004",
-      "name": "Elena Gomez",
+      "name": "Lakshmi Naik",
       "department": "housekeeping",
-      "role": "Room Attendant",
+      "role": "Senior Room Attendant",
       "status": "on_duty",
-      "current_task": "Floor 3 linen replenishment"
+      "current_task": "Floor 4 corridor"
     },
     {
       "id": "staff-005",
-      "name": "Bob Miller",
+      "name": "Ramesh Sawant",
       "department": "maintenance",
       "role": "Chief HVAC Technician",
       "status": "on_duty",
@@ -282,15 +949,15 @@
     },
     {
       "id": "staff-006",
-      "name": "Derrick Vance",
+      "name": "Ganesh Fernandes",
       "department": "maintenance",
       "role": "General Engineer",
       "status": "busy",
-      "current_task": "Water pressure calibration building B"
+      "current_task": "Water booster pump calibration"
     },
     {
       "id": "staff-007",
-      "name": "Chloe Bennett",
+      "name": "Kavita Iyer",
       "department": "revenue",
       "role": "Director of Revenue Management",
       "status": "on_duty",
@@ -298,15 +965,15 @@
     },
     {
       "id": "staff-008",
-      "name": "Kenji Sato",
+      "name": "Deepak Kamat",
       "department": "housekeeping",
-      "role": "Housekeeping Supervisor",
+      "role": "Room Attendant",
       "status": "on_duty",
-      "current_task": "Inspecting completed suites"
+      "current_task": "Express clean room 105"
     },
     {
       "id": "staff-009",
-      "name": "Priya Patel",
+      "name": "Priya D'Souza",
       "department": "front_desk",
       "role": "VIP Concierge",
       "status": "on_duty",
@@ -314,11 +981,27 @@
     },
     {
       "id": "staff-010",
-      "name": "Lucas Rossi",
+      "name": "Santosh Rawat",
       "department": "maintenance",
-      "role": "Electrician",
+      "role": "Maintenance Technician",
       "status": "on_duty",
-      "current_task": "Routine standby engineering"
+      "current_task": "Inspecting balcony latch room 404"
+    },
+    {
+      "id": "staff-011",
+      "name": "Anjali Menon",
+      "department": "housekeeping",
+      "role": "Room Attendant",
+      "status": "on_duty",
+      "current_task": "Linen restocking wing B"
+    },
+    {
+      "id": "staff-012",
+      "name": "Rajesh Varma",
+      "department": "revenue",
+      "role": "Revenue Analyst",
+      "status": "on_duty",
+      "current_task": "Auditing group booking pickup"
     }
   ],
   "incidents": [
@@ -382,7 +1065,7 @@
       "status": "in_progress",
       "department": "front_desk",
       "room_id": "room-203",
-      "guest_id": "guest-003",
+      "guest_id": "guest-013",
       "reported_at": "2026-09-26T09:45:00Z"
     }
   ],
@@ -430,7 +1113,7 @@
       "priority": "medium",
       "status": "pending",
       "department": "housekeeping",
-      "assigned_to": "staff-004",
+      "assigned_to": "staff-008",
       "room_id": "room-105",
       "incident_id": "incident-002",
       "due_time": "11:30 AM"
@@ -461,29 +1144,29 @@
     },
     {
       "id": "task-007",
-      "title": "Morning Linen Delivery Wing B",
-      "description": "Supply clean towel bundles to service stations floors 1-3.",
-      "priority": "low",
-      "status": "completed",
+      "title": "Turnover Room 208 and Room 307",
+      "description": "Perform midday departure turnover cleaning on floors 2 and 3.",
+      "priority": "medium",
+      "status": "pending",
       "department": "housekeeping",
       "assigned_to": "staff-004",
-      "room_id": "room-101",
-      "due_time": "09:30 AM"
+      "room_id": "room-208",
+      "due_time": "12:30 PM"
     },
     {
       "id": "task-008",
-      "title": "Pool Terrace Towel Setup",
+      "title": "Pool Terrace Towel & Daybed Setup",
       "description": "Restock poolside cabanas with fresh terry towels.",
       "priority": "low",
       "status": "completed",
       "department": "housekeeping",
-      "assigned_to": "staff-003",
+      "assigned_to": "staff-011",
       "room_id": "room-104",
       "due_time": "08:30 AM"
     },
     {
       "id": "task-009",
-      "title": "Water Pressure Check Building B",
+      "title": "Water Booster Pump Pressure Inspection",
       "description": "Verify auxiliary booster pumps on mechanical riser 2.",
       "priority": "medium",
       "status": "in_progress",
@@ -493,70 +1176,14 @@
     },
     {
       "id": "task-010",
-      "title": "VIP Courtesy Call to Suite 501",
-      "description": "Verify Platinum VIP Sophia Reynolds has arrived comfortably.",
+      "title": "VIP Courtesy Call to Presidential Suite 501",
+      "description": "Verify Platinum VIP Ananya Deshmukh has arrived comfortably.",
       "priority": "low",
       "status": "completed",
       "department": "front_desk",
       "assigned_to": "staff-009",
       "room_id": "room-501",
       "due_time": "09:00 AM"
-    },
-    {
-      "id": "task-011",
-      "title": "Minibar Audit Review 203",
-      "description": "Adjust folio credit for disputed minibar charge.",
-      "priority": "low",
-      "status": "pending",
-      "department": "front_desk",
-      "assigned_to": "staff-002",
-      "room_id": "room-203",
-      "incident_id": "incident-006",
-      "due_time": "12:00 PM"
-    },
-    {
-      "id": "task-012",
-      "title": "Inspect Room 205 After Checkout",
-      "description": "Supervisory inspection of turned Junior Suite.",
-      "priority": "medium",
-      "status": "pending",
-      "department": "housekeeping",
-      "assigned_to": "staff-008",
-      "room_id": "room-205",
-      "due_time": "11:00 AM"
-    },
-    {
-      "id": "task-013",
-      "title": "Wedding Group Welcome Packet Prep",
-      "description": "Assemble 50 customized room key envelopes with itinerary cards.",
-      "priority": "medium",
-      "status": "pending",
-      "department": "revenue",
-      "assigned_to": "staff-007",
-      "room_id": "room-402",
-      "incident_id": "incident-004",
-      "due_time": "01:30 PM"
-    },
-    {
-      "id": "task-014",
-      "title": "Inspect Room 303 AC Filter",
-      "description": "Routine quarterly filter check in unoccupied Executive Suite.",
-      "priority": "low",
-      "status": "pending",
-      "department": "maintenance",
-      "assigned_to": "staff-010",
-      "room_id": "room-303",
-      "due_time": "02:00 PM"
-    },
-    {
-      "id": "task-015",
-      "title": "Restock Executive Lounge Refreshments",
-      "description": "Ensure espresso, bottled mineral water, and canapés are freshly prepared.",
-      "priority": "high",
-      "status": "pending",
-      "department": "front_desk",
-      "assigned_to": "staff-009",
-      "due_time": "10:55 AM"
     }
   ]
 }

@@ -1,12 +1,12 @@
 # Graph Report - C:\Web Devlopment\HackathonProject\resort360  (2026-09-26)
 
 ## Corpus Check
-- 87 files · ~57,533 words
+- 87 files · ~58,842 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 215 nodes · 180 edges · 75 communities detected
-- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 38 edges (avg confidence: 0.8)
+- 218 nodes · 187 edges · 75 communities detected
+- Extraction: 80% EXTRACTED · 20% INFERRED · 0% AMBIGUOUS · INFERRED: 38 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -88,7 +88,7 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `fetchFromApi()` - 10 edges
-2. `OpenAIService` - 6 edges
+2. `AIService` - 9 edges
 3. `GuestService` - 5 edges
 4. `IncidentService` - 5 edges
 5. `RoomService` - 5 edges
@@ -111,8 +111,8 @@ Cohesion: 0.11
 Nodes (21): createGuest(), getAllGuests(), getGuestById(), updateGuest(), createIncident(), getAllIncidents(), getIncidentById(), updateIncident() (+13 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.15
-Nodes (7): analyzeOperationalContext(), getOperationalContext(), ContextBuilderService, OpenAIService, testPhase21(), validateContext(), validateResponse()
+Cohesion: 0.14
+Nodes (7): analyzeOperationalContext(), getOperationalContext(), ContextBuilderService, AIService, testPhase21(), validateContext(), validateResponse()
 
 ### Community 2 - "Community 2"
 Cohesion: 0.35
@@ -537,3 +537,5 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.11 - nodes in this community are weakly interconnected._
+- **Should `Community 1` be split into smaller, more focused modules?**
+  _Cohesion score 0.14 - nodes in this community are weakly interconnected._

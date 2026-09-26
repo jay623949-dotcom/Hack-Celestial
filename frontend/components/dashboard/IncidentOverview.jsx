@@ -54,98 +54,84 @@ export default function IncidentOverview({ incidents = [], loading = false }) {
   });
 
   return (
-    <div id="incidents" className="p-6 rounded-3xl border border-border bg-surface shadow-soft">
+    <div id="incidents" className="rounded-xl border border-border bg-surface shadow-soft overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between pb-5 mb-6 border-b border-border/70">
+      <div className="p-4 border-b border-border flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
-            <h2 className="text-base font-bold text-foreground tracking-tight">
-              Incidents Requiring Attention
+            <AlertTriangle className="w-4 h-4 text-rose-600" />
+            <h2 className="text-sm font-bold text-foreground tracking-tight">
+              Operational Incidents Queue
             </h2>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-[11px] text-muted-foreground mt-0.5">
             Active disruptions and coordination bottlenecks prioritized by severity
           </p>
         </div>
 
-        <div className="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-mono font-semibold">
+        <div className="px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-mono font-semibold">
           {incidents.filter((i) => i.severity === 'critical').length} Critical • {incidents.length} Open
         </div>
       </div>
 
-      {/* Incident List */}
+      {/* Incident Operational Queue Table */}
       {loading ? (
-        <div className="space-y-3 animate-pulse">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-20 rounded-2xl bg-muted/60" />
+        <div className="p-6 space-y-2 animate-pulse">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-10 rounded bg-muted/60" />
           ))}
         </div>
       ) : sortedIncidents.length === 0 ? (
-        <div className="text-center py-12 border border-dashed border-border rounded-2xl">
-          <p className="text-xs text-muted-foreground">
-            No active incidents. Everything is currently operating normally.
-          </p>
+        <div className="text-center py-10 text-xs text-muted-foreground">
+          No active incidents. Normal operations across property.
         </div>
       ) : (
-        <div className="space-y-3">
-          {sortedIncidents.map((incident) => {
-            const badge = getSeverityBadge(incident.severity);
-            const isCritical = incident.severity?.toLowerCase() === 'critical';
-
-            return (
-              <div
-                key={incident.id}
-                className={`p-4 rounded-2xl border transition-all ${badge.cardBorder}`}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${badge.badgeBg} flex items-center gap-1`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${badge.dot} ${isCritical ? 'animate-pulse' : ''}`} />
-                      {badge.label}
-                    </span>
-                    <span className="text-[11px] font-mono font-bold text-primary px-2 py-0.5 rounded bg-surface border border-border">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-surface-secondary/60 text-muted-foreground font-mono text-[10px] uppercase tracking-wider border-b border-border">
+              <tr>
+                <th className="py-2.5 px-4 font-semibold">Severity</th>
+                <th className="py-2.5 px-4 font-semibold">Incident</th>
+                <th className="py-2.5 px-4 font-semibold">Room / Asset</th>
+                <th className="py-2.5 px-4 font-semibold">Department</th>
+                <th className="py-2.5 px-4 font-semibold">Status</th>
+                <th className="py-2.5 px-4 font-semibold">Reported</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {sortedIncidents.map((incident) => {
+                const badge = getSeverityBadge(incident.severity);
+                return (
+                  <tr key={incident.id} className="hover:bg-surface-secondary/40 transition-colors">
+                    <td className="py-2.5 px-4">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${badge.badgeBg}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                        {badge.label}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-4">
+                      <div className="font-semibold text-foreground">{incident.title}</div>
+                      <div className="text-[11px] text-muted-foreground line-clamp-1">{incident.description}</div>
+                    </td>
+                    <td className="py-2.5 px-4 font-mono font-semibold text-slate-700">
+                      {incident.room_id ? incident.room_id.replace('room-', 'Room ') : 'Property Wide'}
+                    </td>
+                    <td className="py-2.5 px-4 font-mono text-[11px] text-primary">
                       {formatDepartment(incident.department)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-[11px] font-mono text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
+                    </td>
+                    <td className="py-2.5 px-4">
+                      <span className="capitalize font-mono text-[11px] px-1.5 py-0.5 rounded bg-surface-secondary border border-border text-foreground">
+                        {incident.status?.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-4 font-mono text-[11px] text-muted-foreground">
                       {incident.reported_at ? new Date(incident.reported_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '10:40 AM'}
-                    </span>
-                    <span className="capitalize font-semibold text-foreground">
-                      {incident.status?.replace('_', ' ')}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-sm font-bold text-foreground">
-                  {incident.title}
-                </div>
-
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  {incident.description}
-                </p>
-
-                {/* Metadata footer */}
-                <div className="mt-3 pt-2.5 border-t border-border/60 flex items-center gap-4 text-[11px] font-mono text-muted-foreground">
-                  {incident.room_id && (
-                    <span className="flex items-center gap-1">
-                      <Building2 className="w-3 h-3 text-primary" />
-                      Room: <strong className="text-foreground">{incident.room_id.replace('room-', '')}</strong>
-                    </span>
-                  )}
-                  {incident.guest_id && (
-                    <span className="flex items-center gap-1">
-                      <User className="w-3 h-3 text-primary" />
-                      Guest: <strong className="text-foreground">Alexander Vance (VIP)</strong>
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

@@ -266,7 +266,7 @@ export default function ScenarioSelector({
   disabled = false,
 }) {
   return (
-    <div className="p-4 rounded-3xl border border-border bg-surface shadow-soft space-y-3">
+    <div className="p-4 rounded-xl border border-border bg-surface shadow-soft space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Layers className="w-4 h-4 text-primary" />
@@ -287,15 +287,15 @@ export default function ScenarioSelector({
               key={scen.id}
               onClick={() => onSelect(scen)}
               disabled={disabled}
-              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 disabled:opacity-50 ${
+              className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between gap-1.5 disabled:opacity-50 ${
                 isSelected
-                  ? 'border-primary bg-primary/10 shadow-sm ring-1 ring-primary/30'
-                  : 'border-border bg-surface-secondary/40 hover:bg-surface-secondary hover:border-border/80'
+                  ? 'border-primary bg-primary/5 shadow-soft ring-1 ring-primary'
+                  : 'border-border bg-surface hover:bg-surface-secondary/70 hover:border-slate-300'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-[9px] font-mono font-bold text-primary px-1.5 py-0.5 rounded bg-surface border border-border">
+                  <span className="text-[9px] font-mono font-bold text-primary px-1.5 py-0.5 rounded bg-surface border border-primary/20">
                     {scen.tag}
                   </span>
                   {isSelected && (
@@ -306,7 +306,7 @@ export default function ScenarioSelector({
                   {scen.name}
                 </div>
               </div>
-              <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">
+              <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
                 {scen.description}
               </p>
             </button>

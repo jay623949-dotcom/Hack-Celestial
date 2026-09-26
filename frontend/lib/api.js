@@ -128,4 +128,15 @@ export async function analyzeOperationsContext(payload) {
   });
 }
 
+/**
+ * Create a new guest entry
+ */
+export async function createGuest(guestData) {
+  return fetchFromApi('/guests', {
+    method: 'POST',
+    body: JSON.stringify(guestData),
+  });
+}
+
+
 

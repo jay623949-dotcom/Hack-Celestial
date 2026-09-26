@@ -40,10 +40,16 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
+      borderRadius: {
+        'lg': '8px',
+        'xl': '10px',
+        '2xl': '12px',
+        '3xl': '16px',
+      },
       boxShadow: {
-        'soft': '0 2px 12px -2px rgba(7, 17, 31, 0.04), 0 1px 3px -1px rgba(7, 17, 31, 0.02)',
-        'soft-lg': '0 8px 24px -4px rgba(7, 17, 31, 0.06), 0 4px 8px -2px rgba(7, 17, 31, 0.02)',
-        'elevated': '0 16px 36px -8px rgba(7, 17, 31, 0.1), 0 4px 12px -2px rgba(7, 17, 31, 0.03)',
+        'soft': '0 1px 3px 0 rgba(15, 23, 42, 0.05)',
+        'soft-lg': '0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.04)',
+        'elevated': '0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03)',
       },
     },
   },

@@ -23,49 +23,31 @@ $$\text{Premium Hospitality} + \text{Enterprise Operations} + \text{Modern AI} +
 
 ---
 
-## 2. Light Theme
-- **Background**: `#FBFBFA` (Warm white)
-- **Surface**: `#FFFFFF` (Pure white card surfaces)
-- **Surface Secondary**: `#F5F5F3`
-- **Surface Hover**: `#ECECE8`
-- **Foreground / Text**: `#1E293B` (Refined charcoal slate)
-- **Muted Foreground**: `#64748B`
-- **Borders**: `#E2E8F0`
-- **Primary Teal**: `#0F766E`
-- **Primary Hover**: `#0D9488`
-- **Primary Light Surface**: `#F0FDFA`
-- **Primary Border**: `#99F6E4`
+---
+
+## 2. UI Design Reset — Active Specification (Light Theme Only)
+
+> **ACTIVE DIRECTIVE**: Resort 360 is operating under the **UI Design Reset**.
+> - **Dark Mode**: Temporarily disabled. The light theme is enforced as the sole default, and the theme toggle is hidden.
+> - **Primary Principle**: Resort 360 looks and behaves like **Enterprise Hotel Operations Software** with subtle, integrated AI decision intelligence.
+> - **Prohibited Aesthetics**: No generic AI dashboards, no neon purple/cyan glows, no sparkles (`✨`), no holographic glassmorphism, no crypto terminal motifs.
+
+### Color Palette (Light Theme Only)
+- **Background**: `#FBFBFA` (Light warm neutral gray)
+- **Main Surfaces & Cards**: `#FFFFFF` (Pure white)
+- **Secondary Surfaces**: `#F8FAFC` / `#F1F5F9` (Subtle muted gray for table headers and inactive states)
+- **Surface Hover**: `#F1F5F9`
+- **Text (Foreground)**: `#0F172A` / `#1E293B` (Dark charcoal slate for high contrast and readability)
+- **Muted Text**: `#64748B` (Clear, legible secondary gray)
+- **Borders**: `#E2E8F0` / `#CBD5E1` (Subtle, crisp 1px neutral borders instead of drop shadows)
+- **Primary Teal Accent**: `#0F766E` (Active navigation, primary buttons, critical status, links, AI highlights)
+- **Primary Light Surface**: `#F0FDFA` (Subtle teal tint for operational consensus summaries)
+- **Primary Border**: `#CCFBF1`
 
 ---
 
-## 3. Dark Theme
-- **Background**: `#07111F` (Deep bluish charcoal, NEVER pure `#000000`)
-- **Surface**: `#0B1626` (Primary container background)
-- **Surface Secondary**: `#0F1C2E`
-- **Surface Hover**: `#16263D`
-- **Foreground / Text**: `#F8FAFC` (Soft crisp white)
-- **Muted Foreground**: `#94A3B8`
-- **Borders**: `#1E2E45`
-- **Primary Teal**: `#14B8A6`
-- **Primary Hover**: `#2DD4BF`
-- **Primary Light Surface**: `#062326`
-- **Primary Border**: `#115E59`
-
----
-
-## 4. Primary Teal
-Teal is the **SOLE** primary brand accent.
-- Dark theme: `#14B8A6` (Hover: `#2DD4BF`)
-- Light theme: `#0F766E` (Hover: `#0D9488`)
-- Green is strictly reserved for semantic success states (`#22C55E` / `#15803D`) and never used as a brand theme color.
-
----
-
-## 5. Dark Bluish Background
-- Root dark background: `#07111F`
-- Dark card surface: `#0B1626`
-- Dark elevation secondary: `#0F1C2E`
-- This ensures an atmospheric, deep oceanic/operations feel rather than a stark, flat black background.
+## 3. Dark Theme (Underlying Architecture Preserved)
+Dark theme tokens remain defined in the underlying CSS variables for future re-enablement, but dark mode switching is currently neutralized in `ThemeProvider.jsx` and `ThemeToggle.jsx`.
 
 ---
 
