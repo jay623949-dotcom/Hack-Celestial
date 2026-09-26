@@ -1,91 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* LIGHT THEME: Warm white, refined charcoal, balanced hospitality teal */
-    --background: #FBFBFA;
-    --foreground: #1E293B;
+    /* Odoo Clean Enterprise Aesthetic Palette */
+    --background: #F9FAFB;
+    --foreground: #111827;
 
     --surface: #FFFFFF;
-    --surface-secondary: #F5F5F3;
-    --surface-hover: #ECECE8;
+    --surface-secondary: #F3F4F6;
+    --surface-hover: #E5E7EB;
 
-    --border: #E2E8F0;
-    --muted: #F1F5F9;
-    --muted-foreground: #64748B;
+    --border: #E5E7EB;
+    --muted: #F3F4F6;
+    --muted-foreground: #6B7280;
 
-    /* Primary Teal (Brand Accent) */
-    --primary: #0F766E;
+    /* Primary Brand Colors */
+    --primary: #714B67;
     --primary-foreground: #FFFFFF;
-    --primary-hover: #0D9488;
-    --primary-light: #F0FDFA;
-    --primary-border: #99F6E4;
+    --primary-hover: #5D3D55;
+    
+    --teal: #017E84;
+    --teal-hover: #016469;
 
     --card: #FFFFFF;
-    --card-foreground: #1E293B;
-    --card-secondary: #F8F9FA;
+    --card-foreground: #111827;
 
-    /* Semantic Status Indicators */
-    --success: #15803D;
-    --warning: #B45309;
-    --danger: #DC2626;
-  }
-
-  .dark {
-    /* DARK THEME: Deep Bluish Charcoal (Atmospheric Operations Deck) */
-    --background: #07111F;
-    --foreground: #F1F5F9;
-
-    --surface: #0B1626;
-    --surface-secondary: #0F1C2E;
-    --surface-hover: #16263D;
-
-    --border: #1E2E45;
-    --muted: #132238;
-    --muted-foreground: #94A3B8;
-
-    /* Dark Mode Teal Accent (Legible, Calm, Non-Neon) */
-    --primary: #14B8A6;
-    --primary-foreground: #042F2E;
-    --primary-hover: #2DD4BF;
-    --primary-light: #062326;
-    --primary-border: #115E59;
-
-    --card: #0B1626;
-    --card-foreground: #F1F5F9;
-    --card-secondary: #091321;
-
-    /* Semantic Status Indicators */
-    --success: #22C55E;
-    --warning: #F59E0B;
-    --danger: #EF4444;
+    /* Secondary Pastel Status Indicators */
+    --status-red-bg: #FEE2E2;
+    --status-red-text: #991B1B;
+    --status-green-bg: #DCFCE7;
+    --status-green-text: #166534;
+    --status-yellow-bg: #FEF9C3;
+    --status-yellow-text: #854D0E;
   }
 }
 
 body {
   color: var(--foreground);
   background-color: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
   padding: 0;
-  transition: background-color 0.2s ease, color 0.2s ease;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Subtle scrollbar */
+/* Custom Utilities for Odoo styling */
+.font-accent {
+  font-family: 'Caveat', 'Kalam', cursive;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: #F9FAFB;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+  background: #D1D5DB;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-foreground);
+  background: #9CA3AF;
 }
+

@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Navbar from '../components/navbar/Navbar';
-import Hero from '../components/hero/Hero';
+import OdooHero from '../components/hero/OdooHero';
+import ModuleGrid from '../components/grid/ModuleGrid';
 import ProblemSection from '../components/sections/ProblemSection';
 import ProcessFlow from '../components/sections/ProcessFlow';
 import AgentsSection from '../components/sections/AgentsSection';
@@ -16,44 +16,44 @@ import Footer from '../components/footer/Footer';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-primary">
-      {/* 01. Minimal Sticky Navbar */}
-      <Navbar />
-
+    <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-odoo-teal/20 selection:text-odoo-teal">
       <main className="flex-1">
-        {/* 02. Hero with Large Whitespace & Subtle Product Visualization */}
-        <Hero />
+        {/* 01. Odoo-Style Hero with SVG Marker Scribble & Typing Animation */}
+        <OdooHero />
 
-        {/* 03. Section 2: The Real Problem (Four Streams Converging) */}
+        {/* 02. Odoo-Style 6-Column App Icon Module Grid */}
+        <ModuleGrid />
+
+        {/* 03. Section 2: The Real Problem */}
         <ProblemSection />
 
-        {/* 04. Section 3: What Resort 360 Does (Horizontal 6-Step Flow) */}
+        {/* 04. Section 3: Process Flow */}
         <ProcessFlow />
 
-        {/* 05. Section 4: Multi-Agent Intelligence (Four Perspectives → Consensus) */}
+        {/* 05. Section 4: Multi-Agent Swarm Intelligence */}
         <AgentsSection />
 
-        {/* 06. Section 5: The Core Product Moment (10:40 AM VIP incident → Move VIP to 505) */}
+        {/* 06. Section 5: Core Incident Moment */}
         <CoreScenarioSection />
 
-        {/* 07. Section 6: Human Control (AI recommends. Managers decide.) */}
+        {/* 07. Section 6: Human Control */}
         <HumanControlSection />
 
-        {/* 08. Section 7: Real-Time Execution (10:42 to 10:48 Timeline) */}
+        {/* 08. Section 7: Execution Timeline */}
         <ExecutionTimeline />
 
-        {/* 09. Section 8: Realistic Hospitality Use Cases (Editorial Grid) */}
+        {/* 09. Section 8: Hospitality Use Cases */}
         <UseCasesGrid />
 
-        {/* 10. Section 9: Why Resort 360 (Four Differentiators) */}
+        {/* 10. Section 9: Differentiators */}
         <WhySection />
 
-        {/* 11. Section 10: Final Large Minimal CTA */}
+        {/* 11. Section 10: Final CTA */}
         <CtaSection />
       </main>
 
-      {/* 12. Minimal Premium Footer */}
       <Footer />
     </div>
   );
 }
+

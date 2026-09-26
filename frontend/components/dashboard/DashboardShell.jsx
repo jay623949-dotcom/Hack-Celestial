@@ -8,22 +8,25 @@ export default function DashboardShell({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-primary">
-      {/* Sidebar */}
-      <Sidebar
-        mobileOpen={mobileSidebarOpen}
-        onClose={() => setMobileSidebarOpen(false)}
-      />
+    // Dashboard Layout Container
+    <div className="h-full w-full overflow-hidden bg-background text-foreground flex flex-col selection:bg-odoo-purple/20 selection:text-odoo-purple">
+      <div className="flex flex-1 h-full w-full overflow-hidden relative">
+        {/* Sidebar */}
+        <Sidebar
+          mobileOpen={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+        />
 
-      {/* Main App Container */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
-        {/* Compact Header */}
-        <Header onMenuClick={() => setMobileSidebarOpen(true)} />
+        {/* Main App Container */}
+        <div className="lg:pl-64 flex flex-col flex-1 h-full w-full overflow-hidden">
+          {/* Operations Header */}
+          <Header onMenuClick={() => setMobileSidebarOpen(true)} />
 
-        {/* Dynamic Content Area */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
-          {children}
-        </main>
+          {/* Dynamic Internal Content Area - Only this container scrolls independently */}
+          <main className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6 max-w-7xl mx-auto w-full">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

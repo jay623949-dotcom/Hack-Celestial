@@ -2,84 +2,84 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Do not render top Navbar on dashboard routes since DashboardShell renders its own operational Header
+  if (pathname && pathname.startsWith('/dashboard')) {
+    return null;
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-surface/90 border-b border-border/70 transition-colors">
+    <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/90 border-b border-border transition-colors shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo / Brand Left */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-150">
-              <span className="font-bold text-xs tracking-wider">360</span>
-            </div>
+            <img
+              src="/atria_logo.jpg"
+              alt="Atria Intelligence Logo"
+              className="h-9 w-auto object-contain rounded-lg shadow-sm"
+            />
             <div className="flex flex-col">
-              <span className="font-bold tracking-tight text-foreground text-sm sm:text-base leading-none">
-                RESORT <span className="text-primary font-black">360</span>
+              <span className="font-extrabold tracking-tight text-foreground text-base sm:text-lg leading-none">
+                Atria <span className="text-odoo-purple font-black">intelligence</span>
               </span>
-              <span className="text-[10px] text-muted-foreground font-mono tracking-wider mt-0.5">
-                AI-Powered Resort Operations
+              <span className="text-xs text-muted-foreground font-mono tracking-wider mt-0.5">
+                Swarm Operations &amp; Intelligence
               </span>
             </div>
           </Link>
 
           {/* Navigation Center */}
-          <nav className="hidden md:flex items-center gap-1 bg-surface-secondary/70 px-3 py-1.5 rounded-full border border-border/80 text-xs font-medium">
-            <a
-              href="#overview"
-              className="px-3.5 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
+          <nav className="hidden md:flex items-center gap-1 bg-surface-secondary/70 px-4 py-2 rounded-full border border-border text-sm font-semibold">
+            <Link
+              href="/dashboard"
+              className="px-4 py-1.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-white transition-colors"
             >
-              Overview
-            </a>
-            <a
-              href="#how-it-works"
-              className="px-3.5 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
+              Dashboard
+            </Link>
+            <Link
+              href="/dashboard/agents"
+              className="px-4 py-1.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-white transition-colors"
             >
-              How It Works
-            </a>
-            <a
-              href="#agents"
-              className="px-3.5 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
+              AI Swarm
+            </Link>
+            <Link
+              href="/dashboard/consensus"
+              className="px-4 py-1.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-white transition-colors"
             >
-              AI Agents
-            </a>
-            <a
-              href="#operations"
-              className="px-3.5 py-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-surface transition-colors"
-            >
-              Operations
-            </a>
+              Consensus
+            </Link>
           </nav>
 
-          {/* Actions Right: Sign In, Sign Up (Primary), Theme Toggle */}
+          {/* Actions Right: Sign In, Launch App */}
           <div className="hidden sm:flex items-center gap-3">
             <Link
               href="/sign-in"
-              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+              className="text-sm font-bold text-odoo-purple hover:text-odoo-purple/80 border border-odoo-purple/20 bg-odoo-purple/5 hover:bg-odoo-purple/10 transition-colors px-4 py-2 rounded-xl shadow-xs"
             >
               Sign In
             </Link>
             <Link
-              href="/sign-up"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs transition-all shadow-soft"
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-odoo-teal hover:bg-odoo-teal/90 text-white font-bold text-sm transition-all shadow-md"
             >
-              <span>Sign Up</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Launch App</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
-            <div className="h-4 w-px bg-border mx-0.5" />
-            <ThemeToggle />
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex items-center gap-2 sm:hidden">
-            <ThemeToggle />
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="p-1.5 rounded-lg border border-border bg-surface text-muted-foreground hover:text-foreground"
+              className="p-2 rounded-xl border border-border bg-white text-muted-foreground hover:text-foreground"
               aria-label="Toggle Navigation"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -90,51 +90,44 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="sm:hidden border-b border-border bg-surface px-4 py-4 space-y-3">
-          <nav className="flex flex-col space-y-1.5 text-sm font-medium">
-            <a
-              href="#overview"
+        <div className="sm:hidden border-b border-border bg-white px-4 py-4 space-y-3">
+          <nav className="flex flex-col space-y-2 text-base font-semibold">
+            <Link
+              href="/dashboard"
               onClick={() => setMobileOpen(false)}
-              className="px-3 py-2 rounded-lg hover:bg-surface-secondary text-foreground"
+              className="px-3 py-2 rounded-xl hover:bg-surface-secondary text-foreground"
             >
-              Overview
-            </a>
-            <a
-              href="#how-it-works"
+              Dashboard
+            </Link>
+            <Link
+              href="/dashboard/agents"
               onClick={() => setMobileOpen(false)}
-              className="px-3 py-2 rounded-lg hover:bg-surface-secondary text-foreground"
+              className="px-3 py-2 rounded-xl hover:bg-surface-secondary text-foreground"
             >
-              How It Works
-            </a>
-            <a
-              href="#agents"
+              AI Swarm
+            </Link>
+            <Link
+              href="/dashboard/consensus"
               onClick={() => setMobileOpen(false)}
-              className="px-3 py-2 rounded-lg hover:bg-surface-secondary text-foreground"
+              className="px-3 py-2 rounded-xl hover:bg-surface-secondary text-foreground"
             >
-              AI Agents
-            </a>
-            <a
-              href="#operations"
-              onClick={() => setMobileOpen(false)}
-              className="px-3 py-2 rounded-lg hover:bg-surface-secondary text-foreground"
-            >
-              Operations
-            </a>
+              Consensus
+            </Link>
           </nav>
           <div className="pt-3 border-t border-border flex flex-col gap-2">
             <Link
-              href="/sign-in"
+              href="/login"
               onClick={() => setMobileOpen(false)}
-              className="w-full text-center py-2 rounded-lg border border-border bg-surface text-foreground text-xs font-semibold"
+              className="w-full text-center py-2.5 rounded-xl border border-border bg-white text-foreground text-sm font-bold"
             >
               Sign In
             </Link>
             <Link
-              href="/sign-up"
+              href="/dashboard"
               onClick={() => setMobileOpen(false)}
-              className="w-full text-center py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold"
+              className="w-full text-center py-2.5 rounded-xl bg-odoo-teal text-white text-sm font-bold shadow-md"
             >
-              Sign Up →
+              Launch App →
             </Link>
           </div>
         </div>

@@ -15,6 +15,9 @@ import HousekeepingAgentStudio from '../../../components/autonomous/Housekeeping
 import MaintenanceAgentStudio from '../../../components/autonomous/MaintenanceAgentStudio';
 import RevenueAgentStudio from '../../../components/autonomous/RevenueAgentStudio';
 import LiveEventBusFeed from '../../../components/autonomous/LiveEventBusFeed';
+import SwarmAnalyticsDashboard from '../../../components/autonomous/SwarmAnalyticsDashboard';
+import ActionGovernanceDrawer from '../../../components/governance/ActionGovernanceDrawer';
+import OdooToastContainer from '../../../components/governance/OdooToastContainer';
 
 import {
   Bot,
@@ -33,6 +36,8 @@ import {
   Wrench,
   TrendingUp,
   Radio,
+  BarChart3,
+  Sliders,
   X
 } from 'lucide-react';
 
@@ -43,27 +48,42 @@ function AgentSwarmPageContent() {
   // Primary Architecture Tab: 'autonomous' | 'consensus'
   const [activeSystemTab, setActiveSystemTab] = useState(initialSystem);
 
-
-  // Sub-tabs for Autonomous System: 'overview' | 'frontdesk' | 'housekeeping' | 'maintenance' | 'revenue' | 'eventbus'
+  // Sub-tabs for Autonomous System: 'overview' | 'analytics' | 'frontdesk' | 'housekeeping' | 'maintenance' | 'revenue' | 'eventbus'
   const [activeSubTab, setActiveSubTab] = useState('overview');
+
+  // Governance Drawer State
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedGovernanceAction, setSelectedGovernanceAction] = useState({
+    title: 'Reassign VIP Alexander Vance → Room 505',
+    description: 'Bypasses Room 401 HVAC compressor repair delay while protecting Floor 4 group block revenue.'
+  });
 
   // Real-time Event Stream & Toasts
   const [streamEvents, setStreamEvents] = useState([]);
-  const [toasts, setToasts] = useState([]);
+  const [toasts, setToasts] = useState([
+    {
+      id: 'toast-init',
+      type: 'success',
+      title: 'Action Governance Active',
+      message: 'Duty Manager slide-over drawer ready for AI action authorization.',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+  ]);
 
-  const addToast = (title, message = '') => {
+  const addToast = (toastOrTitle, message = '', type = 'success') => {
     const id = `toast-${Date.now()}-${Math.random()}`;
-    setToasts((prev) => [{ id, title, message, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 4));
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4500);
+    const newToast = typeof toastOrTitle === 'object'
+      ? { id, ...toastOrTitle, time: toastOrTitle.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+      : { id, title: toastOrTitle, message, type, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+
+    setToasts((prev) => [newToast, ...prev].slice(0, 4));
   };
 
   const handleServerEvent = useCallback((event) => {
     setStreamEvents((prev) => [event, ...prev].slice(0, 100));
     const eventName = event.event || event.event_type || 'SYSTEM_EVENT';
     const payload = event.payload || event.data || {};
-    addToast(`Event: ${eventName}`, payload.reason || payload.message || payload.description || 'Payload received');
+    addToast(`Event: ${eventName}`, payload.reason || payload.message || payload.description || 'Payload received', 'info');
   }, []);
 
   const { isConnected } = useEventStream(handleServerEvent);
@@ -86,7 +106,7 @@ function AgentSwarmPageContent() {
       if (response && response.success && response.data?.analysis) {
         setAnalysisResult(response.data.analysis);
         setSwarmState('COMPLETED');
-        addToast('Swarm Consensus Complete', `Resolved scenario: ${scenario.name || scenario.id}`);
+        addToast('Swarm Consensus Complete', `Resolved scenario: ${scenario.name || scenario.id}`, 'success');
       } else {
         throw new Error(response?.error?.message || 'Invalid response from AI analysis API');
       }
@@ -151,29 +171,22 @@ function AgentSwarmPageContent() {
 
   return (
     <DashboardShell>
-      {/* Toast Notification Container */}
-      <div className="fixed bottom-4 right-4 z-50 space-y-2 max-w-sm pointer-events-none">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className="p-3 rounded-xl border border-primary/30 bg-surface/95 backdrop-blur-md shadow-lg pointer-events-auto flex items-start justify-between gap-3 text-xs animate-in slide-in-from-bottom-2"
-          >
-            <div className="space-y-0.5 min-w-0">
-              <div className="font-bold text-foreground flex items-center gap-1.5 truncate">
-                <Sparkles className="w-3 h-3 text-primary shrink-0" />
-                <span>{t.title}</span>
-              </div>
-              <p className="text-[11px] text-muted-foreground line-clamp-2">{t.message}</p>
-            </div>
-            <button
-              onClick={() => setToasts((prev) => prev.filter((item) => item.id !== t.id))}
-              className="text-muted-foreground hover:text-foreground shrink-0"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ))}
-      </div>
+      {/* Odoo Toast Notifications Container */}
+      <OdooToastContainer
+        toasts={toasts}
+        onCloseToast={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))}
+      />
+
+      {/* Action Governance Slide-Over Drawer */}
+      <ActionGovernanceDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        actionData={selectedGovernanceAction}
+        onConfirmAction={(details) => {
+          console.log('[ActionGovernance] Confirmed action details:', details);
+        }}
+        onToast={(t) => addToast(t)}
+      />
 
       {/* Main Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-border gap-4">
@@ -182,7 +195,7 @@ function AgentSwarmPageContent() {
             <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               AI Agent Intelligence Systems
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-primary/10 text-primary border border-primary/20">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-odoo-purple/10 text-odoo-purple border border-odoo-purple/20">
               DUAL VERIFICATION
             </span>
           </div>
@@ -191,7 +204,16 @@ function AgentSwarmPageContent() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Governance Drawer Trigger Button */}
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="px-3.5 py-2 rounded-2xl bg-odoo-purple hover:bg-odoo-purple/90 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>Govern AI Action</span>
+          </button>
+
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
             isConnected ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
           }`}>
@@ -200,6 +222,7 @@ function AgentSwarmPageContent() {
           </span>
         </div>
       </div>
+
 
       {/* Top Architecture Navigation Tabs */}
       <div className="flex items-center p-1 rounded-xl bg-surface-secondary border border-border w-fit">
@@ -212,7 +235,7 @@ function AgentSwarmPageContent() {
           }`}
         >
           <Sparkles className="w-3.5 h-3.5 text-primary" />
-          <span>Autonomous 360 Multi-Agent OS (New)</span>
+          <span>Autonomous 360 Multi-Agent OS</span>
         </button>
 
         <button
@@ -224,7 +247,7 @@ function AgentSwarmPageContent() {
           }`}
         >
           <Bot className="w-3.5 h-3.5 text-blue-500" />
-          <span>Swarm Consensus Engine (Original)</span>
+          <span>Swarm Consensus Engine</span>
         </button>
       </div>
 
@@ -237,6 +260,7 @@ function AgentSwarmPageContent() {
           <div className="flex flex-wrap items-center gap-1.5 border-b border-border pb-2">
             {[
               { id: 'overview', label: 'Overview & Mission Control', icon: Activity },
+              { id: 'analytics', label: 'Swarm Debate & Analytics', icon: BarChart3 },
               { id: 'frontdesk', label: 'Front Desk Agent', icon: Mic },
               { id: 'housekeeping', label: 'Housekeeping Agent', icon: BedDouble },
               { id: 'maintenance', label: 'Maintenance Agent', icon: Wrench },
@@ -251,7 +275,7 @@ function AgentSwarmPageContent() {
                   onClick={() => setActiveSubTab(sub.id)}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     isActive
-                      ? 'bg-primary/10 text-primary border border-primary/20 font-bold'
+                      ? 'bg-odoo-purple text-white shadow-sm font-bold'
                       : 'text-muted-foreground hover:text-foreground hover:bg-surface-secondary'
                   }`}
                 >
@@ -271,6 +295,10 @@ function AgentSwarmPageContent() {
               onActionSuccess={(title, data) => addToast(title, typeof data === 'string' ? data : '')}
               onNavigateTab={(tabKey) => setActiveSubTab(tabKey)}
             />
+          )}
+
+          {activeSubTab === 'analytics' && (
+            <SwarmAnalyticsDashboard />
           )}
 
           {activeSubTab === 'frontdesk' && (
@@ -306,6 +334,7 @@ function AgentSwarmPageContent() {
           )}
         </div>
       )}
+
 
       {/* ═══════════════════════════════════════════════════════════════════════════
           TAB 2: ORIGINAL SWARM CONSENSUS ENGINE (UNTOUCHED & PRESERVED)

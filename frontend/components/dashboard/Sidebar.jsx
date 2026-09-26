@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Radio, BedDouble, Users, UserCheck, AlertTriangle,
-  CheckSquare, Bot, Sparkles, Layers, Settings, HelpCircle, MapPin,
-  X, TrendingUp, Wrench, ClipboardList, CalendarCheck, Zap
+  CheckSquare, Bot, Sparkles, Layers, MapPin, X, TrendingUp, Wrench,
+  ClipboardList, CalendarCheck, Zap
 } from 'lucide-react';
 import { useRole } from '../../lib/roleContext';
 
@@ -30,7 +30,6 @@ const NAV_CONFIG = {
       ]},
     ],
   },
-
   front_desk: {
     groups: [
       { title: null, items: [{ label: 'Overview', href: '/dashboard/frontdesk', icon: LayoutDashboard }] },
@@ -87,7 +86,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
   const renderGroup = (group, idx) => (
     <div key={idx} className="space-y-1">
       {group.title && (
-        <div className="px-3 pt-3 pb-1 text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
+        <div className="px-3 pt-3 pb-1 text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
           {group.title}
         </div>
       )}
@@ -100,13 +99,13 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
             key={item.label}
             href={item.href}
             onClick={onClose}
-            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
               isActive
-                ? 'bg-primary/10 text-primary border border-primary/20 font-semibold'
+                ? 'bg-odoo-purple/10 text-odoo-purple border border-odoo-purple/20 font-bold'
                 : 'text-muted-foreground hover:text-foreground hover:bg-surface-secondary'
             }`}
           >
-            <Icon className="w-4 h-4 shrink-0" />
+            <Icon className="w-5 h-5 shrink-0" />
             <span>{item.label}</span>
           </Link>
         );
@@ -120,34 +119,36 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
         <div onClick={onClose} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden" />
       )}
 
-      <aside className={`fixed top-0 bottom-0 left-0 z-50 w-60 border-r border-border bg-surface transition-transform duration-200 flex flex-col justify-between ${
+      <aside className={`fixed top-0 bottom-0 left-0 z-50 w-64 border-r border-border bg-white transition-transform duration-200 flex flex-col justify-between shadow-sm ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
         {/* Brand */}
         <div>
-          <div className="h-14 px-4 border-b border-border flex items-center justify-between">
-            <Link href="/sign-in" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
-                360
-              </div>
+          <div className="h-16 px-4 border-b border-border flex items-center justify-between">
+            <Link href="/login" className="flex items-center gap-3">
+              <img
+                src="/atria_logo.jpg"
+                alt="Atria Intelligence Logo"
+                className="h-9 w-auto object-contain rounded-lg"
+              />
               <div className="flex flex-col">
-                <span className="font-bold tracking-tight text-foreground text-sm leading-none">
-                  RESORT <span className="text-primary font-bold">360</span>
+                <span className="font-extrabold tracking-tight text-foreground text-base leading-none">
+                  Atria <span className="text-odoo-purple font-bold">intelligence</span>
                 </span>
-                <span className="text-[10px] text-muted-foreground font-mono mt-0.5">
-                  {roleData?.shortLabel || 'Operations'}
+                <span className="text-xs text-muted-foreground font-mono mt-0.5">
+                  {roleData?.shortLabel || 'Operations OS'}
                 </span>
               </div>
             </Link>
 
-            <button onClick={onClose} className="lg:hidden p-1.5 rounded-md border border-border text-muted-foreground hover:text-foreground" aria-label="Close sidebar">
-              <X className="w-4 h-4" />
+            <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground" aria-label="Close sidebar">
+              <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Role badge */}
           {roleData && (
-            <div className={`mx-3 mt-3 px-3 py-2 rounded-lg border text-[10px] font-bold font-mono uppercase tracking-wider ${roleData.color}`}>
+            <div className={`mx-3 mt-3 px-3 py-2 rounded-xl border text-xs font-bold font-mono uppercase tracking-wider ${roleData.color}`}>
               {roleData.shortLabel}
             </div>
           )}
@@ -158,11 +159,11 @@ export default function Sidebar({ mobileOpen = false, onClose = () => {} }) {
         </div>
 
         {/* Bottom Resort badge */}
-        <div className="p-4 border-t border-border/70 bg-surface-secondary/40">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">Current Resort</div>
-          <div className="font-bold text-xs text-foreground truncate">Azure Bay Resort &amp; Spa</div>
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
-            <MapPin className="w-3 h-3 text-primary" />
+        <div className="p-4 border-t border-border bg-surface-secondary/50">
+          <div className="text-xs font-mono uppercase font-bold tracking-wider text-muted-foreground mb-1">Active Operations Property</div>
+          <div className="font-bold text-sm text-foreground truncate">Azure Bay Resort &amp; Spa</div>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+            <MapPin className="w-3.5 h-3.5 text-odoo-teal" />
             <span>Goa, India</span>
           </div>
         </div>
