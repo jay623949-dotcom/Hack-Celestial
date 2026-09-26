@@ -150,9 +150,47 @@ resort360/
   ```
   **Response (201 Created)**: Returns saved incident record with ID and timestamp.
 
-- `POST /api/incidents/:id/analyze`  
-  Runs the **Context Builder** and invokes all 4 specialized departmental AI agents concurrently (`Promise.all`).  
-  **Response (200 OK)**:
+### 5.2 Multi-Agent Orchestration & Operational Context Pipeline
+
+```
+PostgreSQL / Operational Database State [IMPLEMENTED]
+         │
+         ▼
+Operational Services (RoomService, GuestService, StaffService, IncidentService, TaskService) [IMPLEMENTED]
+         │
+         ▼
+Context Builder Service (context-builder.service.js) [IMPLEMENTED]
+         │ (Maps database state into Canonical AI Context matching agent-context.schema.json)
+         ▼
+Canonical AI Context (POST /api/v1/ai/context & POST /api/v1/ai/analyze) [IMPLEMENTED]
+         │
+         ▼
+AI Analysis Layer (OpenAI Responses API with schema validation) [IMPLEMENTED]
+         │
+         ▼
+Agent Perspectives (Front Desk, Housekeeping, Maintenance, Revenue) [IMPLEMENTED]
+         │
+         ▼
+Consensus Engine (Multi-agent trade-off resolution) [PLANNED - Phase 2.3]
+         │
+         ▼
+Action Plan (Generated with requires_human_approval: true) [PLANNED - Phase 2.3]
+         │
+         ▼
+Human Approval (Approve / Modify / Reject by Duty Manager) [PLANNED - Phase 3]
+         │
+         ▼
+Task Execution & Socket.IO Real-Time Dispatch [PLANNED - Phase 3]
+```
+
+#### Implemented Endpoints (Phase 2 & 2.1):
+- `POST /api/v1/ai/context`  
+  Accepts an operational trigger (`{ trigger: { type: "multiple_incidents" } }` or `{ trigger: { type: "hvac_failure", room_id: "room-401" } }`), queries database state via backend services, compiles a compact canonical context, strictly derives operational constraints, and returns a verified context snapshot adhering 100% to `agent-context.schema.json`.
+
+- `POST /api/v1/ai/analyze`  
+  Accepts either a `{ trigger: { ... } }` or `{ context: { ... } }`. If a trigger is provided, dynamically invokes `context-builder.service.js` to extract current database state before querying OpenAI via Responses API. Validates AI response structure against `agent-response.schema.json`.
+
+#### Planned Endpoints (Phase 2.3 & 3):
   ```json
   {
     "incidentId": "inc-101",

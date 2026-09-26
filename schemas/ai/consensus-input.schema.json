@@ -39,7 +39,7 @@
         "properties": {
           "agent": {
             "type": "string",
-            "enum": ["front_desk", "housekeeping", "maintenance", "revenue", "guest_services"]
+            "enum": ["operations", "front_desk", "housekeeping", "maintenance", "revenue", "guest_services"]
           },
           "assessment": {
             "type": "object",

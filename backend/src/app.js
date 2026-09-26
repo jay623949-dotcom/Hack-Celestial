@@ -12,6 +12,7 @@ const staffRoutes = require('./routes/staff.routes');
 const incidentsRoutes = require('./routes/incidents.routes');
 const tasksRoutes = require('./routes/tasks.routes');
 const operationsRoutes = require('./routes/operations.routes');
+const aiRoutes = require('./routes/ai.routes');
 
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
@@ -76,6 +77,7 @@ apiV1Router.use('/staff', staffRoutes);
 apiV1Router.use('/incidents', incidentsRoutes);
 apiV1Router.use('/tasks', tasksRoutes);
 apiV1Router.use('/operations', operationsRoutes);
+apiV1Router.use('/ai', aiRoutes);
 
 app.use('/api/v1', apiV1Router);
 
