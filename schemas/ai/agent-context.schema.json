@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resort360.internal/schemas/ai/agent-context.schema.json",
+  "title": "AgentOperationalContext",
+  "description": "Canonical operational context passed to specialized Resort 360 AI domain agents.",
+  "type": "object",
+  "required": [
+    "context_id",
+    "schema_version",
+    "created_at",
+    "resort",
+    "trigger",
+    "rooms",
+    "staff",
+    "incidents"
+  ],
+  "properties": {
+    "context_id": {
+      "type": "string",
+      "description": "Unique session context identifier"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Semantic schema version of context contract"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of context creation"
+    },
+    "resort": {
+      "type": "object",
+      "required": ["id", "name", "location"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "location": { "type": "string" },
+        "timezone": { "type": "string" },
+        "total_rooms": { "type": "integer" }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["type", "description"],
+      "properties": {
+        "type": { "type": "string" },
+        "incident_id": { "type": ["string", "null"] },
+        "severity": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "description": { "type": "string" }
+      }
+    },
+    "guests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "vip"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "vip": { "type": "boolean" },
+          "vip_tier": { "type": "string" },
+          "room_id": { "type": ["string", "null"] },
+          "check_in": { "type": ["string", "null"] },
+          "check_out": { "type": ["string", "null"] },
+          "arrival_type": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "number", "type", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "number": { "type": "string" },
+          "floor": { "type": "integer" },
+          "type": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["available", "occupied", "maintenance", "reserved", "dirty"]
+          },
+          "housekeeping_status": {
+            "type": "string",
+            "enum": ["clean", "in_progress", "blocked"]
+          },
+          "features": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "operational_issue": { "type": "string" },
+          "operational_potential": { "type": "string" }
+        }
+      }
+    },
+    "staff": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "department", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "department": {
+            "type": "string",
+            "enum": ["front_desk", "housekeeping", "maintenance", "revenue", "guest_services", "security"]
+          },
+          "role": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["on_duty", "busy", "off_duty"]
+          },
+          "current_task": { "type": "string" }
+        }
+      }
+    },
+    "incidents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "severity", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["open", "investigating", "in_progress", "resolved", "closed"]
+          },
+          "department": { "type": "string" },
+          "room_id": { "type": ["string", "null"] },
+          "guest_id": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "priority", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "department": { "type": "string" },
+          "assigned_to": { "type": ["string", "null"] },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in_progress", "completed", "cancelled"]
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "description"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "upcoming_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["event_id", "title"],
+        "properties": {
+          "event_id": { "type": "string" },
+          "title": { "type": "string" },
+          "expected_time": { "type": "string" },
+          "guest_count": { "type": "integer" },
+          "room_block": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

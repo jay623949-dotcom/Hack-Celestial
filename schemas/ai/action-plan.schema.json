@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resort360.internal/schemas/ai/action-plan.schema.json",
+  "title": "ActionPlan",
+  "description": "Consolidated operational action plan synthesized from multi-agent consensus, requiring human approval before dispatch.",
+  "type": "object",
+  "required": [
+    "action_plan_id",
+    "context_id",
+    "schema_version",
+    "created_at",
+    "summary",
+    "reasoning",
+    "priority",
+    "actions",
+    "affected_guests",
+    "affected_rooms",
+    "risks",
+    "requires_human_approval",
+    "status"
+  ],
+  "properties": {
+    "action_plan_id": {
+      "type": "string",
+      "description": "Unique identifier for this generated action plan (e.g. 'plan-001')"
+    },
+    "context_id": {
+      "type": "string",
+      "description": "Reference to the source canonical operational context"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Schema version (e.g. '1.0')"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when action plan was drafted"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Executive summary of the coordinated action strategy"
+    },
+    "reasoning": {
+      "type": "string",
+      "description": "Synthesized rationale balancing department perspectives, priorities, and trade-offs"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Overall plan execution urgency"
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Sequential or parallel atomic operational tasks to execute upon human approval",
+      "items": {
+        "type": "object",
+        "required": [
+          "action_id",
+          "type",
+          "description",
+          "department",
+          "priority"
+        ],
+        "properties": {
+          "action_id": {
+            "type": "string",
+            "description": "Unique ID for the specific action task (e.g. 'action-001')"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "reassign_room",
+              "expedite_housekeeping",
+              "dispatch_maintenance",
+              "guest_amenity_courtesy",
+              "notify_front_desk",
+              "block_room_inventory",
+              "inspect_equipment",
+              "generic_task"
+            ],
+            "description": "Categorized action type"
+          },
+          "description": {
+            "type": "string",
+            "description": "Actionable task instruction"
+          },
+          "department": {
+            "type": "string",
+            "enum": ["front_desk", "housekeeping", "maintenance", "revenue", "guest_services", "security"]
+          },
+          "assigned_to": {
+            "type": ["string", "null"],
+            "description": "Specific staff ID or null if pending department dispatcher assignment"
+          },
+          "room_id": {
+            "type": ["string", "null"],
+            "description": "Target room ID or null if non-room specific"
+          },
+          "guest_id": {
+            "type": ["string", "null"],
+            "description": "Target guest ID or null if non-guest specific"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "estimated_duration_minutes": {
+            "type": ["integer", "null"],
+            "minimum": 0
+          },
+          "due_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "affected_guests": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Array of guest IDs directly impacted by this plan"
+    },
+    "affected_rooms": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Array of room IDs modified or utilized by this plan"
+    },
+    "risks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Documented trade-offs, residual risks, or guest inconvenience factors"
+    },
+    "requires_human_approval": {
+      "type": "boolean",
+      "const": true,
+      "description": "Human-in-the-loop safety lock; must be true for automated plans"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending_approval", "approved", "modified", "rejected"],
+      "default": "pending_approval",
+      "description": "Approval workflow state"
+    },
+    "reviewed_by": {
+      "type": ["string", "null"],
+      "description": "Staff ID of manager who approved or rejected the plan"
+    },
+    "reviewed_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    }
+  }
+}

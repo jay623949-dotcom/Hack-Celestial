@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resort360.internal/schemas/ai/agent-response.schema.json",
+  "title": "AgentResponse",
+  "description": "Standardized evaluation and recommendation output payload from a specialized Resort 360 AI domain agent.",
+  "type": "object",
+  "required": [
+    "agent",
+    "schema_version",
+    "assessment",
+    "observations",
+    "constraints",
+    "recommendations",
+    "confidence"
+  ],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "enum": ["front_desk", "housekeeping", "maintenance", "revenue", "guest_services"],
+      "description": "Identifier of the domain agent providing the analysis"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Schema version (e.g. '1.0')"
+    },
+    "assessment": {
+      "type": "object",
+      "required": ["summary", "priority"],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "High-level domain synthesis of the current situation"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"],
+          "description": "Urgency rating from this agent's functional standpoint"
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "description": "Pure operational facts extracted from context, strictly separated from advice",
+      "items": {
+        "type": "string"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "description": "Operational bottlenecks, schedule conflicts, or physical limitations identified by the agent",
+      "items": {
+        "type": "string"
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Actionable proposals from the domain agent for multi-agent synthesis",
+      "items": {
+        "type": "object",
+        "required": [
+          "recommendation_id",
+          "action",
+          "reason",
+          "priority",
+          "affected_rooms",
+          "affected_guests",
+          "required_staff",
+          "estimated_duration_minutes",
+          "risks",
+          "confidence"
+        ],
+        "properties": {
+          "recommendation_id": {
+            "type": "string",
+            "description": "Unique identifier for this specific recommendation (e.g. 'rec-001')"
+          },
+          "action": {
+            "type": "string",
+            "description": "Concise statement of recommended operational action"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Justification citing observed operational facts"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"],
+            "description": "Action priority"
+          },
+          "affected_rooms": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of room IDs involved in this action"
+          },
+          "affected_guests": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of guest IDs affected by this action"
+          },
+          "required_staff": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Specific staff IDs or generic role tags required"
+          },
+          "estimated_duration_minutes": {
+            "type": ["integer", "null"],
+            "minimum": 0,
+            "description": "Estimated execution time in minutes"
+          },
+          "risks": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Potential negative side effects, conflicts, or guest friction"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Confidence score between 0.0 and 1.0"
+          }
+        }
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Overall agent confidence in its domain assessment"
+    }
+  }
+}
