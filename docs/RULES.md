@@ -196,3 +196,25 @@ A feature or task is **DONE** only when:
 - [x] Zero sensitive secrets or `.env` files are tracked by Git.
 - [x] The feature works cleanly when running the full stack (`npm run dev`).
 - [x] Git diff is clean and ready for integration into `develop`.
+
+---
+
+## 11. Human-in-the-Loop Decision Governance Rules
+
+1. **AI Never Autonomously Executes**:
+   - The AI swarms synthesize and recommend; hotel managers review, decide, and execute.
+2. **AI Cannot Approve Its Own Recommendation**:
+   - Automated self-approval is strictly forbidden.
+3. **Manager Approval Required for Execution**:
+   - Only authorized manager/admin roles can approve, modify, or reject action plans.
+4. **Original AI Plan Remains Immutable**:
+   - When a manager modifies a plan, the original AI recommendation is preserved verbatim in `original_plan`.
+5. **Modifications Must Be Fully Auditable**:
+   - Every modified field, original value, modified value, and reason is recorded in the append-only audit trail (`ai_action_plan_decisions`).
+6. **Rejections Require Explicit Reason**:
+   - Plans cannot be rejected without a meaningful justification recorded in the audit trail.
+7. **Invalid State Transitions Blocked**:
+   - Transition validations must be enforced at the API level (e.g. approving a rejected or completed plan returns 409 Conflict).
+8. **Action Execution Separate From Recommendation**:
+   - Operational tasks are only dispatched upon explicit human approval.
+

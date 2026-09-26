@@ -13,6 +13,7 @@ const incidentsRoutes = require('./routes/incidents.routes');
 const tasksRoutes = require('./routes/tasks.routes');
 const operationsRoutes = require('./routes/operations.routes');
 const aiRoutes = require('./routes/ai.routes');
+const actionPlansRoutes = require('./routes/action-plans.routes');
 
 // Smart Resort 360 Autonomous Multi-Agent OS Router
 const { smartResortRouter, performReset } = require('./smart-resort/routes');
@@ -101,6 +102,7 @@ apiV1Router.use('/incidents', incidentsRoutes);
 apiV1Router.use('/tasks', tasksRoutes);
 apiV1Router.use('/operations', operationsRoutes);
 apiV1Router.use('/ai', aiRoutes);
+apiV1Router.use('/action-plans', actionPlansRoutes);
 apiV1Router.use('/', smartResortRouter);
 
 app.use('/api/v1', apiV1Router);

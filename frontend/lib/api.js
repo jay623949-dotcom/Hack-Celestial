@@ -138,6 +138,46 @@ export async function createGuest(guestData) {
   });
 }
 
+/**
+ * Action Plans & Manager Decision APIs
+ */
+export async function getActionPlan(id) {
+  return fetchFromApi(`/action-plans/${id}`);
+}
+
+export async function getActionPlanAuditTrail(id) {
+  return fetchFromApi(`/action-plans/${id}/audit-trail`);
+}
+
+export async function approveActionPlan(id, { comment, actorId, actorRole } = {}) {
+  return fetchFromApi(`/action-plans/${id}/approve`, {
+    method: 'POST',
+    body: JSON.stringify({ comment, actor_id: actorId, actor_role: actorRole }),
+  });
+}
+
+export async function rejectActionPlan(id, { reason, actorId, actorRole } = {}) {
+  return fetchFromApi(`/action-plans/${id}/reject`, {
+    method: 'POST',
+    body: JSON.stringify({ reason, actor_id: actorId, actor_role: actorRole }),
+  });
+}
+
+export async function modifyActionPlan(id, { modifications, reason, actorId, actorRole } = {}) {
+  return fetchFromApi(`/action-plans/${id}/modify`, {
+    method: 'POST',
+    body: JSON.stringify({ modifications, reason, actor_id: actorId, actor_role: actorRole }),
+  });
+}
+
+export async function updateActionItemStatus(planId, itemId, status) {
+  return fetchFromApi(`/action-plans/${planId}/items/${itemId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SMART RESORT 360 AUTONOMOUS AGENT API WRAPPERS
 // ─────────────────────────────────────────────────────────────────────────────

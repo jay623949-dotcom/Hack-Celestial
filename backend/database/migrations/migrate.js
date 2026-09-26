@@ -1,10 +1,11 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 const { pool } = require('../../src/config/db');
 
 const MIGRATIONS = [
   '001_initial_schema.sql',
   '002_ai_persistence.sql',
+  '003_action_plan_decisions.sql',
 ];
 
 async function runMigrations() {

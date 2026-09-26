@@ -262,5 +262,29 @@ To prove Resort 360's value to judges and teammates, the system is calibrated ar
 1. **Speed to Consensus**: From incident submission to full multi-agent plan generation in **under 10 seconds**.
 2. **Explainability**: Every recommendation includes clear, human-readable trade-off reasoning that convinces hotel managers.
 3. **Real-Time Sync**: Instant dashboard updates across separate browser tabs via Socket.IO upon manager approval.
-4. **Zero Hallucination of Operational Assets**: Agents operate strictly on provided resort context (room numbers, staff names, real constraints).
 5. **Stability & Usability**: End-to-end demo completes smoothly without crashes, console errors, or unhandled promise rejections.
+
+---
+
+## 12. Human-in-the-Loop Decision Control Workflow
+
+The core philosophy of Resort 360 is **"AI Recommends, Manager Understands, Manager Decides, System Tracks."**
+
+### Manager Decision Operations
+1. **Approve Action Plan**:
+   - Authorized manager endorses the AI proposal.
+   - Status updates to `approved`, individual task items are dispatched, and approval timestamp is recorded.
+2. **Modify Action Plan**:
+   - Manager adjusts operational allocations (room, staff, priority) prior to execution.
+   - The original AI proposal is preserved immutably.
+   - Manager provides an explicit modification reason.
+   - Status transitions to `modified_pending_approval`, requiring final manager authorization.
+3. **Reject Action Plan**:
+   - Manager rejects the recommendation with a mandatory justification.
+   - Status updates to `rejected` and all associated action items are cancelled.
+4. **Task Execution & Status Tracking**:
+   - Individual task items advance through `pending` → `in_progress` → `completed`.
+   - The parent action plan status dynamically reflects task progress.
+5. **Decision Audit Trail**:
+   - An immutable, append-only log records all AI generations, manager reviews, modifications, and status transitions with timestamps and actor identities.
+

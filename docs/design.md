@@ -243,3 +243,26 @@ Dark theme tokens remain defined in the underlying CSS variables for future re-e
 - ❌ Do NOT use generic startup phrases like "The future of hospitality."
 - ❌ Do NOT use TypeScript.
 - ❌ Do NOT use green as a brand color.
+
+---
+
+## 26. Manager Operational Decision Interface Patterns
+
+The Operational Decision Review screen (`/dashboard/consensus`) must adhere to strict enterprise styling:
+- **Light Theme Only**: White surfaces (`#FFFFFF`), light neutral background (`#F8FAFC`), dark charcoal text (`#0F172A`), teal accent (`#0D9488`).
+- **No Chatbots**: The interface presents structured operational tables, clear departmental cards, and actionable controls — never a conversational chat bubble.
+- **Explainability First**:
+  1. *What* (concise summary + tasks)
+  2. *Why* (plain operational justification, zero hidden chain-of-thought)
+  3. *Department Perspectives* (Front Desk, Housekeeping, Maintenance, Revenue)
+  4. *Agreements & Conflicts* (explicit trade-off highlights)
+  5. *Impact & Risk Analysis* (Guest, Ops, Rev, Resource, Risk)
+- **Controlled Confirmation Dialogs**:
+  - `Approve Plan`: Explains what will proceed immediately upon confirmation.
+  - `Modify Plan`: Inline change diffing (AI Proposed vs. Manager Modified) with mandatory modification reason.
+  - `Reject Plan`: Mandatory rejection reason textarea.
+- **Status Lifecycle Visualization**:
+  - Horizontal status timeline from AI Generation to Task Completion.
+  - Progress bar tracking completed action steps.
+  - Expandable Decision Audit Trail showing full provenance.
+

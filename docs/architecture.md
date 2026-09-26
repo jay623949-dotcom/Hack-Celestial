@@ -1,4 +1,4 @@
-# RESORT 360 — Technical Architecture
+# RESORT 360 â€” Technical Architecture
 
 > **CRITICAL LANGUAGE DIRECTIVE**:  
 > This project uses **pure JavaScript (ES6+ / Node.js CommonJS & ESM)**.  
@@ -11,30 +11,30 @@
 Resort 360 uses a lightweight, decoupled monorepo architecture consisting of a **Next.js (React + Tailwind CSS)** frontend, an **Express.js (Node.js)** backend API, a **PostgreSQL / Supabase** database, an **OpenAI API Multi-Agent Orchestration Layer**, and a **Socket.IO** real-time event pipeline.
 
 ```
-+─────────────────────────────────────────────────────────────+
-│                       CLIENT LAYER                          │
-│             Next.js 14 (App Router) + Tailwind CSS          │
-│                      (Running on :3000)                     │
-+──────────────────────────────┬──────────────────────────────+
-                               │
-               HTTP / REST API │ ▲  WebSocket (Socket.IO)
-                               ▼ │
-+─────────────────────────────────────────────────────────────+
-│                      BACKEND SERVER                         │
-│             Node.js + Express.js API Gateway                │
-│                      (Running on :5000)                     │
-+──────────────┬───────────────────────────────┬──────────────+
-               │                               │
-               ▼                               ▼
-+──────────────────────────────+ +─────────────────────────────+
-│      DATA PERSISTENCE        │ │      AI ORCHESTRATION       │
-│     Supabase / PostgreSQL    │ │     OpenAI API (GPT-4o)     │
-│   - rooms, guests, staff     │ │  - Front Desk Agent         │
-│   - incidents, action_plans  │ │  - Housekeeping Agent       │
-│   - tasks                    │ │  - Maintenance Agent        │
-│                              │ │  - Revenue Agent            │
-│                              │ │  - Consensus Engine         │
-+──────────────────────────────+ +─────────────────────────────+
++â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+
+â”‚                       CLIENT LAYER                          â”‚
+â”‚             Next.js 14 (App Router) + Tailwind CSS          â”‚
+â”‚                      (Running on :3000)                     â”‚
++â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+
+                               â”‚
+               HTTP / REST API â”‚ â–²  WebSocket (Socket.IO)
+                               â–¼ â”‚
++â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+
+â”‚                      BACKEND SERVER                         â”‚
+â”‚             Node.js + Express.js API Gateway                â”‚
+â”‚                      (Running on :5000)                     â”‚
++â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+
+               â”‚                               â”‚
+               â–¼                               â–¼
++â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+ +â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+
+â”‚      DATA PERSISTENCE        â”‚ â”‚      AI ORCHESTRATION       â”‚
+â”‚     Supabase / PostgreSQL    â”‚ â”‚     OpenAI API (GPT-4o)     â”‚
+â”‚   - rooms, guests, staff     â”‚ â”‚  - Front Desk Agent         â”‚
+â”‚   - incidents, action_plans  â”‚ â”‚  - Housekeeping Agent       â”‚
+â”‚   - tasks                    â”‚ â”‚  - Maintenance Agent        â”‚
+â”‚                              â”‚ â”‚  - Revenue Agent            â”‚
+â”‚                              â”‚ â”‚  - Consensus Engine         â”‚
++â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+ +â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+
 ```
 
 ---
@@ -55,65 +55,65 @@ Resort 360 uses a lightweight, decoupled monorepo architecture consisting of a *
 
 ```
 resort360/
-├── frontend/                     # Next.js App Router Client (JavaScript)
-│   ├── app/
-│   │   ├── globals.css           # Tailwind base & utilities
-│   │   ├── layout.js             # Root HTML layout & providers
-│   │   └── page.js               # Main Operations Dashboard
-│   ├── components/
-│   │   ├── IncidentModal.jsx     # Incident submission trigger
-│   │   ├── AgentAnalysisCard.jsx # Displays individual agent views
-│   │   ├── ConsensusPlan.jsx     # Action plan approval/modify/reject
-│   │   ├── RoomStatusGrid.jsx    # Live room visualizer
-│   │   └── TaskBoard.jsx         # Live real-time task cards
-│   ├── lib/
-│   │   ├── api.js                # Fetch wrapper for backend REST APIs
-│   │   └── socket.js             # Socket.IO client singleton
-│   ├── public/                   # Static assets & icons
-│   ├── jsconfig.json             # Path alias resolution (@/*)
-│   ├── tailwind.config.js        # Tailwind styling rules
-│   ├── postcss.config.js         # PostCSS processor config
-│   ├── next.config.js            # Next.js runtime config
-│   └── package.json              # Frontend dependencies
-│
-├── backend/                      # Express.js REST API Server (JavaScript)
-│   ├── src/
-│   │   ├── config/               # Centralized configurations & env loading
-│   │   │   ├── db.js             # Supabase / Postgres client
-│   │   │   ├── openai.js         # OpenAI client configuration
-│   │   │   └── index.js          # Port, CORS, env variables
-│   │   ├── controllers/          # HTTP request handlers
-│   │   │   ├── incidentController.js
-│   │   │   ├── actionPlanController.js
-│   │   │   ├── taskController.js
-│   │   │   ├── roomController.js
-│   │   │   └── healthController.js
-│   │   ├── routes/               # Express route declarations
-│   │   │   ├── incidentRoutes.js
-│   │   │   ├── actionPlanRoutes.js
-│   │   │   ├── taskRoutes.js
-│   │   │   ├── roomRoutes.js
-│   │   │   └── healthRoutes.js
-│   │   ├── services/             # Core business & AI logic
-│   │   │   ├── contextService.js # Compiles live operational context
-│   │   │   ├── agentService.js   # Dispatches prompt runs to OpenAI
-│   │   │   ├── consensusService.js # Synthesizes agent plans
-│   │   │   ├── taskService.js    # Converts approved plan into tasks
-│   │   │   └── socketService.js  # Real-time WebSocket emitter
-│   │   ├── middleware/           # Validation and error handling
-│   │   │   └── errorHandler.js   # Standard JSON error & 404 handler
-│   │   └── server.js             # Express app & HTTP/Socket.IO setup
-│   └── package.json              # Backend dependencies
-│
-├── docs/                         # Documentation
-│   └── architecture.md           # Supplemental architectural notes
-│
-├── PRD.md                        # Product Requirements Document
-├── ARCHITECTURE.md               # Technical Architecture Document (This file)
-├── RULES.md                      # Team Development & Coding Standards
-├── README.md                     # Monorepo setup and onboarding guide
-├── .env.example                  # Environment variable blueprint
-└── package.json                  # Root orchestration (concurrently dev runner)
+â”œâ”€â”€ frontend/                     # Next.js App Router Client (JavaScript)
+â”‚   â”œâ”€â”€ app/
+â”‚   â”‚   â”œâ”€â”€ globals.css           # Tailwind base & utilities
+â”‚   â”‚   â”œâ”€â”€ layout.js             # Root HTML layout & providers
+â”‚   â”‚   â””â”€â”€ page.js               # Main Operations Dashboard
+â”‚   â”œâ”€â”€ components/
+â”‚   â”‚   â”œâ”€â”€ IncidentModal.jsx     # Incident submission trigger
+â”‚   â”‚   â”œâ”€â”€ AgentAnalysisCard.jsx # Displays individual agent views
+â”‚   â”‚   â”œâ”€â”€ ConsensusPlan.jsx     # Action plan approval/modify/reject
+â”‚   â”‚   â”œâ”€â”€ RoomStatusGrid.jsx    # Live room visualizer
+â”‚   â”‚   â””â”€â”€ TaskBoard.jsx         # Live real-time task cards
+â”‚   â”œâ”€â”€ lib/
+â”‚   â”‚   â”œâ”€â”€ api.js                # Fetch wrapper for backend REST APIs
+â”‚   â”‚   â””â”€â”€ socket.js             # Socket.IO client singleton
+â”‚   â”œâ”€â”€ public/                   # Static assets & icons
+â”‚   â”œâ”€â”€ jsconfig.json             # Path alias resolution (@/*)
+â”‚   â”œâ”€â”€ tailwind.config.js        # Tailwind styling rules
+â”‚   â”œâ”€â”€ postcss.config.js         # PostCSS processor config
+â”‚   â”œâ”€â”€ next.config.js            # Next.js runtime config
+â”‚   â””â”€â”€ package.json              # Frontend dependencies
+â”‚
+â”œâ”€â”€ backend/                      # Express.js REST API Server (JavaScript)
+â”‚   â”œâ”€â”€ src/
+â”‚   â”‚   â”œâ”€â”€ config/               # Centralized configurations & env loading
+â”‚   â”‚   â”‚   â”œâ”€â”€ db.js             # Supabase / Postgres client
+â”‚   â”‚   â”‚   â”œâ”€â”€ openai.js         # OpenAI client configuration
+â”‚   â”‚   â”‚   â””â”€â”€ index.js          # Port, CORS, env variables
+â”‚   â”‚   â”œâ”€â”€ controllers/          # HTTP request handlers
+â”‚   â”‚   â”‚   â”œâ”€â”€ incidentController.js
+â”‚   â”‚   â”‚   â”œâ”€â”€ actionPlanController.js
+â”‚   â”‚   â”‚   â”œâ”€â”€ taskController.js
+â”‚   â”‚   â”‚   â”œâ”€â”€ roomController.js
+â”‚   â”‚   â”‚   â””â”€â”€ healthController.js
+â”‚   â”‚   â”œâ”€â”€ routes/               # Express route declarations
+â”‚   â”‚   â”‚   â”œâ”€â”€ incidentRoutes.js
+â”‚   â”‚   â”‚   â”œâ”€â”€ actionPlanRoutes.js
+â”‚   â”‚   â”‚   â”œâ”€â”€ taskRoutes.js
+â”‚   â”‚   â”‚   â”œâ”€â”€ roomRoutes.js
+â”‚   â”‚   â”‚   â””â”€â”€ healthRoutes.js
+â”‚   â”‚   â”œâ”€â”€ services/             # Core business & AI logic
+â”‚   â”‚   â”‚   â”œâ”€â”€ contextService.js # Compiles live operational context
+â”‚   â”‚   â”‚   â”œâ”€â”€ agentService.js   # Dispatches prompt runs to OpenAI
+â”‚   â”‚   â”‚   â”œâ”€â”€ consensusService.js # Synthesizes agent plans
+â”‚   â”‚   â”‚   â”œâ”€â”€ taskService.js    # Converts approved plan into tasks
+â”‚   â”‚   â”‚   â””â”€â”€ socketService.js  # Real-time WebSocket emitter
+â”‚   â”‚   â”œâ”€â”€ middleware/           # Validation and error handling
+â”‚   â”‚   â”‚   â””â”€â”€ errorHandler.js   # Standard JSON error & 404 handler
+â”‚   â”‚   â””â”€â”€ server.js             # Express app & HTTP/Socket.IO setup
+â”‚   â””â”€â”€ package.json              # Backend dependencies
+â”‚
+â”œâ”€â”€ docs/                         # Documentation
+â”‚   â””â”€â”€ architecture.md           # Supplemental architectural notes
+â”‚
+â”œâ”€â”€ PRD.md                        # Product Requirements Document
+â”œâ”€â”€ ARCHITECTURE.md               # Technical Architecture Document (This file)
+â”œâ”€â”€ RULES.md                      # Team Development & Coding Standards
+â”œâ”€â”€ README.md                     # Monorepo setup and onboarding guide
+â”œâ”€â”€ .env.example                  # Environment variable blueprint
+â””â”€â”€ package.json                  # Root orchestration (concurrently dev runner)
 ```
 
 ---
@@ -131,10 +131,10 @@ resort360/
 ## 5. API Architecture & Endpoint Specification
 
 ### 5.1 System & Reference Data
-- `GET /health` — Verifies backend availability and timestamp.
-- `GET /api/rooms` — Retrieves list of all rooms with current statuses (`clean`, `dirty`, `repair`, `occupied`).
-- `GET /api/guests` — Retrieves active/incoming guests, arrival times, and VIP tiers.
-- `GET /api/staff` — Retrieves list of staff members with department, status (`available`, `busy`), and current load.
+- `GET /health` â€” Verifies backend availability and timestamp.
+- `GET /api/rooms` â€” Retrieves list of all rooms with current statuses (`clean`, `dirty`, `repair`, `occupied`).
+- `GET /api/guests` â€” Retrieves active/incoming guests, arrival times, and VIP tiers.
+- `GET /api/staff` â€” Retrieves list of staff members with department, status (`available`, `busy`), and current load.
 
 ### 5.2 Incidents & Multi-Agent Pipeline
 - `POST /api/incidents`  
@@ -154,29 +154,29 @@ resort360/
 
 ```
                   PostgreSQL
-                       ↓
+                       â†“
                 Context Builder
-                       ↓
+                       â†“
               Operational Context
-                       ↓
-       ┌───────────────┼───────────────┐
-       ↓               ↓               ↓
+                       â†“
+       â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+       â†“               â†“               â†“
   Front Desk     Housekeeping    Maintenance
      Agent           Agent           Agent
-       │               │               │
-       └───────────────┼───────────────┘
-                       ↓
+       â”‚               â”‚               â”‚
+       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                       â†“
                   Revenue Agent
-                       ↓
+                       â†“
                 Agent Responses
-                       ↓
+                       â†“
              ORCHESTRATOR [IMPLEMENTED]
-                       ↓
+                       â†“
               CONSENSUS [IMPLEMENTED]
-                       ↓
+                       â†“
               ACTION PLAN [IMPLEMENTED]
-                       ↓
-             HUMAN APPROVAL [REQUIRED]
+                       â†“
+             CONSENSUS UI [IMPLEMENTED - PHASE 3.2]`n                        ↓`n              HUMAN APPROVAL UI [IMPLEMENTED - PHASE 3.2]
 ```
 
 #### Implemented Endpoints:
@@ -285,8 +285,8 @@ Minimal, high-efficiency schema designed to support all Phase 1-4 requirements w
 | status             |       | check_in_date      |       | status             |
 | assigned_guest_id  |       | arrival_time       |       | current_task_id    |
 +--------------------+       +--------------------+       +--------------------+
-          │                            │
-          ▼                            ▼
+          â”‚                            â”‚
+          â–¼                            â–¼
 +-------------------------------------------------+
 |                    incidents                    |
 +-------------------------------------------------+
@@ -299,8 +299,8 @@ Minimal, high-efficiency schema designed to support all Phase 1-4 requirements w
 | status ('OPEN', 'ANALYZING', 'RESOLVED')        |
 | created_at                                      |
 +-------------------------------------------------+
-                         │
-                         ▼
+                         â”‚
+                         â–¼
 +-------------------------------------------------+
 |                  action_plans                   |
 +-------------------------------------------------+
@@ -314,8 +314,8 @@ Minimal, high-efficiency schema designed to support all Phase 1-4 requirements w
 | manager_notes                                   |
 | created_at                                      |
 +-------------------------------------------------+
-                         │
-                         ▼
+                         â”‚
+                         â–¼
 +-------------------------------------------------+
 |                      tasks                      |
 +-------------------------------------------------+
@@ -421,21 +421,21 @@ module.exports = { runFrontDeskAgent };
 Bi-directional WebSocket communication connects the Express server and Next.js client to provide instant dashboard feedback.
 
 ```
-+────────────────────────+                 +────────────────────────+
++â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+                 +â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+
 |   Next.js (Browser)    |                 |   Express.js Server    |
-+────────────────────────+                 +────────────────────────+
-            │                                           │
-            │─── connect (ws://localhost:5000) ────────>│
-            │<── connection established ────────────────│
-            │                                           │
-            │           [ Manager Approves Plan ]       │
-            │<── emit("PLAN_APPROVED", planData) ───────│
-            │<── emit("TASK_CREATED", taskList) ────────│
-            │<── emit("ROOM_UPDATED", roomStatus) ──────│
-            │                                           │
-            │           [ Staff Completes Task ]        │
-            │─── emit("TASK_STATUS_CHANGE", payload) ──>│
-            │<── broadcast("TASK_UPDATED", payload) ────│
++â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+                 +â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€+
+            â”‚                                           â”‚
+            â”‚â”€â”€â”€ connect (ws://localhost:5000) â”€â”€â”€â”€â”€â”€â”€â”€>â”‚
+            â”‚<â”€â”€ connection established â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”‚
+            â”‚                                           â”‚
+            â”‚           [ Manager Approves Plan ]       â”‚
+            â”‚<â”€â”€ emit("PLAN_APPROVED", planData) â”€â”€â”€â”€â”€â”€â”€â”‚
+            â”‚<â”€â”€ emit("TASK_CREATED", taskList) â”€â”€â”€â”€â”€â”€â”€â”€â”‚
+            â”‚<â”€â”€ emit("ROOM_UPDATED", roomStatus) â”€â”€â”€â”€â”€â”€â”‚
+            â”‚                                           â”‚
+            â”‚           [ Staff Completes Task ]        â”‚
+            â”‚â”€â”€â”€ emit("TASK_STATUS_CHANGE", payload) â”€â”€>â”‚
+            â”‚<â”€â”€ broadcast("TASK_UPDATED", payload) â”€â”€â”€â”€â”‚
 ```
 
 ### Event Names
@@ -452,21 +452,21 @@ Bi-directional WebSocket communication connects the Express server and Next.js c
 
 ```
 1. Incident Created via Frontend UI or API
-      │
+      â”‚
 2. Backend contextService queries Supabase for live Room/Guest/Staff data
-      │
+      â”‚
 3. agentService runs Front Desk, Housekeeping, Maintenance & Revenue Agents in parallel
-      │
+      â”‚
 4. consensusService merges agent outputs into a unified Action Plan
-      │
+      â”‚
 5. Plan stored in DB with status "PENDING_APPROVAL" & sent to Frontend
-      │
+      â”‚
 6. Resort Manager reviews Plan on UI -> Clicks "APPROVE"
-      │
+      â”‚
 7. taskService generates individual tasks in DB & updates Room statuses
-      │
+      â”‚
 8. socketService broadcasts "PLAN_APPROVED" & "TASK_CREATED" to all clients
-      │
+      â”‚
 9. UI displays live real-time status updates across all dashboard widgets
 ```
 
@@ -475,7 +475,62 @@ Bi-directional WebSocket communication connects the Express server and Next.js c
 ## 11. Deployment Strategy
 
 The deployment architecture is optimized for low friction and zero devops overhead:
-- **Frontend**: Deployed to **Vercel** with continuous deployment from the `main` branch.
-- **Backend**: Deployed to **Render** or **Railway** as a persistent Node.js service.
-- **Database**: Hosted managed **Supabase (PostgreSQL)** instance.
 - **AI**: Managed **OpenAI API** endpoint.
+
+---
+
+## 12. Human-in-the-Loop Decision Governance Architecture
+
+```
+                 Database (PostgreSQL / In-Memory)
+                                │
+                                ▼
+                     Operational Context Builder
+                                │
+                                ▼
+                 Departmental Agents (x4 Parallel)
+              [Front Desk, Housekeeping, Maint, Rev]
+                                │
+                                ▼
+                    Orchestrated Swarm Consensus
+                                │
+                                ▼
+                   Explainable Action Plan (AI)
+                                │
+                                ▼
+                  ┌───────────────────────────┐
+                  │    HUMAN MANAGER REVIEW   │
+                  └─────────────┬─────────────┘
+                                │
+         ┌──────────────────────┼──────────────────────┐
+         ▼                      ▼                      ▼
+    [ APPROVE ]            [ MODIFY ]             [ REJECT ]
+         │                      │                      │
+         │             (Preserves Original)            │
+         │             (Diff & Reason Logged)          │
+         │                      │                      │
+         │                      ▼                      │
+         │             modified_pending_approval       │
+         │                      │                      │
+         ▼                      ▼                      ▼
+     approved                approved               rejected
+         │                                             │
+         ▼                                             ▼
+    in_progress                                    cancelled
+         │
+         ▼
+     completed
+                                │
+                                ▼
+                  Append-Only Audit Trail Log
+                 (ai_action_plan_decisions)
+```
+
+### Decision Lifecycle & State Transitions
+- **`pending_review`**: Initial state generated by AI consensus. Awaiting manager action.
+- **`modified_pending_approval`**: Manager modified one or more operational parameters (room, staff, priority). The original AI recommendation remains preserved.
+- **`approved`**: Authorized manager endorsed execution. Actions transition to dispatch.
+- **`rejected`**: Manager rejected the proposal with a mandatory justification.
+- **`in_progress`**: One or more assigned action items are actively being executed.
+- **`completed`**: All dispatched action items have been marked complete.
+
