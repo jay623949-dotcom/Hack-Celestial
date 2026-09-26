@@ -1,5 +1,6 @@
 import './globals.css';
 import { ThemeProvider } from '../components/ui/ThemeProvider';
+import { RoleProvider } from '../lib/roleContext';
 
 export const metadata = {
   title: 'RESORT 360 — AI-Powered Resort Operations & Decision Intelligence',
@@ -11,7 +12,9 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen antialiased">
         <ThemeProvider>
-          {children}
+          <RoleProvider>
+            {children}
+          </RoleProvider>
         </ThemeProvider>
       </body>
     </html>

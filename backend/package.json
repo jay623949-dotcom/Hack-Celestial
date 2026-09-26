@@ -11,6 +11,7 @@
     "test": "node test-phase1.js",
     "db:migrate": "node database/migrations/migrate.js",
     "db:seed": "node database/seeds/seed.js",
+    "seed:demo": "node database/seeds/seed.js",
     "db:reset": "node database/migrations/reset.js"
   },
   "dependencies": {

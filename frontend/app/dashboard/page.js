@@ -9,7 +9,8 @@ import ActiveTasks from '../../components/dashboard/ActiveTasks';
 import AttentionPanel from '../../components/dashboard/AttentionPanel';
 import GuestOverview from '../../components/dashboard/GuestOverview';
 import RevenueOverview from '../../components/dashboard/RevenueOverview';
-import { getOperationsSummary, getRooms, getIncidents, getTasks, getGuests } from '../../lib/api';
+import StaffOverview from '../../components/dashboard/StaffOverview';
+import { getOperationsSummary, getRooms, getIncidents, getTasks, getGuests, getStaff } from '../../lib/api';
 import { BedDouble, Users, AlertTriangle, CheckSquare, RefreshCw, AlertCircle } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -18,6 +19,7 @@ export default function DashboardPage() {
   const [guests, setGuests] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [staff, setStaff] = useState([]);
 
   const [activeRoomFilter, setActiveRoomFilter] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -29,12 +31,13 @@ export default function DashboardPage() {
       setError(null);
 
       // Concurrent fetch of core operational endpoints
-      const [summaryRes, roomsRes, incidentsRes, tasksRes, guestsRes] = await Promise.all([
+      const [summaryRes, roomsRes, incidentsRes, tasksRes, guestsRes, staffRes] = await Promise.all([
         getOperationsSummary(),
         getRooms({ status: roomFilter }),
         getIncidents({ status: 'open' }),
         getTasks(),
         getGuests(),
+        getStaff(),
       ]);
 
       setSummary(summaryRes?.data || null);
@@ -42,6 +45,7 @@ export default function DashboardPage() {
       setIncidents(incidentsRes?.data || []);
       setTasks(tasksRes?.data || []);
       setGuests(guestsRes?.data || []);
+      setStaff(staffRes?.data || []);
     } catch (err) {
       console.error('Failed to load dashboard operational data:', err);
       setError(err.message || 'Unable to connect to Resort 360 Operational API');
@@ -165,6 +169,13 @@ export default function DashboardPage() {
         summary={summary?.rooms || {}}
         rooms={rooms}
         guests={guests}
+      />
+
+      {/* Staff Management Overview */}
+      <StaffOverview
+        staff={staff}
+        tasks={tasks}
+        loading={loading}
       />
 
       {/* Incidents & Operational Pressure Grid */}
