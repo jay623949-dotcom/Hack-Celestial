@@ -1,5 +1,6 @@
 const openAIService = require('../services/openai.service');
 const contextBuilder = require('../services/context-builder.service');
+const aiPersistence = require('../services/ai-persistence.service');
 
 /**
  * Controller for Generating Canonical AI Context from Database State
@@ -232,10 +233,78 @@ async function getConsensus(req, res, next) {
   }
 }
 
+/**
+ * GET /api/v1/ai/runs
+ * List recent AI analysis runs (most recent first, limit 50)
+ */
+async function listAnalysisRuns(req, res, next) {
+  try {
+    const runs = await aiPersistence.listRuns({ limit: 50 });
+    return res.status(200).json({
+      success: true,
+      data: { runs, count: runs.length },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/v1/ai/runs/:id
+ * Fetch a single analysis run with all agent decisions, consensus, and action plan
+ */
+async function getAnalysisRun(req, res, next) {
+  try {
+    const { id } = req.params;
+    const run = await aiPersistence.getRun(id);
+    if (!run) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'RUN_NOT_FOUND', message: `No analysis run found with id: ${id}` },
+      });
+    }
+    return res.status(200).json({ success: true, data: run });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * PATCH /api/v1/ai/runs/:runId/plan/status
+ * Update action plan approval status
+ */
+async function updatePlanStatus(req, res, next) {
+  try {
+    const { runId } = req.params;
+    const { status, approved_by, rejected_reason } = req.body;
+    const validStatuses = ['pending_approval', 'approved', 'rejected', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_STATUS', message: `status must be one of: ${validStatuses.join(', ')}` },
+      });
+    }
+    // Find the plan id for this run
+    const run = await aiPersistence.getRun(runId);
+    if (!run || !run.action_plan) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'PLAN_NOT_FOUND', message: `No action plan found for run: ${runId}` },
+      });
+    }
+    const updated = await aiPersistence.updatePlanStatus(run.action_plan.id, { status, approvedBy: approved_by, rejectedReason: rejected_reason });
+    return res.status(200).json({ success: true, data: updated });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   analyzeOperationalContext,
   getOperationalContext,
   analyzeDepartmentalAgents,
   getConsensus,
+  listAnalysisRuns,
+  getAnalysisRun,
+  updatePlanStatus,
 };
-
