@@ -54,40 +54,40 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
   };
 
   return (
-    <div id="rooms" className="p-6 rounded-3xl border border-border bg-surface shadow-soft">
+    <div id="rooms" className="rounded-xl border border-border bg-surface shadow-soft overflow-hidden">
       {/* Top Header & Metrics */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between pb-5 mb-6 border-b border-border/70 gap-4">
+      <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
             <BedDouble className="w-4 h-4 text-primary" />
-            <h2 className="text-base font-bold text-foreground tracking-tight">
-              Room Overview
+            <h2 className="text-sm font-bold text-foreground tracking-tight">
+              Room Inventory Overview
             </h2>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Operational status across all floors and room categories
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            Operational status across resort floors and room tiers
           </p>
         </div>
 
         {/* Dynamic Metric Counter Capsules */}
-        <div className="flex items-center gap-2 flex-wrap text-xs font-mono">
-          <div className="px-2.5 py-1 rounded-lg bg-surface-secondary border border-border flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap text-xs font-mono">
+          <div className="px-2 py-0.5 rounded bg-surface-secondary border border-border flex items-center gap-1 text-[11px]">
             <span className="text-muted-foreground">Total:</span>
             <strong className="text-foreground">{summary.total || rooms.length}</strong>
           </div>
-          <div className="px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20 text-primary flex items-center gap-1.5">
+          <div className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary flex items-center gap-1 text-[11px]">
             <span>Occupied:</span>
             <strong>{summary.occupied ?? '-'}</strong>
           </div>
-          <div className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+          <div className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 text-[11px]">
             <span>Available:</span>
             <strong>{summary.available ?? '-'}</strong>
           </div>
-          <div className="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-            <span>Maint:</span>
+          <div className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1 text-[11px]">
+            <span>Maintenance:</span>
             <strong>{summary.maintenance ?? '-'}</strong>
           </div>
-          <div className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+          <div className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 text-[11px]">
             <span>Reserved:</span>
             <strong>{summary.reserved ?? '-'}</strong>
           </div>
@@ -95,15 +95,15 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 mb-5 overflow-x-auto pb-1">
+      <div className="px-4 py-2 bg-surface-secondary/40 border-b border-border flex items-center gap-1.5 overflow-x-auto">
         {filters.map((flt) => (
           <button
             key={flt.key}
             onClick={() => onFilterChange(flt.key)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 ${
+            className={`px-2.5 py-1 rounded text-xs font-medium transition-colors shrink-0 ${
               activeFilter === flt.key
-                ? 'bg-primary text-primary-foreground font-semibold shadow-soft'
-                : 'text-muted-foreground hover:text-foreground bg-surface-secondary/70 hover:bg-surface-secondary'
+                ? 'bg-primary text-primary-foreground font-semibold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-surface-secondary'
             }`}
           >
             {flt.label}
@@ -111,56 +111,81 @@ export default function RoomOverview({ rooms = [], summary = {}, onFilterChange 
         ))}
       </div>
 
-      {/* Room Grid Visualization */}
+      {/* Professional Operational Room Table */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 animate-pulse">
-          {[...Array(10)].map((_, i) => (
-            <div key={i} className="h-24 rounded-xl bg-muted/60" />
+        <div className="p-6 space-y-2 animate-pulse">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-9 rounded bg-muted/60" />
           ))}
         </div>
       ) : rooms.length === 0 ? (
-        <div className="text-center py-12 border border-dashed border-border rounded-2xl">
-          <p className="text-xs text-muted-foreground">No rooms found matching &quot;{activeFilter}&quot;.</p>
+        <div className="text-center py-12 text-xs text-muted-foreground">
+          No rooms found matching &quot;{activeFilter}&quot;.
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {rooms.map((room) => {
-            const badge = getStatusBadge(room.status);
-            return (
-              <div
-                key={room.id}
-                className="p-3.5 rounded-xl border border-border bg-surface-secondary/30 hover:border-primary/50 transition-all flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-extrabold text-sm sm:text-base font-mono text-foreground">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-surface-secondary/60 text-muted-foreground font-mono text-[10px] uppercase tracking-wider border-b border-border">
+              <tr>
+                <th className="py-2.5 px-4 font-semibold">Room</th>
+                <th className="py-2.5 px-4 font-semibold">Category</th>
+                <th className="py-2.5 px-4 font-semibold">Floor</th>
+                <th className="py-2.5 px-4 font-semibold">Status</th>
+                <th className="py-2.5 px-4 font-semibold">Housekeeping</th>
+                <th className="py-2.5 px-4 font-semibold">Operational Notes</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {rooms.map((room) => {
+                const badge = getStatusBadge(room.status);
+                return (
+                  <tr key={room.id} className="hover:bg-surface-secondary/40 transition-colors">
+                    <td className="py-2.5 px-4 font-mono font-bold text-foreground">
                       {room.number}
-                    </span>
-                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${badge.bg}`}>
-                      {badge.label}
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-muted-foreground truncate" title={room.type}>
-                    {room.type}
-                  </div>
-                </div>
-
-                <div className="mt-3 pt-2 border-t border-border/60 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
-                  <span>Floor {room.floor}</span>
-                  {room.status === 'maintenance' && (
-                    <span className="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1">
-                      <Wrench className="w-2.5 h-2.5" /> AC
-                    </span>
-                  )}
-                  {room.number === '505' && (
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">
-                      <Sparkles className="w-2.5 h-2.5" /> Express
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                    </td>
+                    <td className="py-2.5 px-4 text-foreground font-medium">
+                      {room.type}
+                    </td>
+                    <td className="py-2.5 px-4 font-mono text-muted-foreground">
+                      Floor {room.floor}
+                    </td>
+                    <td className="py-2.5 px-4">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${badge.bg}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                        {badge.label}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-4 font-mono text-[11px] capitalize text-muted-foreground">
+                      {room.housekeeping_status || (room.status === 'dirty' ? 'dirty' : 'clean')}
+                    </td>
+                    <td className="py-2.5 px-4 font-mono text-[11px] text-muted-foreground">
+                      {room.status === 'maintenance' && (
+                        <span className="text-rose-700 font-semibold flex items-center gap-1">
+                          <Wrench className="w-3 h-3" /> HVAC fault (repair active)
+                        </span>
+                      )}
+                      {room.number === '505' && (
+                        <span className="text-teal-700 font-semibold flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-primary" /> Alternate VIP Candidate
+                        </span>
+                      )}
+                      {room.floor === 4 && room.status === 'reserved' && (
+                        <span className="text-amber-700 font-semibold">
+                          Wedding block lock
+                        </span>
+                      )}
+                      {room.status === 'available' && !['505'].includes(room.number) && (
+                        <span className="text-emerald-700">Inspected & Ready</span>
+                      )}
+                      {room.status === 'occupied' && (
+                        <span className="text-slate-600">Guest in residence</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

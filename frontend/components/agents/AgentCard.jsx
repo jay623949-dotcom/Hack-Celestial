@@ -116,20 +116,20 @@ export default function AgentCard({
 
   return (
     <div
-      className={`p-5 rounded-3xl border bg-surface transition-all duration-200 shadow-soft flex flex-col justify-between ${deptConfig.border}`}
+      className={`p-4 rounded-xl border bg-surface transition-all duration-150 shadow-soft flex flex-col justify-between ${deptConfig.border}`}
     >
       <div>
         {/* Header: Identity & Status */}
-        <div className="flex items-center justify-between gap-3 pb-3 border-b border-border/70">
-          <div className="flex items-center gap-2.5">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center border ${deptConfig.badge}`}>
-              <DeptIcon className="w-4 h-4" />
+        <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-border">
+          <div className="flex items-center gap-2">
+            <div className={`w-7 h-7 rounded-md flex items-center justify-center border ${deptConfig.badge}`}>
+              <DeptIcon className="w-3.5 h-3.5" />
             </div>
             <div>
-              <div className="text-sm font-bold text-foreground tracking-tight flex items-center gap-1.5">
-                <span>{name}</span>
+              <div className="text-xs font-bold text-foreground tracking-tight">
+                {name}
               </div>
-              <p className="text-[11px] text-muted-foreground font-medium">
+              <p className="text-[10px] text-muted-foreground font-mono">
                 {deptConfig.label}
               </p>
             </div>
@@ -138,8 +138,8 @@ export default function AgentCard({
         </div>
 
         {/* Current Focus */}
-        <div className="mt-3.5 pb-3">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-semibold">
+        <div className="mt-2.5 pb-2">
+          <span className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground font-semibold">
             Operational Focus
           </span>
           <p className="text-xs font-semibold text-foreground mt-0.5">
@@ -149,32 +149,32 @@ export default function AgentCard({
 
         {/* Content Body Based on State */}
         {status === 'ANALYZING' && (
-          <div className="py-6 flex flex-col items-center justify-center text-center space-y-2.5 rounded-2xl bg-surface-secondary/40 border border-border/50">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs text-muted-foreground font-mono">
-              Evaluating departmental constraints...
+          <div className="py-6 flex flex-col items-center justify-center text-center space-y-2 rounded-lg bg-surface-secondary/40 border border-border">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-[11px] text-muted-foreground font-mono">
+              Evaluating departmental context...
             </p>
           </div>
         )}
 
         {status === 'IDLE' && (
-          <div className="py-6 text-center text-xs text-muted-foreground/80 rounded-2xl bg-surface-secondary/30 border border-dashed border-border/60">
-            Ready to evaluate incoming operational scenario.
+          <div className="py-6 text-center text-xs text-muted-foreground rounded-lg bg-surface-secondary/20 border border-dashed border-border">
+            Standby for scenario evaluation.
           </div>
         )}
 
         {status === 'ERROR' && (
-          <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400">
-            Unable to complete analysis. Please verify OpenAI backend configuration.
+          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700">
+            Analysis failed. Please verify AI provider configuration.
           </div>
         )}
 
         {status === 'COMPLETED' && (
-          <div className="space-y-3 pt-1">
+          <div className="space-y-2.5 pt-1">
             {/* Fact-based Observation */}
             {observation && (
-              <div className="p-3 rounded-2xl bg-surface-secondary/50 border border-border/60 space-y-1">
-                <span className="text-[10px] font-mono font-bold uppercase text-muted-foreground flex items-center gap-1">
+              <div className="p-2.5 rounded-lg bg-surface-secondary border border-border space-y-1">
+                <span className="text-[9px] font-mono font-bold uppercase text-muted-foreground flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                   Key Observation (Fact)
                 </span>
@@ -186,12 +186,12 @@ export default function AgentCard({
 
             {/* Actionable Proposal (Recommendation) */}
             {recommendation && (
-              <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/20 space-y-2">
+              <div className="p-3 rounded-lg bg-teal-50/40 border border-teal-200/80 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold uppercase text-primary tracking-wider">
+                  <span className="text-[9px] font-mono font-bold uppercase text-teal-800 tracking-wider">
                     Recommendation Proposal
                   </span>
-                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
                     Requires Approval
                   </span>
                 </div>
@@ -200,12 +200,12 @@ export default function AgentCard({
                 </div>
                 {recommendation.reason && (
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    <strong className="text-foreground/90">Reason:</strong> {recommendation.reason}
+                    <strong className="text-foreground">Reason:</strong> {recommendation.reason}
                   </p>
                 )}
                 {recommendation.estimated_duration_minutes && (
-                  <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-1 pt-1 border-t border-primary/10">
-                    <Clock className="w-3 h-3 text-primary" />
+                  <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-1 pt-1 border-t border-teal-100">
+                    <Clock className="w-3 h-3 text-teal-700" />
                     Est. Duration: <strong className="text-foreground">{recommendation.estimated_duration_minutes} mins</strong>
                   </div>
                 )}
@@ -216,17 +216,17 @@ export default function AgentCard({
       </div>
 
       {/* Footer Meta: Resources & Confidence */}
-      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-[11px] font-mono text-muted-foreground">
+      <div className="mt-3 pt-2.5 border-t border-border flex items-center justify-between text-[10px] font-mono text-muted-foreground">
         <div className="flex items-center gap-2">
           {affectedRooms.length > 0 && (
             <span className="flex items-center gap-1">
-              <Building2 className="w-3 h-3 text-primary" />
-              {affectedRooms.map((r) => r.replace('room-', '')).join(', ')}
+              <Building2 className="w-3 h-3 text-slate-500" />
+              {affectedRooms.map((r) => r.replace('room-', 'R-')).join(', ')}
             </span>
           )}
           {affectedStaff.length > 0 && (
             <span className="flex items-center gap-1">
-              <UserCheck className="w-3 h-3 text-primary" />
+              <UserCheck className="w-3 h-3 text-slate-500" />
               {affectedStaff.join(', ')}
             </span>
           )}
