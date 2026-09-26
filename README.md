@@ -22,7 +22,7 @@ Resort operations frequently suffer from fragmented departmental communication. 
 - **Frontend**: Next.js 14 (App Router), React 18, Tailwind CSS, Lucide Icons
 - **Backend**: Node.js, Express.js, CORS, Helmet, Morgan
 - **Database / Data Layer**: PostgreSQL schema (`backend/database`) with in-memory fallback store (`phase-1/demo-data.json`)
-- **AI Integration**: OpenAI Responses API (`gpt-4o-mini`), JSON Schema Draft 2020-12, Ajv validation
+- **AI Integration (Universal Adapter)**: Google Gemini (`gemini-2.5-flash` with free tier API via `@google/genai`), OpenAI (`gpt-4o-mini`), and local self-hosted LLMs (Ollama, LM Studio, vLLM). Output validated with JSON Schema Draft 2020-12 & Ajv.
 - **Real-Time**: Socket.IO / WebSocket architecture
 
 ---
@@ -133,10 +133,28 @@ git checkout feat/phase2neel
    PORT=5000
    NODE_ENV=development
    CLIENT_URL=http://localhost:3000
+
+   # ==================================================
+   # AI MODEL CONFIGURATION (Universal Adapter)
+   # Providers: 'gemini' (Free tier) | 'openai' | 'local' (Ollama / vLLM)
+   # ==================================================
+   AI_PROVIDER=gemini
+
+   # Option 1: Google Gemini (FREE TIER - Recommended)
+   # Get a free key at: https://aistudio.google.com
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GEMINI_MODEL=gemini-2.5-flash
+
+   # Option 2: OpenAI API (Optional)
    OPENAI_API_KEY=your_openai_api_key_here
    OPENAI_MODEL=gpt-4o-mini
+
+   # Option 3: Local / Self-Hosted Models (Ollama, LM Studio, vLLM)
+   # AI_PROVIDER=local
+   LOCAL_AI_BASE_URL=http://localhost:11434/v1
+   LOCAL_AI_MODEL=llama3.2
    ```
-   > **Note**: `backend/.env` is tracked in `.gitignore` and will never be committed to Git. If `OPENAI_API_KEY` is not provided, the operational API will still run normally and gracefully inform the Agent Swarm UI that the key is missing.
+   > **Note**: `backend/.env` is tracked in `.gitignore` and will never be committed to Git. If no AI API key is provided, the backend continues to operate normally and safely notifies the Agent Swarm UI.
 
 2. **Frontend Environment** (`frontend/.env.local` optional):
    Defaults to `http://localhost:5000/api/v1` automatically.
