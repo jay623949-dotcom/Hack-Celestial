@@ -98,13 +98,15 @@ resort360/
 │   └── action-plan.schema.json
 │
 ├── docs/                          # Source-of-truth documentation
+│   ├── PRESENTATION.md            # Master presentation, live demo script & team guide
+│   ├── DEMO.md                    # Quick live hackathon demo guide
 │   ├── PRD.md
 │   ├── ARCHITECTURE.md
 │   ├── RULES.md
 │   ├── resort-data-model.md
 │   └── incident-scenarios.md
 │
-└── phase-1/demo-data.json         # 20 rooms, 5 guests, 10 staff, 6 incidents, 15 tasks
+└── phase-1/demo-data.json         # 45 rooms, 25 guests, 12 staff, 6 incidents, 10 tasks
 ```
 
 ---
