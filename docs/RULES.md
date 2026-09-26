@@ -1,0 +1,198 @@
+# RESORT 360 — Development & Engineering Rules
+
+> **MANDATORY READING**:  
+> Every engineer (Neel, Jay, Krutarth, Nakool, Nairit) and every AI coding assistant working on this repository **MUST** strictly adhere to the rules below.
+
+---
+
+## 1. Absolute Technology Invariants
+
+1. **JAVASCRIPT ONLY**:
+   - The entire codebase is written in pure **JavaScript** (ES6+ / Node.js CommonJS & ESM).
+   - **DO NOT INTRODUCE TYPESCRIPT**.
+   - No `.ts`, `.tsx`, `tsconfig.json`, `@types/*` dependencies, interfaces, or type annotations.
+   - Use standard `.js` and `.jsx` extensions only.
+2. **STACK BOUNDARIES**:
+   - Frontend: **Next.js 14 (App Router)**, **React 18**, **Tailwind CSS**.
+   - Backend: **Node.js**, **Express.js**, **CORS**, **dotenv**.
+   - Database: **PostgreSQL / Supabase**.
+   - AI Engine: **OpenAI API** (`gpt-4o` / `gpt-4o-mini`).
+   - Real-Time: **Socket.IO**.
+3. **NO PREMATURE ARCHITECTURAL COMPLEXITY**:
+   - **DO NOT INTRODUCE**: Microservices, Kafka, Redis, RabbitMQ, Celery, Kubernetes, Docker Compose orchestrations, complex GraphQL engines, or custom ML model training pipelines.
+   - **Hackathon Cardinal Rule**:
+     > **WORKING PRODUCT > ARCHITECTURAL COMPLEXITY**
+
+---
+
+## 2. Git Workflow & Branch Hygiene
+
+```
+main (Production & Demo-Ready only)
+  ▲
+  │ (Pull Request merge when stable)
+develop (Active Integration Branch)
+  ▲
+  ├── feature/frontend-dashboard  (Jay)
+  ├── feature/backend-api         (Krutarth / Neel)
+  ├── feature/database            (Krutarth)
+  ├── feature/ai-agents           (Nairit)
+  └── feature/realtime            (Nairit / Neel)
+```
+
+1. **NEVER COMMIT DIRECTLY TO `main`**:
+   - `main` is strictly reserved for tagged, stable release checkpoints.
+2. **`develop` IS THE INTEGRATION TRUNK**:
+   - All feature branches branch off `develop`.
+   - Feature branches merge back into `develop` via PR or clean fast-forward merge after verification.
+3. **PULL BEFORE CODING**:
+   - Always run `git checkout develop && git pull origin develop` before starting work on a branch.
+4. **NO FORCE PUSHING**:
+   - `git push --force` is strictly forbidden on `main` and `develop`.
+5. **ATOMIC & MEANINGFUL COMMITS**:
+   - Format: `<type>(<scope>): <short description>`
+   - Examples:
+     - `feat(agents): add prompt template for housekeeping agent`
+     - `fix(routes): correct incident id param extraction`
+     - `docs(prd): update killer demo timeline`
+
+---
+
+## 3. Team Ownership & Responsibilities
+
+| Team Member | Primary Domain | Core Responsibilities |
+| :--- | :--- | :--- |
+| **Neel** | Backend & Foundation Lead | Phase 0 setup, Express architecture, core APIs, execution dispatch, backend integration. |
+| **Jay Doshi** | Frontend Lead | Next.js layout, React components, Tailwind styling, dashboard UI, agent visualization, manager approval workflow. |
+| **Krutarth Rao** | Database & Persistence Lead | PostgreSQL / Supabase schema, connection pooling, seed scripts, database migrations, data integrity. |
+| **Nakool** | Operational Scenarios & QA | Mock data generation, demo scenario calibration, edge case testing, workflow validation. |
+| **Nairit Shah** | AI & Real-Time Lead | OpenAI agent prompts, structured output validation, consensus orchestration, Socket.IO pipelines. |
+
+### Cross-Cutting Collaboration Protocol
+If you need to edit a file outside your primary domain:
+1. Notify the primary owner in group chat.
+2. Explain the architectural necessity.
+3. Keep changes minimal and isolated.
+
+---
+
+## 4. Code & Architecture Standards
+
+### 4.1 General Principles
+- **Keep it Simple & Modular**: Functions should do one thing well. Avoid 500-line monolithic files.
+- **Explicit Error Handling**: Always wrap async operations in `try/catch` and pass errors to Express `next(err)` or return clean HTTP error objects.
+- **Meaningful Naming**:
+  - Functions: verb-first camelCase (`calculateRoomPriority`, `fetchActiveIncidents`).
+  - Components: PascalCase (`AgentCard.jsx`, `IncidentModal.jsx`).
+  - Constants: UPPER_SNAKE_CASE (`MAX_REPAIR_MINUTES`).
+
+### 4.2 Backend Conventions
+- **Separation of Concerns**:
+  - `routes/` -> only URL mapping.
+  - `controllers/` -> only request parsing & response delivery.
+  - `services/` -> only business logic, DB queries, and external APIs.
+- **Standard Controller Response Pattern**:
+  ```javascript
+  // Good Express Controller Pattern (backend/src/controllers/incidentController.js)
+  const incidentService = require('../services/incidentService');
+
+  async function createIncident(req, res, next) {
+    try {
+      const { type, description, roomId, guestId, priority } = req.body;
+      if (!type || !description) {
+        return res.status(400).json({ status: 'error', message: 'Missing required fields' });
+      }
+
+      const incident = await incidentService.create({ type, description, roomId, guestId, priority });
+      return res.status(201).json({ status: 'success', data: incident });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  module.exports = { createIncident };
+  ```
+
+### 4.3 Frontend Conventions
+- **No Direct DB Calls**: Frontend components MUST NEVER import database libraries or execute SQL. Everything goes through `lib/api.js` to the Express backend.
+- **Loading & Empty States**: Every UI view that fetches data must handle `isLoading`, `error`, and empty states (`data.length === 0`).
+- **Tailwind Consistency**: Use predefined Tailwind utility classes. Do not write inline CSS `style={{ ... }}` unless calculating dynamic pixel transforms.
+
+---
+
+## 5. AI Engineering & Prompting Rules
+
+1. **NO MODEL TRAINING**: Use existing foundation models (`gpt-4o` or `gpt-4o-mini`) through the official OpenAI SDK.
+2. **STRICT JSON OUTPUT**: Always specify `response_format: { type: "json_object" }` on chat completions and instruct the model on the exact expected keys.
+3. **NEVER BLINDLY TRUST LLM OUTPUT**: Always parse responses inside a `try/catch` block and validate that mandatory fields exist before saving to the database.
+4. **NO HALLUCINATED ASSETS**:
+   - Prompts must explicitly instruct agents: *"You may ONLY reference room numbers, guest names, and staff members explicitly provided in the Operational Context."*
+5. **DETERMINISTIC FALLBACKS**: If the OpenAI API throws a 429 (rate limit) or 500 error, the system must cleanly degrade to pre-configured fallback rules for the demo scenario without crashing the server.
+6. **HUMAN APPROVAL REQUIRED**: The AI suggests; the human decides. No action plan may execute without explicit manager approval.
+
+---
+
+## 6. Database & Persistence Rules
+
+1. **LEAN RELATIONAL SCHEMA**: Do not design dozens of tables. We only require:
+   - `rooms`, `guests`, `staff`, `incidents`, `action_plans`, `tasks`.
+2. **CENTRALIZED CLIENT**: Initialize the Supabase / PostgreSQL client once in `backend/src/config/db.js`. Never create random connection instances in individual route files.
+3. **ZERO CREDENTIAL LEAKS**: Never hardcode connection strings or API keys in migration files or seed scripts. Always read from `process.env`.
+
+---
+
+## 7. Security & Secrets Management
+
+1. **NEVER COMMIT `.env` FILES**:
+   - The `.gitignore` file strictly blocks all `.env` variations.
+   - If you accidentally commit a key, immediately revoke it and notify the team.
+2. **USE `.env.example` AS THE BLUEPRINT**:
+   - If you introduce a new environment variable, immediately add its placeholder to [.env.example](file:///c:/Web%20Devlopment/HackathonProject/resort360/.env.example) and update the table in [README.md](file:///c:/Web%20Devlopment/HackathonProject/resort360/README.md).
+3. **CORS RESTRICTION**:
+   - Express server CORS must only allow the frontend development origin (`http://localhost:3000` or production domain).
+
+---
+
+## 8. Dependency Management Rules
+
+Before installing any new package via `npm install`:
+1. Ask: **Can this be achieved with vanilla JavaScript or our existing dependencies?**
+2. Ask: **Will this introduce native compilation issues on Windows or Mac for teammates?**
+3. Ask: **Does the entire team understand why this library is needed?**
+4. If in doubt, discuss with the team lead (Neel) before installing.
+
+---
+
+## 9. Rules for AI Coding Assistants (Copilot, Cursor, Gemini, Claude)
+
+Any AI assistant generating code in this repository **MUST follow this execution protocol**:
+
+1. **Read Core Docs First**:
+   - First: [PRD.md](file:///c:/Web%20Devlopment/HackathonProject/resort360/PRD.md)
+   - Second: [ARCHITECTURE.md](file:///c:/Web%20Devlopment/HackathonProject/resort360/ARCHITECTURE.md)
+   - Third: [RULES.md](file:///c:/Web%20Devlopment/HackathonProject/resort360/RULES.md) (This file)
+2. **Never Switch to TypeScript**:
+   - Under no circumstances convert `.js` to `.ts` or `.jsx` to `.tsx`.
+   - If generating code, use standard JavaScript syntax.
+3. **Respect File Ownership & Boundaries**:
+   - Do not edit files outside the assigned task scope.
+   - Do not touch existing working foundation files unless explicitly requested.
+4. **Self-Audit**:
+   - Before completing any task, check:
+     - Did I write pure JavaScript?
+     - Did I avoid hardcoding secrets?
+     - Did I handle errors?
+     - Did I avoid creating duplicate implementations?
+
+---
+
+## 10. Definition of Done (DoD)
+
+A feature or task is **DONE** only when:
+- [x] Code is written in pure JavaScript matching project conventions.
+- [x] Code executes locally without runtime errors or unhandled promises.
+- [x] Backend routes return proper HTTP status codes and structured JSON.
+- [x] Frontend UI handles loading, error, and empty states.
+- [x] Zero sensitive secrets or `.env` files are tracked by Git.
+- [x] The feature works cleanly when running the full stack (`npm run dev`).
+- [x] Git diff is clean and ready for integration into `develop`.
