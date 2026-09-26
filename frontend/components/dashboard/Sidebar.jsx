@@ -15,10 +15,10 @@ const NAV_CONFIG = {
     groups: [
       { title: null, items: [{ label: 'Overview', href: '/dashboard', icon: LayoutDashboard }] },
       { title: 'Operations', items: [
-        { label: 'Rooms', href: '/dashboard#rooms', icon: BedDouble },
-        { label: 'Guests', href: '/dashboard#guests', icon: Users },
-        { label: 'Revenue', href: '/dashboard#revenue', icon: Radio },
-        { label: 'Staff', href: '/dashboard#staff', icon: UserCheck },
+        { label: 'Rooms', href: '/dashboard/rooms', icon: BedDouble },
+        { label: 'Guests', href: '/dashboard/guests', icon: Users },
+        { label: 'Revenue', href: '/dashboard/revenue', icon: TrendingUp },
+        { label: 'Staff', href: '/dashboard/staff', icon: UserCheck },
         { label: 'Incidents', href: '/dashboard#incidents', icon: AlertTriangle },
         { label: 'Tasks', href: '/dashboard#tasks', icon: CheckSquare },
         { label: 'Live Execution', href: '/dashboard/execution', icon: Zap },
@@ -34,9 +34,9 @@ const NAV_CONFIG = {
     groups: [
       { title: null, items: [{ label: 'Overview', href: '/dashboard/frontdesk', icon: LayoutDashboard }] },
       { title: 'Guest Operations', items: [
-        { label: 'Guests', href: '/dashboard/frontdesk#guests', icon: Users },
+        { label: 'Guests', href: '/dashboard/guests', icon: Users },
+        { label: 'Rooms Hub', href: '/dashboard/rooms', icon: BedDouble },
         { label: 'Arrivals Today', href: '/dashboard/frontdesk#arrivals', icon: CalendarCheck },
-        { label: 'Rooms', href: '/dashboard/frontdesk#rooms', icon: BedDouble },
         { label: 'Incidents', href: '/dashboard/frontdesk#incidents', icon: AlertTriangle },
       ]},
     ],
@@ -45,9 +45,9 @@ const NAV_CONFIG = {
     groups: [
       { title: null, items: [{ label: 'Overview', href: '/dashboard/housekeeping', icon: LayoutDashboard }] },
       { title: 'Housekeeping', items: [
-        { label: 'Room Readiness', href: '/dashboard/housekeeping#readiness', icon: BedDouble },
+        { label: 'Room Inventory', href: '/dashboard/rooms', icon: BedDouble },
+        { label: 'Staff Roster', href: '/dashboard/staff', icon: UserCheck },
         { label: 'Tasks', href: '/dashboard/housekeeping#tasks', icon: ClipboardList },
-        { label: 'Staff', href: '/dashboard/housekeeping#staff', icon: UserCheck },
       ]},
     ],
   },
@@ -55,10 +55,10 @@ const NAV_CONFIG = {
     groups: [
       { title: null, items: [{ label: 'Overview', href: '/dashboard/maintenance', icon: LayoutDashboard }] },
       { title: 'Maintenance', items: [
+        { label: 'Rooms Hub', href: '/dashboard/rooms', icon: BedDouble },
+        { label: 'Staff Roster', href: '/dashboard/staff', icon: Wrench },
         { label: 'Incidents', href: '/dashboard/maintenance#incidents', icon: AlertTriangle },
         { label: 'Tasks', href: '/dashboard/maintenance#tasks', icon: ClipboardList },
-        { label: 'Rooms', href: '/dashboard/maintenance#rooms', icon: BedDouble },
-        { label: 'Staff', href: '/dashboard/maintenance#staff', icon: Wrench },
       ]},
     ],
   },
@@ -66,8 +66,8 @@ const NAV_CONFIG = {
     groups: [
       { title: null, items: [{ label: 'Overview', href: '/dashboard/revenue-mgr', icon: LayoutDashboard }] },
       { title: 'Revenue', items: [
-        { label: 'Occupancy', href: '/dashboard/revenue-mgr#occupancy', icon: TrendingUp },
-        { label: 'Room Inventory', href: '/dashboard/revenue-mgr#inventory', icon: BedDouble },
+        { label: 'Revenue Hub', href: '/dashboard/revenue', icon: TrendingUp },
+        { label: 'Room Inventory', href: '/dashboard/rooms', icon: BedDouble },
         { label: 'Bookings', href: '/dashboard/revenue-mgr#bookings', icon: Radio },
       ]},
       { title: 'Intelligence', items: [

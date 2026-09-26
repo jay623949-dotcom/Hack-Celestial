@@ -2,15 +2,12 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import DashboardShell from '../../components/dashboard/DashboardShell';
 import StatCard from '../../components/dashboard/StatCard';
-import RoomOverview from '../../components/dashboard/RoomOverview';
 import IncidentOverview from '../../components/dashboard/IncidentOverview';
 import ActiveTasks from '../../components/dashboard/ActiveTasks';
 import AttentionPanel from '../../components/dashboard/AttentionPanel';
-import GuestOverview from '../../components/dashboard/GuestOverview';
-import RevenueOverview from '../../components/dashboard/RevenueOverview';
-import StaffOverview from '../../components/dashboard/StaffOverview';
 import {
   getOperationsSummary,
   getRooms,
@@ -35,6 +32,7 @@ import {
   ArrowRight,
   X,
   ShieldAlert,
+  UserCheck,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -296,36 +294,116 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Area 1: Room Overview Section */}
-      <RoomOverview
-        rooms={rooms}
-        summary={summary?.rooms || {}}
-        onFilterChange={handleRoomFilter}
-        activeFilter={activeRoomFilter}
-        loading={loading}
-      />
+      {/* Dedicated Operational Hubs Navigation Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Rooms Hub Card */}
+        <Link
+          href="/dashboard/rooms"
+          className="group p-5 rounded-2xl border border-border bg-white hover:border-primary/50 shadow-soft hover:shadow-md transition-all flex flex-col justify-between"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="p-2.5 rounded-xl bg-teal-50 text-primary border border-teal-100 group-hover:scale-105 transition-transform">
+                <BedDouble className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                {rooms.length} ROOMS
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-foreground mt-3 group-hover:text-primary transition-colors">
+              Rooms Hub
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              Live floor plan map, physical inventory status, cleaning queues &amp; maintenance nodes.
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-semibold text-primary mt-4 pt-3 border-t border-border/60">
+            <span>Open Room Map &amp; Inventory</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
 
-      {/* Area 2: Guest Entry & Guest Operations */}
-      <GuestOverview
-        guests={guests}
-        rooms={rooms}
-        onGuestCreated={() => fetchDashboardData(activeRoomFilter)}
-        loading={loading}
-      />
+        {/* Guests Hub Card */}
+        <Link
+          href="/dashboard/guests"
+          className="group p-5 rounded-2xl border border-border bg-white hover:border-blue-400/50 shadow-soft hover:shadow-md transition-all flex flex-col justify-between"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 group-hover:scale-105 transition-transform">
+                <Users className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                {guests.length} IN-HOUSE
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-foreground mt-3 group-hover:text-blue-600 transition-colors">
+              Guests Hub
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              VIP tier registry, arrivals today, room allocations &amp; quick guest check-in desk.
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-semibold text-blue-600 mt-4 pt-3 border-t border-border/60">
+            <span>Open Guest Directory</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
 
-      {/* Area 3: Revenue & Yield Management */}
-      <RevenueOverview
-        summary={summary?.rooms || {}}
-        rooms={rooms}
-        guests={guests}
-      />
+        {/* Revenue Hub Card */}
+        <Link
+          href="/dashboard/revenue"
+          className="group p-5 rounded-2xl border border-border bg-white hover:border-emerald-400/50 shadow-soft hover:shadow-md transition-all flex flex-col justify-between"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 group-hover:scale-105 transition-transform">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                {occupancyPct}% OCCUPANCY
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-foreground mt-3 group-hover:text-emerald-600 transition-colors">
+              Revenue Hub
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              Category yield performance, OTA rate protection &amp; corporate group booking yield.
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600 mt-4 pt-3 border-t border-border/60">
+            <span>Open Yield Analytics</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
 
-      {/* Staff Management Overview */}
-      <StaffOverview
-        staff={staff}
-        tasks={tasks}
-        loading={loading}
-      />
+        {/* Staff Hub Card */}
+        <Link
+          href="/dashboard/staff"
+          className="group p-5 rounded-2xl border border-border bg-white hover:border-purple-400/50 shadow-soft hover:shadow-md transition-all flex flex-col justify-between"
+        >
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 group-hover:scale-105 transition-transform">
+                <UserCheck className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
+                {staff.length} ROSTER
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-foreground mt-3 group-hover:text-purple-600 transition-colors">
+              Staff Hub
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              Department duty rosters across Front Desk, Housekeeping, Maintenance &amp; active work orders.
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-xs font-semibold text-purple-600 mt-4 pt-3 border-t border-border/60">
+            <span>Open Staff Rosters</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+      </div>
 
       {/* Incidents & Operational Pressure Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
