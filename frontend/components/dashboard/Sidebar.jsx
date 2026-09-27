@@ -19,7 +19,7 @@ const NAV_CONFIG = {
         { label: 'Guests', href: '/dashboard/guests', icon: Users },
         { label: 'Revenue', href: '/dashboard/revenue', icon: TrendingUp },
         { label: 'Staff', href: '/dashboard/staff', icon: UserCheck },
-        { label: 'Incidents', href: '/dashboard#incidents', icon: AlertTriangle },
+        { label: 'Incidents', href: '/dashboard/incidents', icon: AlertTriangle },
         { label: 'Tasks', href: '/dashboard#tasks', icon: CheckSquare },
         { label: 'Live Execution', href: '/dashboard/execution', icon: Zap },
       ]},
