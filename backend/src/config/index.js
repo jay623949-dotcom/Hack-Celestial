@@ -13,7 +13,12 @@ module.exports = {
     anonKey: process.env.SUPABASE_ANON_KEY || '',
   },
   ai: {
-    provider: process.env.AI_PROVIDER || 'gemini', // 'gemini' | 'openai' | 'local'
+    provider: process.env.AI_PROVIDER || 'gemma2', // 'gemma2' | 'gemma' | 'nugen' | 'gemini' | 'openai' | 'local'
+    gemma: {
+      baseURL: process.env.GEMMA_BASE_URL || process.env.LOCAL_AI_BASE_URL || 'http://localhost:11434/v1',
+      model: process.env.GEMMA_MODEL || process.env.LOCAL_AI_MODEL || 'gemma2:2b',
+      apiKey: process.env.GEMMA_API_KEY || 'local',
+    },
     gemini: {
       apiKey: process.env.GEMINI_API_KEY || '',
       model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
@@ -25,7 +30,7 @@ module.exports = {
     },
     local: {
       baseURL: process.env.LOCAL_AI_BASE_URL || 'http://localhost:11434/v1',
-      model: process.env.LOCAL_AI_MODEL || 'llama3.2',
+      model: process.env.LOCAL_AI_MODEL || 'gemma2:2b',
     },
     nugen: {
       apiKey: process.env.NUGEN_API_KEY || '',
