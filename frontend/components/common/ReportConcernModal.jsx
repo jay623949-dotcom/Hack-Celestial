@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  X, AlertTriangle, ShieldAlert, Wrench, Users, BedDouble,
-  TrendingUp, CheckCircle2, Lock, FileWarning, Sparkles
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useRole } from '../../lib/roleContext';
 import { createIncident, updateRoom } from '../../lib/api';
 
 const ROOM_OPTIONS = [
@@ -33,20 +31,88 @@ const ROOM_OPTIONS = [
   { id: 'room-503', number: '503', label: 'Room 503 — Executive Suite (Floor 5)' },
   { id: 'room-504', number: '504', label: 'Room 504 — Executive Suite (Floor 5)' },
   { id: 'room-505', number: '505', label: 'Room 505 — Presidential Sky Suite (Floor 5)' },
-  { id: 'facility-general', number: 'General', label: 'General / Lobby / Public Resort Area' },
+  { id: 'facility-general', number: 'General', label: 'General / Public Resort Facility' },
 ];
 
-const DEPARTMENTS = [
-  { id: 'front_desk', label: 'Front Desk', icon: Users, desc: 'Guest arrival issues, lobby queue, early check-in' },
-  { id: 'maintenance', label: 'Maintenance & Eng.', icon: Wrench, desc: 'HVAC, plumbing, electrical, lock defects' },
-  { id: 'housekeeping', label: 'Housekeeping', icon: BedDouble, desc: 'Turnover bottlenecks, linen shortages, deep cleans' },
-  { id: 'revenue', label: 'Revenue & Yield', icon: TrendingUp, desc: 'Group block restrictions, rate parity, room locks' },
+const DEPARTMENT_OPTIONS = [
+  { id: 'front_desk', label: 'Front Desk' },
+  { id: 'housekeeping', label: 'Housekeeping' },
+  { id: 'maintenance', label: 'Maintenance & Engineering' },
+  { id: 'revenue', label: 'Revenue Management' },
+];
+
+const DEPARTMENT_CATEGORIES = {
+  front_desk: [
+    'Guest complaint',
+    'Early arrival constraint',
+    'Late checkout request',
+    'Check-in issue',
+    'Guest request',
+    'Room assignment issue',
+    'General operational issue',
+  ],
+  housekeeping: [
+    'Room not ready',
+    'Cleaning issue',
+    'Linen shortage',
+    'Housekeeping delay',
+    'Room turnover issue',
+    'General operational issue',
+  ],
+  maintenance: [
+    'AC failure',
+    'Electrical issue',
+    'Plumbing issue',
+    'Water heater issue',
+    'Equipment failure',
+    'Structural defect',
+    'General operational issue',
+  ],
+  revenue: [
+    'Inventory restriction',
+    'Rate issue',
+    'Booking conflict',
+    'Overbooking risk',
+    'Room availability issue',
+    'Revenue concern',
+    'General operational issue',
+  ],
+};
+
+const ALL_CATEGORIES = [
+  'AC failure',
+  'Guest complaint',
+  'Room not ready',
+  'Electrical issue',
+  'Plumbing issue',
+  'Cleaning issue',
+  'Linen shortage',
+  'Early arrival constraint',
+  'Late checkout request',
+  'Inventory restriction',
+  'Rate issue',
+  'Equipment failure',
+  'General operational issue',
 ];
 
 export default function ReportConcernModal({ isOpen, onClose, onSuccess, initialRoomId = '' }) {
-  const [department, setDepartment] = useState('maintenance');
+  const { role, roleData } = useRole();
+  const isAdmin = role === 'admin' || !role;
+
+  // Determine user's native department
+  const userDept = (() => {
+    if (role === 'front_desk') return 'front_desk';
+    if (role === 'housekeeping') return 'housekeeping';
+    if (role === 'maintenance') return 'maintenance';
+    if (role === 'revenue') return 'revenue';
+    return 'front_desk'; // default if admin
+  })();
+
+  const [reportingDept, setReportingDept] = useState(userDept);
+  const [affectedDept, setAffectedDept] = useState('maintenance');
   const [roomId, setRoomId] = useState(initialRoomId || 'room-401');
   const [severity, setSeverity] = useState('critical');
+  const [category, setCategory] = useState('AC failure');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [blockRoom, setBlockRoom] = useState(true);
@@ -54,12 +120,50 @@ export default function ReportConcernModal({ isOpen, onClose, onSuccess, initial
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Keep reporting department synchronized with role
+  useEffect(() => {
+    if (!isAdmin) {
+      setReportingDept(userDept);
+    }
+  }, [userDept, isAdmin]);
+
+  // Update category options based on active reporting department
+  const availableCategories = isAdmin ? ALL_CATEGORIES : (DEPARTMENT_CATEGORIES[reportingDept] || ALL_CATEGORIES);
+
+  useEffect(() => {
+    if (availableCategories.length > 0 && !availableCategories.includes(category)) {
+      setCategory(availableCategories[0]);
+    }
+  }, [reportingDept, availableCategories, category]);
+
   if (!isOpen) return null;
+
+  // Auto-fill title with category if empty
+  const handleCategoryChange = (e) => {
+    const newCat = e.target.value;
+    setCategory(newCat);
+    if (!title || availableCategories.includes(title)) {
+      const roomNum = ROOM_OPTIONS.find((r) => r.id === roomId)?.number;
+      setTitle(roomNum && roomNum !== 'General' ? `${newCat} in Room ${roomNum}` : newCat);
+    }
+  };
+
+  const handleRoomChange = (e) => {
+    const newRoomId = e.target.value;
+    setRoomId(newRoomId);
+    const roomNum = ROOM_OPTIONS.find((r) => r.id === newRoomId)?.number;
+    if (roomNum && roomNum !== 'General' && category) {
+      setTitle(`${category} in Room ${roomNum}`);
+    }
+  };
+
+  const isRoomSelected = roomId && roomId !== 'facility-general';
+  const showBlockRoomOption = isRoomSelected && ['medium', 'high', 'critical'].includes(severity);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) {
-      setErrorMsg('Please enter a brief concern title or summary.');
+      setErrorMsg('Please specify the issue summary.');
       return;
     }
 
@@ -70,128 +174,158 @@ export default function ReportConcernModal({ isOpen, onClose, onSuccess, initial
       const selectedRoom = ROOM_OPTIONS.find((r) => r.id === roomId);
       const isActualRoom = roomId !== 'facility-general';
 
+      // Send payload with role-based metadata
       const incidentPayload = {
         title: title.trim(),
-        description: description.trim() || `Operational concern raised by ${department.replace('_', ' ')}.`,
-        department,
+        description: description.trim() || `Operational concern logged by ${roleData?.label || 'Staff'}.`,
+        category,
         severity,
         status: 'open',
+        reporting_department: isAdmin ? reportingDept : userDept,
+        affected_department: affectedDept,
+        department: affectedDept,
+        reported_by: roleData?.email || roleData?.label || `${role} user`,
         room_id: isActualRoom ? roomId : undefined,
         room_number: isActualRoom && selectedRoom ? selectedRoom.number : undefined,
-        source: 'Manager / Staff Concern Log',
+        block_room: blockRoom && isActualRoom,
+        source: 'ERP Concern Form',
       };
 
       const res = await createIncident(incidentPayload);
 
-      // If manager requested room lock and it's a specific room, update room status
+      // Also ensure room status is updated if requested
       if (blockRoom && isActualRoom && roomId) {
         try {
           await updateRoom(roomId, {
             status: 'maintenance',
-            notes: `Locked due to registered concern: ${title.trim()}`,
+            issue: title.trim(),
+            notes: `Locked by ${roleData?.label || 'Operator'}: ${title.trim()}`,
           });
-        } catch (roomErr) {
-          console.warn('Could not update room status directly:', roomErr);
-        }
+        } catch (_) {}
       }
 
-      setSuccessMsg('Concern registered successfully! Room status updated and problem recorded for pre-booking checks.');
+      setSuccessMsg('Concern registered successfully.');
       setTimeout(() => {
         setSuccessMsg('');
         if (onSuccess) onSuccess(res?.data);
         onClose();
-      }, 1400);
+      }, 1000);
     } catch (err) {
-      console.error('Failed to register concern:', err);
+      console.error('Failed to submit concern:', err);
       setErrorMsg(err.message || 'Failed to submit concern. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
+  const severityDot = {
+    low: 'bg-slate-400',
+    medium: 'bg-blue-500',
+    high: 'bg-amber-500',
+    critical: 'bg-rose-500',
+  }[severity] || 'bg-slate-400';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-xl rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden text-slate-800">
-        {/* Header */}
-        <div className="px-6 py-4.5 bg-slate-900 text-white flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
-              <FileWarning className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-white tracking-tight">
-                Raise Operational Concern / Report Room Defect
-              </h2>
-              <p className="text-[11px] text-slate-400">
-                Register issues into the system to alert staff and prevent accidental room bookings.
-              </p>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-2xs animate-in fade-in duration-100 font-sans">
+      <div className="relative w-full max-w-lg rounded-xl bg-white border border-slate-300 shadow-xl overflow-hidden text-slate-800 text-xs">
+        
+        {/* Odoo Style Simple Modal Header */}
+        <div className="px-5 py-3.5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-bold text-slate-900 leading-tight">
+              Report an Operational Concern
+            </h2>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Register an issue and notify the appropriate operational team.
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+            aria-label="Close dialog"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Content Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        {/* Compact Form */}
+        <form onSubmit={handleSubmit} className="p-5 space-y-3.5 max-h-[85vh] overflow-y-auto">
           {errorMsg && (
-            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <div className="p-2.5 rounded border border-rose-200 bg-rose-50 text-rose-800 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+            <div className="p-2.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-semibold flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>{successMsg}</span>
             </div>
           )}
 
-          {/* Department Choice */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Reporting Department
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {DEPARTMENTS.map((dept) => {
-                const Icon = dept.icon;
-                const isSelected = department === dept.id;
-                return (
-                  <button
-                    key={dept.id}
-                    type="button"
-                    onClick={() => setDepartment(dept.id)}
-                    className={`p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
-                      isSelected
-                        ? 'border-teal-600 bg-teal-50/80 text-teal-950 ring-1 ring-teal-600'
-                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-teal-700' : 'text-slate-500'}`} />
-                    <div>
-                      <div className="text-xs font-bold">{dept.label}</div>
-                      <div className="text-[10px] text-slate-500 line-clamp-1">{dept.desc}</div>
-                    </div>
-                  </button>
-                );
-              })}
+          {/* Department Row: Reporting Department (Read-only for users, select for admin) vs Responsible Department */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* 1. Reporting Department (Role-Enforced) */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Reporting Department
+              </label>
+              {isAdmin ? (
+                <select
+                  value={reportingDept}
+                  onChange={(e) => setReportingDept(e.target.value)}
+                  className="w-full h-8 px-2.5 rounded border border-slate-300 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:border-[#714B67] focus:ring-1 focus:ring-[#714B67]"
+                >
+                  {DEPARTMENT_OPTIONS.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.label} (Admin Override)
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="h-8 px-2.5 rounded border border-slate-200 bg-slate-100/90 text-xs text-slate-800 flex items-center justify-between font-medium">
+                  <span>{DEPARTMENT_OPTIONS.find((d) => d.id === userDept)?.label || 'Front Desk'}</span>
+                  <span className="text-[10px] text-slate-500 font-mono">(read-only)</span>
+                </div>
+              )}
+              <div className="text-[10px] text-slate-500 mt-0.5 truncate">
+                Operator: <span className="font-medium text-slate-700">{roleData?.label || 'Operator'}</span>
+              </div>
+            </div>
+
+            {/* 2. Responsible / Affected Department */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Responsible Department
+              </label>
+              <select
+                value={affectedDept}
+                onChange={(e) => setAffectedDept(e.target.value)}
+                className="w-full h-8 px-2.5 rounded border border-slate-300 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:border-[#714B67] focus:ring-1 focus:ring-[#714B67]"
+              >
+                {DEPARTMENT_OPTIONS.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+              <div className="text-[10px] text-slate-500 mt-0.5">
+                Team that will receive and execute this task
+              </div>
             </div>
           </div>
 
-          {/* Room / Facility Select */}
+          {/* Room Selection & Severity */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Affected Room / Facility
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                Affected Room
               </label>
               <select
                 value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-medium rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                onChange={handleRoomChange}
+                className="w-full h-8 px-2.5 rounded border border-slate-300 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:border-[#714B67] focus:ring-1 focus:ring-[#714B67]"
               >
                 {ROOM_OPTIONS.map((r) => (
                   <option key={r.id} value={r.id}>
@@ -202,87 +336,110 @@ export default function ReportConcernModal({ isOpen, onClose, onSuccess, initial
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Concern Severity
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                <span>Severity</span>
+                <span className="flex items-center gap-1.5 text-[10px] font-normal text-slate-500">
+                  <span className={`w-2 h-2 rounded-full ${severityDot}`} />
+                  {severity.toUpperCase()}
+                </span>
               </label>
               <select
                 value={severity}
                 onChange={(e) => setSeverity(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-bold rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full h-8 px-2.5 rounded border border-slate-300 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:border-[#714B67] focus:ring-1 focus:ring-[#714B67]"
               >
-                <option value="low">Low (Cosmetic / Minor Note)</option>
-                <option value="medium">Medium (Service Delay / Partial Impact)</option>
-                <option value="high">High (Priority Attention Required)</option>
-                <option value="critical">Critical (Blocks Room / Guest Impact)</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
               </select>
             </div>
           </div>
 
-          {/* Title */}
+          {/* Concern Category (Filtered by department) */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
+            <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+              Concern Category
+            </label>
+            <select
+              value={category}
+              onChange={handleCategoryChange}
+              className="w-full h-8 px-2.5 rounded border border-slate-300 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:border-[#714B67] focus:ring-1 focus:ring-[#714B67]"
+            >
+              {availableCategories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Issue Field */}
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-700 mb-1">
               Issue / Problem Summary <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. AC compressor failure, water leak in bathroom, VIP noise complaint"
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              placeholder="e.g. AC not cooling, water leak, guest complaint..."
+              className="w-full h-8 px-2.5 rounded border border-slate-300 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#714B67] focus:ring-1 focus:ring-[#714B67]"
               required
             />
           </div>
 
-          {/* Description */}
+          {/* Details Field */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Operational Notes &amp; Repair Context
+            <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+              Details
             </label>
             <textarea
-              rows={3}
+              rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Provide exact details for housekeeping attendants or technicians (e.g. capacitor blown, requires 45 mins, guest arrives at 2 PM)..."
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              placeholder="Describe the issue, timing, guest impact, or relevant operational details."
+              className="w-full px-2.5 py-1.5 rounded border border-slate-300 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#714B67] focus:ring-1 focus:ring-[#714B67]"
             />
           </div>
 
-          {/* Pre-Booking Inventory Protection Checkbox */}
-          <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-2.5">
-            <input
-              type="checkbox"
-              id="blockRoomCheck"
-              checked={blockRoom}
-              onChange={(e) => setBlockRoom(e.target.checked)}
-              className="mt-0.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
-            />
-            <label htmlFor="blockRoomCheck" className="text-xs text-amber-900 cursor-pointer">
-              <span className="font-bold flex items-center gap-1">
-                <Lock className="w-3 h-3 text-amber-700 inline" />
-                Lock Room from Booking &amp; Assignment (Pre-Booking Safeguard)
-              </span>
-              <span className="text-[11px] text-amber-800 block mt-0.5">
-                Automatically sets room status to &lsquo;maintenance&rsquo; so front desk staff cannot assign this room until cleared.
-              </span>
-            </label>
-          </div>
+          {/* Room Booking Lock Safeguard (Compact ERP Checkbox) */}
+          {showBlockRoomOption && (
+            <div className="p-2.5 rounded bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+              <input
+                type="checkbox"
+                id="blockRoomCheck"
+                checked={blockRoom}
+                onChange={(e) => setBlockRoom(e.target.checked)}
+                className="mt-0.5 rounded border-slate-300 text-[#714B67] focus:ring-[#714B67] cursor-pointer"
+              />
+              <label htmlFor="blockRoomCheck" className="text-xs text-slate-800 cursor-pointer select-none">
+                <span className="font-semibold flex items-center gap-1.5 text-slate-900">
+                  <Lock className="w-3.5 h-3.5 text-amber-700 inline" />
+                  Block room from booking
+                </span>
+                <span className="text-[11px] text-slate-500 block mt-0.5">
+                  Prevents Front Desk from assigning this room until the issue is cleared.
+                </span>
+              </label>
+            </div>
+          )}
 
-          {/* Submit Actions */}
-          <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-200">
+          {/* Modal Action Footer */}
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 transition-colors"
+              className="px-3.5 py-1.5 rounded text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-700 text-white shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              className="px-4 py-1.5 rounded text-xs font-semibold bg-[#714B67] hover:bg-[#5e3d55] text-white shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{submitting ? 'Registering Concern...' : 'Register Problem & Update Inventory'}</span>
+              {submitting ? 'Submitting...' : 'Submit Concern'}
             </button>
           </div>
         </form>

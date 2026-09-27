@@ -15,10 +15,19 @@ async function fetchFromApi(endpoint, options = {}) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+  let activeRole = 'admin';
+  try {
+    if (typeof window !== 'undefined') {
+      activeRole = localStorage.getItem('resort360_demo_role') || 'admin';
+    }
+  } catch (_) {}
+
   try {
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
+        'x-user-role': activeRole,
+        'x-role': activeRole,
         ...options.headers,
       },
       signal: controller.signal,

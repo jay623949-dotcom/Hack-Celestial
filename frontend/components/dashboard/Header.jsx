@@ -106,14 +106,14 @@ export default function Header({ onMenuClick = () => {} }) {
           <span>{socketConnected ? 'Live' : 'Reconnecting...'}</span>
         </div>
 
-        {/* Raise Operational Concern / Report Defect */}
+        {/* Raise Operational Concern / Report Defect (Odoo Style) */}
         <button
           onClick={() => setReportOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100 transition-colors shadow-xs text-xs font-bold"
-          title="Raise a department concern or report room defect"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#714B67]/30 bg-[#714B67]/10 text-[#714B67] hover:bg-[#714B67] hover:text-white transition-colors shadow-xs text-xs font-semibold"
+          title="Raise a departmental concern or report room defect"
         >
-          <PlusCircle className="w-4 h-4 text-rose-600" />
-          <span className="hidden sm:inline">Report Issue / Concern</span>
+          <PlusCircle className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Report Concern</span>
         </button>
 
         {/* Global Help & Documentation Button */}

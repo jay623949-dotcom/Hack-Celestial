@@ -126,14 +126,14 @@ export default function RoomsPage() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          {/* Raise Operational Concern / Room Defect */}
+          {/* Raise Operational Concern / Room Defect (Odoo ERP Style) */}
           <button
             onClick={() => setReportOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-xs font-bold text-rose-800 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#714B67]/30 bg-[#714B67]/10 hover:bg-[#714B67] text-[#714B67] hover:text-white text-xs font-semibold transition-colors shadow-xs"
             title="Log an operational problem or defect for this room inventory"
           >
-            <PlusCircle className="w-3.5 h-3.5 text-rose-600" />
-            <span>+ Report Room Concern</span>
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>Report Room Concern</span>
           </button>
 
           <button

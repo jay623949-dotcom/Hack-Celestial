@@ -13,7 +13,19 @@ class IncidentService {
     }
 
     if (filters.department) {
-      incidents = incidents.filter((i) => i.department.toLowerCase() === filters.department.toLowerCase());
+      incidents = incidents.filter((i) => 
+        (i.department && i.department.toLowerCase() === filters.department.toLowerCase()) ||
+        (i.affected_department && i.affected_department.toLowerCase() === filters.department.toLowerCase()) ||
+        (i.reporting_department && i.reporting_department.toLowerCase() === filters.department.toLowerCase())
+      );
+    }
+
+    if (filters.reporting_department) {
+      incidents = incidents.filter((i) => i.reporting_department && i.reporting_department.toLowerCase() === filters.reporting_department.toLowerCase());
+    }
+
+    if (filters.affected_department) {
+      incidents = incidents.filter((i) => (i.affected_department && i.affected_department.toLowerCase() === filters.affected_department.toLowerCase()) || (i.department && i.department.toLowerCase() === filters.affected_department.toLowerCase()));
     }
 
     if (filters.room_id) {
@@ -32,13 +44,20 @@ class IncidentService {
 
   create(data) {
     const id = data.id || `incident-${Date.now().toString().slice(-4)}`;
+    const affectedDept = data.affected_department || data.department || 'maintenance';
+    const reportingDept = data.reporting_department || 'front_desk';
+
     const newIncident = {
       id,
       title: data.title,
       description: data.description || '',
-      severity: data.severity,
+      severity: data.severity || 'medium',
       status: data.status || 'open',
-      department: data.department || 'general',
+      department: affectedDept,
+      affected_department: affectedDept,
+      reporting_department: reportingDept,
+      reported_by: data.reported_by || 'Staff Member',
+      category: data.category || 'general',
       room_id: data.room_id || null,
       guest_id: data.guest_id || null,
       source: data.source || 'internal',

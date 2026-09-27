@@ -7,8 +7,15 @@ const guestService = require('../services/guestService');
  */
 function getAllIncidents(req, res, next) {
   try {
-    const { status, severity, department, room_id } = req.query;
-    const incidents = incidentService.getAll({ status, severity, department, room_id });
+    const { status, severity, department, reporting_department, affected_department, room_id } = req.query;
+    const incidents = incidentService.getAll({ 
+      status, 
+      severity, 
+      department, 
+      reporting_department, 
+      affected_department, 
+      room_id 
+    });
     return res.status(200).json({
       success: true,
       data: incidents,
@@ -43,9 +50,54 @@ function getIncidentById(req, res, next) {
   }
 }
 
+const ROLE_TO_DEPT = {
+  front_desk: 'front_desk',
+  housekeeping: 'housekeeping',
+  maintenance: 'maintenance',
+  revenue: 'revenue',
+  revenue_manager: 'revenue',
+  admin: 'admin',
+};
+
 function createIncident(req, res, next) {
   try {
-    let { title, severity, status, department, description, room_id, guest_id, room_number, source } = req.body;
+    let { 
+      title, 
+      severity, 
+      status, 
+      department, 
+      affected_department, 
+      reporting_department, 
+      reported_by,
+      category,
+      description, 
+      room_id, 
+      guest_id, 
+      room_number, 
+      source,
+      block_room 
+    } = req.body;
+
+    // Detect authenticated caller role
+    const callerRole = (
+      req.headers['x-user-role'] ||
+      req.headers['x-role'] ||
+      req.body.actor_role ||
+      req.body.role ||
+      'admin'
+    ).toLowerCase();
+
+    // Enforce role-based department security:
+    // Non-admin users CANNOT spoof reporting_department!
+    let validatedReportingDept = 'front_desk';
+    if (callerRole === 'admin') {
+      validatedReportingDept = reporting_department || 'management';
+    } else {
+      validatedReportingDept = ROLE_TO_DEPT[callerRole] || 'front_desk';
+    }
+
+    // Determine affected/responsible department (cross-department support)
+    const validatedAffectedDept = affected_department || department || 'maintenance';
 
     // Resolve room_number to room_id if room_id not directly provided
     if (!room_id && room_number) {
@@ -101,16 +153,34 @@ function createIncident(req, res, next) {
       }
     }
 
+    const callerName = req.headers['x-user-name'] || req.headers['x-user-email'] || reported_by || `${callerRole.replace('_', ' ')} Operator`;
+
     const incident = incidentService.create({
       title,
       severity,
       status,
-      department: department || 'maintenance',
+      department: validatedAffectedDept,
+      affected_department: validatedAffectedDept,
+      reporting_department: validatedReportingDept,
+      reported_by: callerName,
+      category: category || 'general',
       description,
       room_id,
       guest_id,
-      source: source || 'api',
+      source: source || 'ERP Operations Concern',
     });
+
+    // If pre-booking room block requested, lock the room into maintenance in room inventory
+    if (block_room && room_id) {
+      try {
+        roomService.update(room_id, {
+          status: 'maintenance',
+          issue: `Operational defect: ${title}`,
+        });
+      } catch (rErr) {
+        console.warn('Could not lock room in roomService:', rErr.message);
+      }
+    }
 
     return res.status(201).json({
       success: true,
