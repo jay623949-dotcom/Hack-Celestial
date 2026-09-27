@@ -1,0 +1,437 @@
+# RESORT 360 — LUXURY HOSPITALITY OPERATIONS HANDBOOK & DOMAIN CONTEXT SPECIFICATION
+## Authoritative Domain Knowledge Document for NuGen Domain Alignment & Model Training
+**Target Base Model**: Llama-V3p2-3b-Reasoning / Qwen-2.5-3B-Instruct  
+**Aligned Domain Model**: `resort360-hospitality-v1`  
+**Domain**: Luxury Resort Operations, Multi-Agent Autonomous Orchestration, & Hotel ERP Governance  
+**Property Context**: The Grand Azure Bay Resort & Villas, South Goa, India (15.2993° N, 74.1240° E)  
+**Document Version**: 4.0-NUGEN-MASTER  
+**Classification**: AI Training Corpus / Formal Operational Knowledge Base  
+
+---
+
+## 1. EXECUTIVE OVERVIEW & FOUNDATIONAL MISSION
+
+### 1.1 What is Resort 360?
+Resort 360 is an enterprise-grade, AI-driven operational decision and orchestration layer engineered specifically for luxury hospitality properties, beach resorts, and integrated hotel estates. Operating directly above the hotel's property management systems (PMS), telemetry sensors, guest communication channels, and staff dispatch systems, Resort 360 translates isolated real-time events across departments into unified, explainable, and coordinated operational action plans for human managers.
+
+Resort 360 does not replace the human leadership of the hotel. Instead, it serves as an always-vigilant cognitive layer that:
+1. Synthesizes disparate data streams across Front Desk, Housekeeping, Maintenance, and Revenue Management.
+2. Identifies cascading operational bottlenecks before they manifest as guest dissatisfaction or lost revenue.
+3. Arbitrates competing departmental priorities using a formalized domain prioritization matrix.
+4. Generates structured, explainable action plans with calibrated confidence scores for the Manager on Duty (MOD).
+5. Dispatches approved work orders to frontline staff and monitors execution in real time.
+
+### 1.2 The Core Operational Problem
+Hospitality properties are complex, high-friction, real-time environments where multiple unrelated incidents frequently collide at the same moment:
+- A VIP Platinum guest arrives 2 hours before scheduled check-in time during peak heat.
+- Their assigned suite simultaneously suffers an HVAC compressor capacitor trip.
+- The only alternative equal-tier suite is in "dirty" status requiring an express clean.
+- A corporate group block is locking down adjacent inventory on the same floor.
+- Revenue Management is enforcing rate restrictions to prevent unauthorized complimentary upgrades.
+
+In a traditional hotel, resolving this collision requires 5 to 10 fragmented phone calls, walkie-talkie transmissions, WhatsApp chats, and manual PMS lookups. By the time departmental heads reach an ad-hoc agreement, the VIP guest has waited 25 minutes in the lobby, the room was turned over without adequate quality inspection, and high-value inventory was misallocated. 
+
+Resort 360 eliminates this latency by ingesting all operational telemetry, resolving inter-departmental conflicts through multi-agent consensus, and presenting a single coordinated resolution plan within 60 seconds.
+
+### 1.3 Why General Foundation Models Fail Without Domain Alignment
+Generic, off-the-shelf Large Language Models (LLMs) suffer from severe limitations when applied to live hotel operations:
+1. **Hallucinated Readiness**: Generic models routinely propose checking in waiting guests to rooms that have not received physical maintenance clearance or supervisor housekeeping sign-off.
+2. **Context Saturation & Vagueness**: When fed raw property dumps, generic models produce bland conversational summaries ("Please clean the room as soon as possible") instead of executable, timed work orders with assigned personnel and priority ranks.
+3. **Absence of Calibrated Confidence**: Generic LLMs do not produce domain-calibrated uncertainty scores, making automated arbitration unsafe.
+4. **Boundary Violations (Bypassing HITL)**: Unaligned models attempt to execute critical state changes autonomously (e.g. reassigning VIP suites or discounting reservations) rather than formatting recommendations for human authorization.
+5. **Ignoring Physical Logistics**: Unaligned models assume cleaning or repairs happen instantaneously, ignoring technician travel time, tool availability, linen laundry turnaround, and drying cycles.
+
+NuGen Domain Alignment bridges this divide by embedding the complete operational handbook, room state machines, VIP recovery protocols, and governance boundaries into the model weights and inference trajectory.
+
+---
+
+## 2. PROPERTY SPECIFICATION & OPERATIONAL ENTITIES
+
+### 2.1 Property Profile: The Grand Azure Bay Resort & Villas
+- **Location**: Cavelossim Beach, South Goa, India (15.2993° N, 74.1240° E).
+- **Climate Zone**: Tropical Maritime (subject to severe Southwest Monsoon squalls, high humidity, and coastal salt-air corrosion).
+- **Physical Layout**: 5-Story Central Oceanfront Pavilion plus Private Beach Villa Enclave.
+- **Total Room Inventory**: 25 Curated Suites and Luxury Units.
+  - **Floor 1**: Rooms 101–104 (Deluxe Garden Terrace, 55 sqm, Base Rate: ₹18,000/night); Room 105 (Deluxe Ocean Access, 65 sqm, Base Rate: ₹22,000/night).
+  - **Floor 2**: Rooms 201–204 (Premier Sea View Suite, 75 sqm, Base Rate: ₹28,000/night); Room 205 (Executive Bay Suite, 95 sqm, Base Rate: ₹38,000/night).
+  - **Floor 3**: Rooms 301–304 (Luxury Ocean Balcony, 80 sqm, Base Rate: ₹32,000/night); Room 305 (Presidential Azure Villa, 160 sqm, Private Plunge Pool, Base Rate: ₹75,000/night).
+  - **Floor 4**: Rooms 401 (Penthouse Ocean Suite, 140 sqm, Panoramic Terrace, Base Rate: ₹65,000/night); Rooms 402–405 (Premium Deluxe Panoramic, 70 sqm, Base Rate: ₹26,000/night).
+  - **Floor 5**: Rooms 501–504 (Executive Sunset Suite, 90 sqm, Base Rate: ₹42,000/night); Room 505 (Presidential Sky Suite, 180 sqm, Rooftop Infinity Jacuzzi, Base Rate: ₹85,000/night).
+- **Public & Amenity Facilities**: Lagoon Swimming Pool, Azure Spa & Wellness Pavilion, Horizon All-Day Dining, Private Club Lounge, Sunset Beach Bar, Grand Ballroom (250 capacity).
+
+### 2.2 Operational Entity Data Model
+Every operational reasoning cycle in Resort 360 operates over these formal entities:
+
+```
++--------------------------------------------------------------------------+
+|                               GUEST                                      |
+| id: string (e.g. "guest-vip-1")                                          |
+| name: string                                                             |
+| vip_tier: "presidential" | "platinum" | "gold" | "silver" | "standard"   |
+| assigned_room_id: string                                                 |
+| check_in: ISO8601 string                                                 |
+| check_out: ISO8601 string                                                |
+| status: "confirmed" | "arrived" | "checked_in" | "checked_out"           |
+| special_requests: string[]                                               |
+| sentiment_score: float (-1.0 to +1.0)                                    |
++--------------------------------------------------------------------------+
+                                    │
+                                    ▼
++--------------------------------------------------------------------------+
+|                                ROOM                                      |
+| id: string (e.g. "room-401")                                             |
+| number: string ("401")                                                   |
+| floor: integer (1 to 5)                                                  |
+| category: "deluxe" | "premier" | "luxury" | "executive" | "presidential"  |
+| occupancy_status: "available" | "reserved" | "occupied"                  |
+| housekeeping_status: "dirty" | "cleaning" | "inspected" | "available"     |
+| maintenance_status: "operational" | "defect_logged" | "maintenance_locked"|
+| active_defect: string | null                                             |
+| pre_booking_blocked: boolean                                             |
++--------------------------------------------------------------------------+
+                                    │
+                                    ▼
++--------------------------------------------------------------------------+
+|                              INCIDENT                                    |
+| id: string (e.g. "incident-2026-081")                                    |
+| title: string                                                            |
+| reporting_department: "front_desk" | "housekeeping" | "maintenance" | ...  |
+| affected_department: "maintenance" | "housekeeping" | "front_desk" | ... |
+| reported_by: string (email or staff name)                                |
+| room_id: string | null                                                   |
+| severity: "low" | "medium" | "high" | "critical"                         |
+| status: "open" | "in_progress" | "escalated" | "resolved"                 |
+| category: string                                                         |
+| block_room_safeguard: boolean                                            |
+| reported_at: ISO8601 string                                              |
++--------------------------------------------------------------------------+
+                                    │
+                                    ▼
++--------------------------------------------------------------------------+
+|                             ACTION PLAN                                  |
+| id: string (e.g. "plan-904")                                             |
+| incident_id: string                                                      |
+| status: "pending_approval" | "approved" | "modified" | "rejected"        |
+| confidence_score: integer (0 to 100)                                     |
+| primary_recommendation: string                                           |
+| department_actions: { [dept: string]: Task[] }                           |
+| trade_off_analysis: string                                               |
+| manager_approval_required: boolean                                       |
+| escalation_reasons: string[]                                             |
++--------------------------------------------------------------------------+
+```
+
+### 2.3 Room State Transition Rules
+Rooms must strictly follow valid lifecycle transitions. Invalid transitions represent system safety violations:
+1. `occupied` → `dirty` (triggered upon guest checkout).
+2. `dirty` → `cleaning` (triggered when housekeeping attendant commences work).
+3. `cleaning` → `inspected` (triggered ONLY when housekeeping supervisor inspects and signs off).
+4. `inspected` → `available` (ready for Front Desk key encoding).
+5. `available` → `occupied` (Front Desk executes check-in).
+6. **Maintenance Isolation Override**: ANY room state may transition to `maintenance_locked` if a critical physical defect is reported. While in `maintenance_locked`, a room CANNOT be set to `inspected` or `available`. Only a signed maintenance completion ticket can release the room back to `dirty` (requiring post-repair clean) or `inspected`.
+
+---
+
+## 3. DEPARTMENTAL ROLES, RESPONSIBILITIES & OPERATIONAL POLICIES
+
+### 3.1 Front Desk Operations
+- **Core Mission**: Orchestrating seamless guest arrivals, managing lobby experience, safeguarding VIP guest satisfaction, and maintaining check-in throughput.
+- **Operating Standards**:
+  - Maximum allowable check-in queue time: 3 minutes.
+  - Zero-Lobby-Wait Rule for VIP Platinum and Presidential guests: Guests must be immediately greeted by name and escorted to the Private Club Lounge if their suite is not ready.
+  - Room Key Restriction: Front Desk staff are physically and digitally prohibited from issuing RFID keycards to any room whose state is not `inspected` and `available`.
+  - Service Recovery Discretion: Front Desk Agents have authority to offer F&B vouchers up to ₹2,500. Service recovery exceeding ₹2,500 requires Manager on Duty (MOD) sign-off.
+- **Inter-Departmental Dependencies**:
+  - Dependent on Housekeeping for room inspection sign-offs.
+  - Dependent on Maintenance for accurate repair completion ETAs.
+  - Dependent on Revenue Management for room swap authorization to prevent group block displacement.
+
+### 3.2 Housekeeping Operations
+- **Core Mission**: Delivering immaculate room hygiene, rapid room turnover during arrival crunches, and proactive defect discovery.
+- **Cleaning Turnaround Standards**:
+  - **Standard Departure Clean**: 35–45 minutes (1 attendant). Full linen exchange, bathroom sterilization, surface dust, vacuum, minibar restock, terrace wipe down.
+  - **VIP Arrival Express Clean**: 20–25 minutes (2 attendants deployed in tandem). Attendant A handles bathroom sanitization and linen exchange; Attendant B handles visible surfaces, amenities, terrace, and fresh flower placement.
+  - **Stayover Refresh**: 15–20 minutes. Bed remake, towel replacement, trash clearance.
+  - **Deep Clean / Post-Maintenance Sanitize**: 45–60 minutes. Mandatory following plumbing leaks, HVAC repairs, or structural work.
+- **Queue Prioritization Protocol**:
+  1. Priority 1: Express cleans for active VIP arrivals currently waiting on property.
+  2. Priority 2: Alternative suites designated for emergency guest reassignments.
+  3. Priority 3: Rooms with confirmed check-ins arriving within 60 minutes.
+  4. Priority 4: General checkout turnover.
+  5. Priority 5: Occupied stayover refreshes.
+- **Defect Reporting Duty**: Attendants must report any electrical, plumbing, or fixture defect immediately upon discovery rather than finishing the clean first.
+
+### 3.3 Maintenance & Engineering Operations
+- **Core Mission**: Maintaining physical plant integrity, HVAC environmental control, electrical reliability, plumbing systems, and structural safety.
+- **Response & Diagnostic SLAs**:
+  - **Critical Failure (Flooding, total electrical outage, locked-out fire door)**: On-site technician response within 5 minutes.
+  - **High Priority (HVAC failure in occupied/VIP room, broken lock, hot water outage)**: Diagnostic assessment within 10 minutes.
+  - **Medium Priority (Non-cooling minibar, TV failure, individual lighting circuit)**: Diagnosis within 30 minutes.
+  - **Low Priority (Minor cosmetic paint scuff, loose cabinet hinge)**: Scheduled for morning preventative maintenance shift.
+- **The "Diagnostic Window First" Cardinal Rule**:
+  Technicians and AI agents must NEVER state a definitive repair timeline before completing on-site diagnostic triage. Stating "The AC will be fixed in 20 minutes" without confirming capacitor health, refrigerant pressure, and spare parts availability is a major operational violation. The AI must first state a *Diagnostic Window* (e.g. "10-minute diagnostic triage in progress").
+- **Room Isolation Authority**: Maintenance engineers have unilateral authority to place a room in `maintenance_locked` status. Front Desk or Revenue Management cannot override a safety lockout.
+
+### 3.4 Revenue & Yield Management
+- **Core Mission**: Maximizing RevPAR (Revenue Per Available Room), protecting inventory for high-value future bookings, enforcing group contracted blocks, and managing OTA channel distribution.
+- **Occupancy Decision Thresholds**:
+  - **Low Occupancy (< 65%)**: High operational elasticity. Complimentary two-tier upgrades, late checkouts (up to 16:00), and flexible room reassignments are encouraged to maximize guest sentiment.
+  - **Moderate Occupancy (65%–84%)**: Standard operational controls. One-tier complimentary upgrades permitted. Reassigned rooms must be protected from same-day OTA availability.
+  - **High Occupancy (85%–94%)**: Constrained inventory. No complimentary multi-tier upgrades. Every room reassignment must be cross-checked against incoming 48-hour reservations.
+  - **Sold-Out / Peak Occupancy (95%–100%)**: Critical inventory lock. Taking any room offline requires General Manager or MOD authorization. OTA channels must be closed within 15 minutes of any room defect to prevent catastrophic overbooking.
+- **Group Block Integrity**: Contracted wedding blocks or corporate retreats (e.g. Floor 4 buyout) cannot be cannibalized for individual guest reassignments without Revenue Director sign-off.
+
+---
+
+## 4. INCIDENT CLASSIFICATION & MULTI-FACTOR SEVERITY MATRIX
+
+### 4.1 Incident Severity Levels
+1. **CRITICAL (SLA: 5–10 Minutes)**:
+   - Direct physical safety risk (active water leak/flooding, electrical sparking, biohazard).
+   - Complete climate control failure in high ambient temperatures (>32°C) with VIP arriving imminently or in residence.
+   - Total room lock failure trapping guest inside or preventing entry to Presidential Suite.
+   - Sold-out property status where a room defect risks guest displacement without available inventory.
+2. **HIGH (SLA: 15–30 Minutes)**:
+   - VIP room unready upon guest arrival, but alternative clean suite is identifiable.
+   - Standard guest in-room AC failure where ambient temperature is moderate (<28°C) and portable fan/cooler can provide bridge relief.
+   - Housekeeping staffing deficit exceeding 25% during peak turnover hours.
+   - Water heater failure affecting multiple adjacent rooms.
+3. **MEDIUM (SLA: 1 Hour)**:
+   - Standard room fixture malfunction (television, safe lock jammed, telephone out of order).
+   - Guest noise complaint requiring security escort.
+   - Late checkout request during moderate occupancy.
+4. **LOW (SLA: 2–4 Hours or Next Shift)**:
+   - Minor cosmetic defects (scuffed baseboard, loose towel rack).
+   - Non-urgent minibar billing inquiry.
+   - Pre-arrival dietary preference update received >24 hours prior to check-in.
+
+### 4.2 Multi-Factor Severity Evaluation Matrix
+Severity is never determined by a single data point. The AI must evaluate 8 intersecting operational vectors:
+
+| Evaluation Vector | Lower Severity Indicator | Higher Severity Indicator |
+|---|---|---|
+| **Guest Loyalty Tier** | Standard Leisure / OTA | VIP Platinum / Presidential Tier |
+| **Guest Physical Location** | En route (>1 hr away) / In restaurant | Standing in lobby / Distressed in room |
+| **Physical Hazard** | Nuisance (flickering bulb) | Structural / Life Safety (water pipe rupture) |
+| **Ambient Temperature** | 22°C–25°C (Comfortable) | >32°C (Extreme Heat) / Severe Monsoon |
+| **Property Occupancy** | < 60% (Abundant alternative rooms) | > 90% (Zero room margin; sold out) |
+| **Staffing Availability** | Full shift on duty; 3 technicians | 1 lone technician on duty; 2 attendants |
+| **Cascading Risk** | Isolated single room fixture | Systemic (chiller line affecting whole floor) |
+| **Financial Exposure** | < ₹5,000 potential compensation | > ₹50,000 VIP cancellation / group breach |
+
+---
+
+## 5. MULTI-AGENT ARCHITECTURE & CONSENSUS ARBITRATION
+
+### 5.1 The 4-Way Departmental Tension
+In high-pressure incidents, departmental objectives naturally conflict:
+- **Front Desk Agent wants**: Immediate guest appeasement via instant upgrade to Room 501, regardless of who is booked into Room 501 tomorrow.
+- **Housekeeping Agent wants**: Additional cleaning time (45 minutes) to ensure perfection, resisting express turnover requests.
+- **Maintenance Agent wants**: Unhindered access to the room for 2 hours to replace the entire compressor assembly, taking the room offline.
+- **Revenue Agent wants**: Room 501 protected for a high-paying corporate booking tomorrow afternoon, blocking Front Desk's upgrade.
+
+### 5.2 The Consensus Arbitration Engine
+Resort 360 executes a formal arbitration cycle to synthesize these conflicting agent outputs:
+1. **Context Ingestion**: Normalized database snapshot passed to all 4 departmental reasoning agents.
+2. **Independent Agent Recommendations**: Each agent submits proposed actions, priority scores, and domain constraints.
+3. **Debate & Cross-Evaluation**: The Consensus Orchestrator identifies hard constraints (e.g. Maintenance safety lock cannot be broken; Revenue contracted group block cannot be modified).
+4. **Weighted Resolution**: Competing soft preferences are reconciled against the Universal Hospitality Priority Hierarchy:
+   $$\text{Safety (1)} > \text{Immediate Guest Distress (2)} > \text{VIP Tier Urgency (3)} > \text{Operational Scale (4)} > \text{Revenue Protection (5)}$$
+5. **Unified Action Plan Generation**: Output structured into distinct departmental tasks, dependency chains, and explainable trade-offs.
+
+---
+
+## 6. ROLE-BASED ACCESS CONTROL (RBAC) & CONCERN REPORTING
+
+### 6.1 Strict Role-Based Department Derivation
+To ensure enterprise accountability, the reporting department must be derived from the authenticated user's role:
+- **Front Desk Staff** (`role: "front_desk"`) → `reporting_department: "front_desk"` (Read-Only).
+- **Housekeeping Attendants / Supervisors** (`role: "housekeeping"`) → `reporting_department: "housekeeping"` (Read-Only).
+- **Engineering Technicians** (`role: "maintenance"`) → `reporting_department: "maintenance"` (Read-Only).
+- **Revenue Analysts** (`role: "revenue"`) → `reporting_department: "revenue"` (Read-Only).
+- **Resort Administrator / General Manager** (`role: "admin"`) → Permitted to select and override reporting department via dropdown to submit concerns on behalf of any team.
+
+### 6.2 Cross-Department Incident Routing
+An employee frequently identifies an issue that must be fixed by another team. The system formally separates:
+1. `reporting_department`: The origin of the report (e.g. Front Desk logging a defect reported by an arriving guest).
+2. `affected_department`: The operational team accountable for resolving the issue (e.g. Maintenance & Engineering).
+Front Desk employees are never permitted to impersonate Maintenance; they report *as* Front Desk *targeting* Maintenance.
+
+### 6.3 Pre-Booking Room Safeguard (Room Lock)
+When logging operational concerns with `severity: "high"` or `"critical"` involving a physical room, the reporter can activate:
+`[x] Block room from booking (Pre-booking Safeguard)`
+This immediately transitions the room's status in PMS and OTA cache to `maintenance`, preventing Front Desk or external booking engines from assigning or selling the room until Maintenance and Housekeeping issue digital clearance.
+
+---
+
+## 7. VIP SERVICE EXCELLENCE & SERVICE RECOVERY PROTOCOLS
+
+### 7.1 VIP Tier Definitions
+- **VIP 1: Presidential Suite / Owner / State Dignitary**: Highest priority. Zero lobby wait time. Direct escort to Private Club Lounge or villa. Dedicated butler and personal greeting by GM.
+- **VIP 2: Platinum Tier (100+ Nights Loyalty)**: Priority check-in, complimentary lounge access, welcome amenity, personalized room temperature settings.
+- **VIP 3: Gold Tier (50+ Nights Loyalty)**: Dedicated reception lane, early check-in preference, complimentary drink voucher.
+- **VIP 4: Silver Tier (20+ Nights Loyalty)**: Preferred room allocation within booked tier.
+- **Standard Leisure / Direct / OTA**: Gracious, efficient standard hospitality service.
+
+### 7.2 Service Recovery Compensation Matrix
+When service failures occur, staff must apply structured recovery:
+
+| Failure Severity | Guest Impact | Authorized Recovery Package | Sign-Off Authority |
+|---|---|---|---|
+| **Minor (Wait 10–15 min)** | Standard room delay | Welcome cocktail + ₹1,000 F&B credit | Front Desk Agent |
+| **Moderate (Wait 15–30 min)** | VIP room delay / Standard room AC failure | Private Lounge escort + ₹3,000 F&B voucher + 1-tier upgrade | Assistant Front Office Mgr |
+| **Severe (Wait >30 min / Relocation)** | VIP suite AC failure during arrival | Immediate suite upgrade + ₹6,000 F&B / Spa voucher + GM personal letter | Front Office Manager / MOD |
+| **Critical (Flooding / Major Disruption)** | Guest displaced at night | 100% night room rate waiver + Luxury transfer + Executive dinner | General Manager / Resident Mgr |
+
+---
+
+## 8. PHYSICAL ASSET FAILURE PROTOCOLS
+
+### 8.1 HVAC & Climate Control Failure Protocol
+1. **Initial Report**: Sensor alert or guest report received.
+2. **Triage**:
+   - If ambient temp > 30°C and room is occupied or VIP arriving < 45 min: Mark CRITICAL.
+   - Dispatch technician for 10-minute diagnostic triage.
+3. **Decision Tree**:
+   - *Scenario A (Quick Fix < 20 min)*: Blown fuse or reset switch. Technician repairs on site. Front Desk holds guest in Lounge with drinks.
+   - *Scenario B (Extensive Repair > 30 min)*: Compressor lockout or coil leak. Technician declares room unserviceable.
+     - Step 1: Front Desk reassigns guest to alternative suite.
+     - Step 2: Housekeeping dispatches 2-person express clean on alternative suite.
+     - Step 3: Room placed in `maintenance_locked` state.
+     - Step 4: Revenue Management adjusts inventory count.
+
+### 8.2 Plumbing & Water Ingress Protocol
+1. **Immediate Action**: Technician dispatched with pipe clamp and isolation valve key within 5 minutes.
+2. **Water Isolation**: Main riser or room sub-valve shut off immediately.
+3. **Guest Safety**: Guest relocated if water depth exceeds 5mm or affects living area.
+4. **Housekeeping Deployment**: Wet-vacuum extraction and anti-microbial sanitation deployed.
+5. **Clearance**: Room remains offline until moisture meter verifies sub-floor dryness (<15%).
+
+---
+
+## 9. ENVIRONMENTAL & WEATHER DIGITAL TWIN INTEGRATION
+
+### 9.1 Meteorological Vulnerabilities in Coastal Luxury Resorts
+The Grand Azure Bay Resort operates in a dynamic coastal monsoon environment. Weather changes generate direct operational shifts:
+- **Tropical Squalls & High Wind (>45 km/h)**: Outdoor cabanas, beach dining, and water sports must be secured within 30 minutes. Pool terrace cleared.
+- **Heavy Monsoon Rainfall (>25 mm/h)**: Influx of guests from outdoor facilities into indoor lounges, bars, and spa. Immediate pressure on indoor F&B seating capacity.
+- **Transit Disruptions**: Waterlogged access roads and flight delays at Goa Dabolim / Mopa Airport lead to **arrival clustering** (multiple delayed flights arriving simultaneously in late afternoon).
+- **Thermal Spikes (>35°C, Heat Index >42°C)**: Extreme thermal load on central chiller plant and rooftop VRV compressors, increasing component failure probability.
+
+### 9.2 Real vs. Simulated Digital Twin State Isolation
+To ensure absolute production safety:
+- **Production State**: Real database containing genuine guest bookings, staff work queues, and active incidents.
+- **Simulation State**: In-memory virtual twin simulating "What-If" weather contingencies (e.g. 50mm/h rainfall storm arriving in 2 hours).
+- **Rule**: Simulations NEVER modify production room states, guest folios, or staff tasks. The UI displays an amber `SIMULATION MODE` indicator.
+
+---
+
+## 10. DIGITAL GUEST CONCIERGE & TELEMETRY PROTOCOLS
+
+### 10.1 Automated Guest Communication Channels
+Resort 360 integrates with guest messaging endpoints including Telegram Concierge (`@atria_conciergebot`) and WhatsApp Business API.
+
+### 10.2 Natural Language Ingestion & Triage Rules
+When a guest transmits a message, the AI must extract 6 key dimensions:
+1. **Guest Identity Verification**: Correlate phone/chat ID with active PMS reservation.
+2. **Issue Categorization**: Classify into Housekeeping, Maintenance, Dining, Billing, or Transportation.
+3. **Severity Determination**: Detect urgency markers (e.g. "water pouring", "child sleeping", "sick", "hot").
+4. **Sentiment Extraction**: Calibrate negative sentiment intensity (-1.0 to 0.0).
+5. **Automated Ticket Generation**: Generate structured incident with source tag `Guest Chatbot`.
+6. **Guest Response SLA**: Automated acknowledgment within 30 seconds confirming staff dispatch.
+
+---
+
+## 11. HUMAN-IN-THE-LOOP (HITL) GOVERNANCE & APPROVAL GATES
+
+### 11.1 The Golden Rule of Autonomous Hospitality
+**The AI advises; the Human Manager decides.**
+Under no circumstance may the AI autonomous agent swarm commit irreversible database mutations without human authorization. The following actions strictly require Manager on Duty (MOD) sign-off:
+1. Any VIP room reassignment or tier upgrade.
+2. Placing any room into `maintenance_locked` status when property occupancy exceeds 85%.
+3. Reallocating housekeeping staff away from stayover cleaning to arrival turnover.
+4. Authorizing financial compensation or rate waivers exceeding ₹2,500.
+5. Closing OTA distribution channels.
+
+### 11.2 Manager Console Actions
+The Manager on Duty interacts via the Decision Console with three distinct operations:
+- **APPROVE**: Confirms the AI consensus plan. Automatically generates discrete task tickets in the PMS, notifies staff via mobile app, and updates room states.
+- **MODIFY**: Allows the manager to alter specific parameters (e.g. selecting a different room, adjusting compensation amount) before executing.
+- **REJECT**: Cancels the proposed plan. The manager enters a brief rationale, which is fed back into the model alignment audit log for continuous learning.
+
+---
+
+## 12. NUGEN INFERENCE SCHEMAS & REASONING STANDARDS
+
+### 12.1 Canonical Machine-Readable Output Schema
+When invoked by Resort 360, the aligned model (`resort360-hospitality-v1`) must generate strictly validated JSON matching this schema:
+
+```json
+{
+  "incident_id": "string",
+  "confidence_score": 94,
+  "severity": "critical",
+  "urgency_classification": "Immediate Action Required (<10 mins)",
+  "executive_summary": "VIP Platinum guest arrival collision with unserviceable HVAC in Suite 401. Reassigning to clean Suite 405 with express VIP amenity refresh.",
+  "justification": {
+    "what": "Room 401 HVAC compressor capacitor locked out at 33°C ambient temperature. Guest Mrs. Alok arrives in 25 minutes.",
+    "why": "Repair ETA is 50 minutes, exceeding arrival window. Suite 405 is inspected, vacant, and not reserved for 48 hours.",
+    "impact_of_inaction": "VIP guest waiting in hot room or lobby, causing severe CSAT decline and estimated ₹15,000 service recovery liability.",
+    "trade_off_analysis": "Assigning Suite 405 consumes high-floor inventory but protects VIP relationship without displacing future reservations."
+  },
+  "department_actions": [
+    {
+      "department": "front_desk",
+      "action_type": "room_reassignment",
+      "description": "Reassign reservation #AZ-8921 to Suite 405. Escort guest to Private Club Lounge upon arrival.",
+      "priority": 1,
+      "estimated_duration_minutes": 5,
+      "assigned_role": "Front Desk Supervisor"
+    },
+    {
+      "department": "housekeeping",
+      "action_type": "express_vip_refresh",
+      "description": "Deploy tandem attendants to Suite 405 for VIP welcome amenity setup and terrace check.",
+      "priority": 2,
+      "estimated_duration_minutes": 15,
+      "assigned_role": "Housekeeping Attendant"
+    },
+    {
+      "department": "maintenance",
+      "action_type": "hvac_compressor_repair",
+      "description": "Isolate Room 401 electrical breaker and replace 45uF compressor run capacitor.",
+      "priority": 2,
+      "estimated_duration_minutes": 45,
+      "assigned_role": "Senior HVAC Technician"
+    },
+    {
+      "department": "revenue",
+      "action_type": "inventory_channel_update",
+      "description": "Lock Room 401 in PMS and decrement 1 Penthouse unit across all OTA extranets.",
+      "priority": 3,
+      "estimated_duration_minutes": 5,
+      "assigned_role": "Revenue Manager"
+    }
+  ],
+  "dependencies": [
+    "housekeeping.express_vip_refresh cannot be marked complete until front_desk confirms Suite 405 keycard encoding",
+    "front_desk check_in requires housekeeping inspection sign-off"
+  ],
+  "manager_approval_required": true,
+  "escalation_reasons": [
+    "VIP Platinum guest room reassignment",
+    "Room 401 taken out of order during 92% property occupancy"
+  ]
+}
+```
+
+### 12.2 Calibrated Confidence Score Standards
+- **Score 90–100 (High Certainty)**: Full operational context available, spare rooms verified, technician on duty, standard SOP applies cleanly.
+- **Score 75–89 (Moderate Certainty)**: Operational trade-off required (e.g. using a suite scheduled for inspection in 30 minutes; moderate occupancy friction).
+- **Score < 75 (High Uncertainty / Ambiguity)**: Missing diagnostics, conflicting sensor telemetry, or sold-out property with zero alternative suites. Mandatory immediate escalation to General Manager.
+
+---
+
+*End of Resort 360 Hospitality Operations Handbook & NuGen Domain Alignment Specification — Version 4.0-NUGEN-MASTER*  
+*Property: The Grand Azure Bay Resort & Villas, South Goa, India.*  
+*Ready for Direct Upload to NuGen AI Platform (docs.nugen.in).*

@@ -1,0 +1,102 @@
+[
+  {
+    "question_num": 1,
+    "question": "What is the main purpose of this document?",
+    "answer": "This document serves as the authoritative domain knowledge and operational context specification for aligning AI models (specifically resort360-hospitality-v1 on Llama-V3p2-3b-Reasoning or Qwen-2.5-3B-Instruct) on luxury hospitality operations, multi-agent autonomous decision orchestration, and hotel ERP governance at The Grand Azure Bay Resort & Villas."
+  },
+  {
+    "question_num": 2,
+    "question": "What operational problem does Resort 360 solve?",
+    "answer": "It eliminates the operational latency and friction of simultaneous cross-departmental incident collisions (such as a VIP early arrival colliding with an HVAC failure and a housekeeping cleaning backlog). Instead of 5 to 10 fragmented phone calls, WhatsApp chats, and manual PMS lookups, Resort 360 synthesizes operational telemetry across departments, arbitrates conflicts via multi-agent consensus, and produces a single coordinated resolution plan within 60 seconds."
+  },
+  {
+    "question_num": 3,
+    "question": "Why do generic foundation models fail in luxury hotel operations without domain alignment?",
+    "answer": "Generic models suffer from hallucinated readiness (suggesting check-in before maintenance or inspection sign-off), context window saturation with vague responses, absence of calibrated domain confidence scores, boundary violations where the AI attempts unauthorized database mutations without manager approval, and unrealistic assumptions about physical maintenance and cleaning turnaround times."
+  },
+  {
+    "question_num": 4,
+    "question": "How does the room state lifecycle transition work, and what is the maintenance isolation rule?",
+    "answer": "Rooms transition strictly through occupied -> dirty -> cleaning -> inspected -> available -> occupied. A room can only be assigned or have keycards encoded when in 'inspected' and 'available' status. If a critical physical defect is reported, the room transitions to 'maintenance_locked', which locks out keycard issuance and PMS availability until maintenance issues a signed completion ticket."
+  },
+  {
+    "question_num": 5,
+    "question": "What is the Zero-Lobby-Wait Rule for VIP arrivals, and how is it executed?",
+    "answer": "VIP Platinum and Presidential guests must never wait in the lobby if their assigned suite is not ready. They must be immediately greeted by name at the Front Desk and escorted directly to the Private Club Lounge with complimentary beverage service and a dedicated attendant while Housekeeping performs an express clean or an alternative suite is prepared."
+  },
+  {
+    "question_num": 6,
+    "question": "What is the 'Diagnostic Window First' cardinal rule for Maintenance?",
+    "answer": "Technicians and AI agents must never state a definitive repair timeline (e.g., 'fixed in 20 minutes') before completing an on-site diagnostic triage to verify fault type, parts availability, and secondary damage. The system must always provide a realistic Diagnostic Window (e.g., '10-minute diagnostic triage in progress') before committing to a completion ETA."
+  },
+  {
+    "question_num": 7,
+    "question": "What are the cleaning turnaround standards for Housekeeping?",
+    "answer": "A Standard Departure Clean takes 35 to 45 minutes with 1 attendant (full linen exchange, bathroom sterilization, dusting, vacuuming, minibar restock, and terrace clean). A VIP Arrival Express Clean takes 20 to 25 minutes deployed with 2 attendants in tandem (Attendant A sanitizes the bathroom and swaps linen; Attendant B completes visible surfaces, terrace, and VIP amenities). Stayover refreshes take 15 to 20 minutes."
+  },
+  {
+    "question_num": 8,
+    "question": "What are Revenue Management's occupancy decision thresholds for complimentary room upgrades?",
+    "answer": "Below 65% occupancy: high operational flexibility, allowing complimentary two-tier upgrades and flexible late checkouts. 65% to 84% occupancy: standard controls with maximum one-tier complimentary upgrades. 85% to 94% occupancy: constrained inventory where complimentary multi-tier upgrades are prohibited and reassignments must be cross-checked against 48-hour reservations. Above 95% occupancy: critical inventory lock requiring General Manager or MOD sign-off for any room taken offline."
+  },
+  {
+    "question_num": 9,
+    "question": "How does the multi-factor incident severity matrix determine severity levels?",
+    "answer": "Severity is never determined by a single variable; it evaluates 8 intersecting operational vectors: Guest Loyalty Tier (Standard vs VIP Platinum/Presidential), Guest Location (en route vs waiting in lobby), Physical Hazard (nuisance vs pipe burst/life safety), Ambient Temperature (comfortable vs >32°C heatwave/monsoon), Property Occupancy (<60% vs >90%), Staffing Capacity (full shift vs lone technician), Cascading Risk (single fixture vs whole floor chiller), and Financial Exposure (<INR 5,000 vs >INR 50,000)."
+  },
+  {
+    "question_num": 10,
+    "question": "What is the Universal Priority Hierarchy used during multi-agent consensus arbitration?",
+    "answer": "When departmental recommendations conflict, the Consensus Orchestrator arbitrates using the formal hierarchy: Physical Safety (Priority 1) > Immediate Guest Impact and Distress (Priority 2) > VIP Tier Urgency (Priority 3) > Operational Scale and Cascading Risk (Priority 4) > Revenue and Inventory Protection (Priority 5)."
+  },
+  {
+    "question_num": 11,
+    "question": "How is the reporting department enforced in the role-based access control (RBAC) model?",
+    "answer": "The reporting department is strictly derived from the authenticated user's role and is read-only for employees (Front Desk staff report as Front Desk, Housekeeping as Housekeeping, Maintenance as Maintenance, Revenue as Revenue). Only an Admin or Resort Administrator can override the reporting department via a dropdown. The backend enforces this security rule by ignoring client-side spoofing attempts."
+  },
+  {
+    "question_num": 12,
+    "question": "What is the operational distinction between 'reporting_department' and 'affected_department'?",
+    "answer": "'reporting_department' represents the origin of the concern (who discovered or logged the issue, such as Front Desk taking a guest complaint), while 'affected_department' represents the operational team accountable for resolving the defect (such as Maintenance for an AC repair). Front Desk reports on behalf of Front Desk targeting Maintenance without impersonating Maintenance."
+  },
+  {
+    "question_num": 13,
+    "question": "How does the Pre-Booking Room Safeguard ('Block room from booking') work?",
+    "answer": "When an employee logs a high or critical operational concern for a room, checking 'Block room from booking' immediately updates the room's status in PMS and OTA channel distribution caches to 'maintenance'. This prevents Front Desk or online booking engines from assigning or selling the room until Maintenance and Housekeeping perform repairs and sign off clearance."
+  },
+  {
+    "question_num": 14,
+    "question": "What are the service recovery authorization thresholds for guest compensation?",
+    "answer": "Minor delays (10–15 min): Welcome cocktail + INR 1,000 F&B credit authorized by Front Desk Agent. Moderate delays (15–30 min): Club Lounge access + INR 3,000 F&B voucher + 1-tier upgrade authorized by Assistant Front Office Manager. Severe delays (>30 min / relocation): Suite upgrade + INR 6,000 F&B voucher + GM letter authorized by Front Office Manager or MOD. Critical disruptions (nighttime displacement): 100% night rate waiver + executive dinner authorized by General Manager."
+  },
+  {
+    "question_num": 15,
+    "question": "What is the protocol when an HVAC compressor failure occurs at 33°C ambient temperature with a VIP arriving in 25 minutes?",
+    "answer": "Because the repair ETA (50 minutes) exceeds the arrival window (25 minutes) and ambient temperature exceeds 30°C, the incident is CRITICAL. The Front Desk immediately reassigns the guest to an inspected alternative suite of equal or higher tier (e.g., Suite 405), Housekeeping performs a 15-minute express VIP amenity refresh, Maintenance places the defective room under a maintenance lock to replace the capacitor, and Revenue locks the defective room in PMS/OTA channels."
+  },
+  {
+    "question_num": 16,
+    "question": "What is the emergency protocol for active plumbing pipe bursts or water ingress?",
+    "answer": "A technician is dispatched within 5 minutes to shut off the isolation valve at the room sub-valve or main riser. The guest is evacuated immediately if water depth exceeds 5mm or reaches living quarters. Housekeeping deploys wet-vacuum extraction and anti-microbial sanitation. The room remains offline under maintenance isolation until moisture meter verification confirms sub-floor dryness below 15%."
+  },
+  {
+    "question_num": 17,
+    "question": "How does the Weather Digital Twin interact with the operational system, and how is simulation state isolated?",
+    "answer": "The Weather Digital Twin ingests live Open-Meteo telemetry for South Goa to forecast weather impacts such as monsoon squalls, transit arrival clustering, and HVAC compressor loads. To protect production integrity, simulations run in-memory and NEVER modify production database tables (rooms, guests, staff, or tasks). The UI prominently displays an amber 'SIMULATION MODE' badge during what-if explorations."
+  },
+  {
+    "question_num": 18,
+    "question": "How does the Digital Guest Concierge (Telegram/WhatsApp) intake and process guest messages?",
+    "answer": "When a guest messages the concierge bot (@atria_conciergebot), the system extracts guest identity, classifies the issue (Housekeeping, Maintenance, Dining, Billing, Transit), determines severity, calibrates sentiment (-1.0 to +1.0), and automatically creates an incident ticket with an automated guest response within 30 seconds."
+  },
+  {
+    "question_num": 19,
+    "question": "What are the mandatory Human-in-the-Loop (HITL) escalation triggers that require Manager on Duty approval?",
+    "answer": "The AI is advisory and cannot execute autonomous actions when: (1) any VIP room reassignment or tier upgrade is proposed, (2) a room is taken offline into maintenance lock when occupancy exceeds 85%, (3) housekeeping staff are reallocated away from stayover cleaning to arrival turnover, (4) financial compensation or rate waivers exceed INR 2,500, or (5) OTA sales channels must be closed. The manager must explicitly select Approve, Modify, or Reject."
+  },
+  {
+    "question_num": 20,
+    "question": "What is the canonical structure of the NuGen machine-readable output schema, and how are confidence scores interpreted?",
+    "answer": "The aligned model outputs structured JSON containing incident_id, confidence_score (0–100), severity, urgency_classification, executive_summary, justification (what, why, impact_of_inaction, trade_off_analysis), department_actions array (with department, action_type, description, priority, duration, assigned_role), dependencies array, manager_approval_required boolean, and escalation_reasons. A confidence score of 90–100 indicates high certainty; 75–89 indicates operational trade-offs; below 75 triggers mandatory escalation."
+  }
+]

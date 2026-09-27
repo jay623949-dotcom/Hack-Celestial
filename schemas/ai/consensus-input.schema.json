@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resort360.internal/schemas/ai/consensus-input.schema.json",
+  "title": "ConsensusInput",
+  "description": "Multi-agent recommendation synthesis input grouping parallel domain evaluations for consensus arbitration.",
+  "type": "object",
+  "required": [
+    "context_id",
+    "schema_version",
+    "created_at",
+    "agent_responses"
+  ],
+  "properties": {
+    "context_id": {
+      "type": "string",
+      "description": "Canonical context ID that triggered this multi-agent cycle"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Schema version (e.g. '1.0')"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when consensus bundle was assembled"
+    },
+    "agent_responses": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Array of agent response payloads submitted for consensus reconciliation",
+      "items": {
+        "type": "object",
+        "required": [
+          "agent",
+          "assessment",
+          "recommendations"
+        ],
+        "properties": {
+          "agent": {
+            "type": "string",
+            "enum": ["operations", "front_desk", "housekeeping", "maintenance", "revenue", "guest_services"]
+          },
+          "assessment": {
+            "type": "object",
+            "required": ["summary", "priority"],
+            "properties": {
+              "summary": { "type": "string" },
+              "priority": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "critical"]
+              }
+            }
+          },
+          "observations": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "constraints": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "recommendation_id",
+                "action",
+                "reason",
+                "priority",
+                "affected_rooms",
+                "affected_guests",
+                "required_staff",
+                "estimated_duration_minutes",
+                "risks",
+                "confidence"
+              ],
+              "properties": {
+                "recommendation_id": { "type": "string" },
+                "action": { "type": "string" },
+                "reason": { "type": "string" },
+                "priority": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high", "critical"]
+                },
+                "affected_rooms": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "affected_guests": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "required_staff": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "estimated_duration_minutes": {
+                  "type": ["integer", "null"]
+                },
+                "risks": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0.0,
+                  "maximum": 1.0
+                }
+              }
+            }
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        }
+      }
+    }
+  }
+}

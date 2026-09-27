@@ -262,5 +262,67 @@ To prove Resort 360's value to judges and teammates, the system is calibrated ar
 1. **Speed to Consensus**: From incident submission to full multi-agent plan generation in **under 10 seconds**.
 2. **Explainability**: Every recommendation includes clear, human-readable trade-off reasoning that convinces hotel managers.
 3. **Real-Time Sync**: Instant dashboard updates across separate browser tabs via Socket.IO upon manager approval.
-4. **Zero Hallucination of Operational Assets**: Agents operate strictly on provided resort context (room numbers, staff names, real constraints).
 5. **Stability & Usability**: End-to-end demo completes smoothly without crashes, console errors, or unhandled promise rejections.
+
+---
+
+## 12. Human-in-the-Loop Decision Control Workflow
+
+The core philosophy of Resort 360 is **"AI Recommends, Manager Understands, Manager Decides, System Tracks."**
+
+### Manager Decision Operations
+1. **Approve Action Plan**:
+   - Authorized manager endorses the AI proposal.
+   - Status updates to `approved`, individual task items are dispatched, and approval timestamp is recorded.
+2. **Modify Action Plan**:
+   - Manager adjusts operational allocations (room, staff, priority) prior to execution.
+   - The original AI proposal is preserved immutably.
+   - Manager provides an explicit modification reason.
+   - Status transitions to `modified_pending_approval`, requiring final manager authorization.
+3. **Reject Action Plan**:
+   - Manager rejects the recommendation with a mandatory justification.
+   - Status updates to `rejected` and all associated action items are cancelled.
+4. **Task Execution & Status Tracking**:
+   - Individual task items advance through `pending` → `in_progress` → `completed`.
+   - The parent action plan status dynamically reflects task progress.
+5. **Decision Audit Trail**:
+   - An immutable, append-only log records all AI generations, manager reviews, modifications, and status transitions with timestamps and actor identities.
+
+---
+
+## 13. Phase 5: Real-Time Operational Execution Engine
+
+"Once a manager approves the AI plan, Resort 360 converts the approved recommendations into real operational tasks and dispatches them to the appropriate departments in real time."
+
+### Operational Execution Core Capabilities
+1. **Approval to Execution Trigger**:
+   - Backend-enforced state machine: only plans in `approved` state trigger task creation.
+   - Pending or rejected plans are strictly prevented from generating tasks.
+2. **Idempotent Task Generation**:
+   - Duplicate calls return existing execution state without creating duplicate tasks or double assignments.
+3. **Multi-Department Dispatch**:
+   - Approved actions instantiate concrete operational tasks for Housekeeping, Maintenance, and Front Desk.
+   - Tasks maintain backward traceability to `action_plan_id`, `action_plan_item_id`, and `analysis_run_id`.
+4. **Dynamic Operational State Cascades**:
+   - **Staff Workload**: Transitions assigned staff to `busy`; recalculates active workload on task completion (`busy` → `available` only when active workload reaches 0).
+   - **Room Readiness**: Shifts room housekeeping status (`dirty` → `in_progress` → `clean`/`ready`).
+   - **Incident Lifecycle**: Resolves active incident when all linked work orders complete.
+
+---
+
+## 14. Final Judge-Ready Demo Scenario: VIP Early Arrival — Room 401 AC Failure
+
+### 14.1 Objective & The Single Story
+Demonstrate Resort 360's autonomous multi-agent operational orchestration and human-in-the-loop governance through one deterministic, unified scenario:
+- **Incident**: Diamond VIP guest **Arjun Mehta** arrives at 14:00 (2 hours early for a 16:00 reservation, RES-VIP-401). Assigned **Room 401 (Deluxe)** suffers an active rooftop air-conditioning compressor failure.
+- **Conflict**: Front Desk faces severe VIP dissatisfaction risk; Housekeeping faces turnover delays; Maintenance must diagnose and repair the AC compressor; Revenue faces high resort occupancy (82%) with limited Deluxe inventory.
+- **Multi-Agent Consensus**: Front Desk, Housekeeping, Maintenance, and Revenue agents deliberate and formulate a coordinated strategy:
+  1. Keep Room 401 blocked until technician **Rohan Mehta** completes the AC repair.
+  2. Reassign guest to alternative **Room 205 (Deluxe)**.
+  3. Dispatch attendant **Priya Sharma** to expedite Room 205 preparation.
+  4. Escort guest to Private Club Lounge via **Amit Shah** with complimentary beverage service.
+  5. Protect Deluxe inventory and hold Room 205 from OTA channels.
+- **Human Approval & Execution**: Duty Manager reviews and approves the plan on the Consensus Report (`/dashboard/consensus`). Tasks are dispatched in real-time over Socket.IO, updating room, staff, and incident states until final resolution.
+
+
+

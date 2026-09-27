@@ -1,193 +1,282 @@
 # RESORT 360
 
-> **AI-Powered Resort Operations Platform**  
-> Unifying guest hospitality, operational task dispatch, and smart resort analytics.
+> **AI-Powered Resort Operations & Decision Intelligence Platform**  
+> Real-time operational coordination across Front Desk, Housekeeping, Maintenance, and Revenue management.
 
 ---
 
-## 1. Problem Statement
-Resort operations often face fragmented communication across front desk, housekeeping, concierge, and maintenance teams. **RESORT 360** bridges this gap using intelligent orchestration, real-time messaging, and actionable operations dashboards.
+## 1. Product Overview
+
+Resort operations frequently suffer from fragmented departmental communication. When a high-tier VIP arrives early and their assigned suite experiences an HVAC breakdown, Front Desk, Housekeeping, Maintenance, and Revenue teams make siloed decisions that create guest friction and operational bottlenecks.
+
+**RESORT 360** solves this with:
+- **Unified Operational Command Center**: Real-time room status, staff duty shifts, active incidents, and prioritized work orders.
+- **Dynamic Context Builder**: Automatically distills database state into compact, canonical operational snapshots.
+- **AI Agent Swarm**: 4 specialized domain perspectives (Front Desk, Housekeeping, Maintenance, Revenue) evaluating situations simultaneously.
+- **Human-in-the-Loop Governance**: AI advises; Duty Managers approve, modify, or reject before any action is executed.
 
 ---
 
 ## 2. Technology Stack
 
-- **Frontend**: Next.js (App Router), React, Tailwind CSS
-- **Backend**: Node.js, Express.js, CORS, Dotenv
-- **Database (Planned)**: PostgreSQL / Supabase
-- **AI Automation (Planned)**: OpenAI API
-- **Real-Time (Planned)**: Socket.IO / WebSockets
+- **Frontend**: Next.js 14 (App Router), React 18, Tailwind CSS, Lucide Icons (Deployed on **Vercel**)
+- **Backend**: Node.js, Express.js, CORS, Helmet, Morgan, Socket.IO (Deployed on **Render**)
+- **Database / Data Layer**: PostgreSQL schema (`backend/database`) with in-memory fallback store (`phase-1/demo-data.json`)
+- **AI Intelligence**: Grok AI (`grok-2-latest` via xAI API) as primary multi-agent intelligence layer, with local Gemma 2 (`gemma2:2b` via Ollama) and deterministic domain fallbacks. All keys strictly isolated to backend.
+- **Real-Time**: Socket.IO WebSocket architecture with live execution timeline telemetry
 
 ---
 
-## 3. High-Level Architecture
+## 3. High-Level Architecture & Pipeline
 
 ```
-Next.js (Port 3000)  <--->  Express.js (Port 5000)  <--->  PostgreSQL / Supabase (Planned)
-                                   │
-                                   ├──> OpenAI API (Planned)
-                                   └──> Socket.IO (Planned)
+PostgreSQL / Operational Database State [IMPLEMENTED]
+         │
+         ▼
+Operational Services (RoomService, GuestService, StaffService, IncidentService, TaskService) [IMPLEMENTED]
+         │
+         ▼
+Context Builder Service (context-builder.service.js) [IMPLEMENTED]
+         │ (Maps database state into Canonical AI Context matching agent-context.schema.json)
+         ▼
+Canonical AI Context (POST /api/v1/ai/context & POST /api/v1/ai/analyze) [IMPLEMENTED]
+         │
+         ▼
+AI Analysis Layer (OpenAI / Gemini / Local LLM with schema validation) [IMPLEMENTED]
+         │
+         ▼
+Agent Perspectives (Front Desk, Housekeeping, Maintenance, Revenue) [IMPLEMENTED]
+         │
+         ▼
+Consensus Engine (Multi-agent trade-off resolution & synthesis) [IMPLEMENTED]
+         │
+         ▼
+Action Plan (Generated with requires_human_approval: true) [IMPLEMENTED]
+         │
+         ▼
+Human Approval (Approve / Modify / Reject by Duty Manager) [IMPLEMENTED]
+         │
+         ▼
+Task Execution & Socket.IO Real-Time Dispatch [IMPLEMENTED]
 ```
-
-See [docs/architecture.md](docs/architecture.md) for full architectural details and phased expansion roadmap.
 
 ---
 
-## 4. Repository Structure (Monorepo)
+## 4. Repository Structure
 
 ```
 resort360/
-├── frontend/                  # Next.js App Router Client
-│   ├── app/                   # App Router pages and layout
-│   │   ├── globals.css        # Tailwind CSS imports
-│   │   ├── layout.js          # Root HTML layout
-│   │   └── page.js            # Landing page (Phase 0 proof)
-│   ├── components/            # Reusable UI components
-│   ├── lib/                   # Utility helpers and API client
-│   ├── public/                # Static assets
-│   ├── tailwind.config.js     # Tailwind configuration
-│   ├── postcss.config.js      # PostCSS configuration
-│   ├── next.config.js         # Next.js configuration
-│   └── package.json           # Frontend dependencies
-│
-├── backend/                   # Express.js REST API Server
+├── backend/
+│   ├── database/                  # Schema migrations & seed scripts
 │   ├── src/
-│   │   ├── config/            # Centralized environment configs
-│   │   ├── controllers/       # Request handlers (e.g., healthController.js)
-│   │   ├── middleware/        # Error & route handlers
-│   │   ├── routes/            # Express routers (e.g., healthRoutes.js)
-│   │   ├── services/          # Business logic layer
-│   │   └── server.js          # Express app entrypoint
-│   └── package.json           # Backend dependencies
+│   │   ├── ai/prompts/            # System prompt & fact-boundary instructions
+│   │   ├── config/                # Environment variables, DB pool, CORS
+│   │   ├── controllers/           # Express controllers (rooms, incidents, tasks, ai)
+│   │   ├── data/                  # In-memory database store & JSON loader
+│   │   ├── middleware/            # Error handlers & 404 handler
+│   │   ├── routes/                # REST endpoints (/api/v1)
+│   │   └── services/              # Business logic & ContextBuilderService & OpenAIService
+│   ├── test-phase1.js             # API integration test suite (55 tests)
+│   ├── test-phase2-1.js           # 5 operational benchmark scenario verification
+│   └── package.json
 │
-├── docs/                      # Documentation
-│   └── architecture.md        # Architecture specification
+├── frontend/
+│   ├── app/
+│   │   ├── dashboard/             # Command Center Dashboard
+│   │   │   └── agents/            # AI Agent Swarm UI
+│   │   ├── sign-in/ & sign-up/    # Auth UI
+│   │   └── page.js                # Public landing page
+│   ├── components/
+│   │   ├── agents/                # AgentCard & ScenarioSelector components
+│   │   └── dashboard/             # StatCard, RoomOverview, IncidentOverview, etc.
+│   └── lib/                       # REST client with automatic retry
 │
-├── .env.example               # Environment variables template
-├── .gitignore                 # Root ignore rules (node_modules, .env, .next, etc.)
-├── README.md                  # This file
-└── package.json               # Root scripts (concurrent dev runner)
+├── schemas/ai/                    # JSON Schemas (Draft 2020-12)
+│   ├── agent-context.schema.json  # Input schema for Canonical AI Context
+│   ├── agent-response.schema.json # Output schema for AI domain analysis
+│   ├── consensus-input.schema.json
+│   └── action-plan.schema.json
+│
+├── docs/                          # Source-of-truth documentation
+│   ├── PRESENTATION.md            # Master presentation, live demo script & team guide
+│   ├── DEMO.md                    # Quick live hackathon demo guide
+│   ├── PRD.md
+│   ├── ARCHITECTURE.md
+│   ├── RULES.md
+│   ├── resort-data-model.md
+│   └── incident-scenarios.md
+│
+└── phase-1/demo-data.json         # 45 rooms, 25 guests, 12 staff, 6 incidents, 10 tasks
 ```
 
 ---
 
-## 5. Getting Started & Local Setup
+## 5. Prerequisites & Environment Setup
 
 ### Prerequisites
-- **Node.js**: v18.x or later (tested on v24.x)
+- **Node.js**: v18.x or later (tested on Node v20/v24)
 - **npm**: v9.x or later
 
-### Step 1: Clone Repository & Switch to `develop`
+### Step 1: Clone & Navigate to Project
 ```bash
-git clone <repository-url>
+git clone https://github.com/jay623949-dotcom/Hack-Celestial.git
 cd resort360
-git checkout develop
+git checkout feat/phase2neel
 ```
 
-### Step 2: Install Dependencies
-You can install dependencies for all workspaces at once from the root:
-```bash
-npm run install:all
-```
-*Or install separately:*
-```bash
-cd backend && npm install
-cd ../frontend && npm install
-```
+### Step 2: Configure Environment Variables
 
-### Step 3: Configure Environment Variables
-Copy `.env.example` into your environment:
-```bash
-cp .env.example .env
-```
-*(Optionally copy to `backend/.env` or `frontend/.env.local` as needed).*
+1. **Backend Environment** (`backend/.env`):
+   ```bash
+   cp backend/.env.example backend/.env
+   ```
+   Edit `backend/.env`:
+   ```env
+   PORT=5000
+   NODE_ENV=development
+   CLIENT_URL=http://localhost:3000
+
+   # ==================================================
+   # AI MODEL CONFIGURATION (Universal Adapter)
+   # Providers: 'gemini' (Free tier) | 'openai' | 'local' (Ollama / vLLM)
+   # ==================================================
+   AI_PROVIDER=gemini
+
+   # Option 1: Google Gemini (FREE TIER - Recommended)
+   # Get a free key at: https://aistudio.google.com
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GEMINI_MODEL=gemini-2.5-flash
+
+   # Option 2: OpenAI API (Optional)
+   OPENAI_API_KEY=your_openai_api_key_here
+   OPENAI_MODEL=gpt-4o-mini
+
+   # Option 3: Local / Self-Hosted Models (Ollama, LM Studio, vLLM)
+   # AI_PROVIDER=local
+   LOCAL_AI_BASE_URL=http://localhost:11434/v1
+   LOCAL_AI_MODEL=llama3.2
+   ```
+   > **Note**: `backend/.env` is tracked in `.gitignore` and will never be committed to Git. If no AI API key is provided, the backend continues to operate normally and safely notifies the Agent Swarm UI.
+
+2. **Frontend Environment** (`frontend/.env.local` optional):
+   Defaults to `http://localhost:5000/api/v1` automatically.
 
 ---
 
-## 6. Running the Project
+## 6. How to Run the System
 
-### Option A: Run Both Together (Recommended)
-From the root directory:
+### Option A: Run Both Backend & Frontend (Two Terminal Windows)
+
+#### Terminal 1 — Backend (Express API on Port 5000):
 ```bash
+cd backend
+npm install
 npm run dev
 ```
-This runs both the backend (`http://localhost:5000`) and frontend (`http://localhost:3000`) concurrently.
+- Backend starts at: `http://localhost:5000`
+- API Health Check: `http://localhost:5000/api/v1/health`
+- Live Operations Summary: `http://localhost:5000/api/v1/operations/summary`
 
-### Option B: Run Services Independently
-
-- **Frontend Only**:
-  ```bash
-  cd frontend
-  npm run dev
-  ```
-  Open [http://localhost:3000](http://localhost:3000).
-
-- **Backend Only**:
-  ```bash
-  cd backend
-  npm run dev
-  ```
-  Health check is available at [http://localhost:5000/health](http://localhost:5000/health).
-
----
-
-## 7. Environment Variables Breakdown
-
-| Variable | Target | Purpose | Example |
-| :--- | :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | Frontend | Base URL for REST API requests | `http://localhost:5000/api` |
-| `NEXT_PUBLIC_SOCKET_URL` | Frontend | Base URL for WebSocket connection | `http://localhost:5000` |
-| `PORT` | Backend | HTTP Port Express listens on | `5000` |
-| `NODE_ENV` | Backend | Environment flag | `development` / `production` |
-| `CLIENT_URL` | Backend | Allowed CORS origin | `http://localhost:3000` |
-| `DATABASE_URL` | Backend | PostgreSQL connection string | `postgresql://...` |
-| `SUPABASE_URL` | Backend | Supabase API endpoint | `https://xyz.supabase.co` |
-| `SUPABASE_ANON_KEY` | Backend | Supabase Public Anon Key | `ey...` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Backend | Supabase Service Role Key | `ey...` |
-| `OPENAI_API_KEY` | Backend | OpenAI Secret API key | `sk-...` |
-
-> **Security Rule**: NEVER commit real credentials or `.env` files to git.
-
----
-
-## 8. Git Workflow & Branch Strategy
-
+#### Terminal 2 — Frontend (Next.js Command Center on Port 3000 or 3001):
+```bash
+cd frontend
+npm install
+npm run dev
 ```
-main (Production / Demo Ready)
-└── develop (Integration branch)
-    ├── feature/frontend-dashboard
-    ├── feature/backend-api
-    ├── feature/database
-    ├── feature/ai-agents
-    └── feature/realtime
-```
-
-### Team Branching Rules:
-1. **Never commit directly to `main` or `develop`**.
-2. Create a new branch off `develop`:
-   ```bash
-   git checkout develop
-   git pull origin develop
-   git checkout -b feature/your-feature-name
-   ```
-3. Keep commits atomic and meaningful.
-4. When finished, open a Pull Request against `develop`.
+- Open [http://localhost:3000](http://localhost:3000) (or `http://localhost:3001` if port 3000 is occupied).
 
 ---
 
-## 9. Team Responsibilities
+## 7. Key Application Pages & Verification
 
-| Member | Focus Area | Initial Feature Branch |
+| Page | URL | Description |
 | :--- | :--- | :--- |
-| **Neel** | Phase 0 Setup / Core Architecture | `develop` (Foundation) |
-| **Jay Doshi** | Frontend Application & Dashboard | `feature/frontend-dashboard` |
-| **Krutarth Rao** | Express API & Controllers | `feature/backend-api` |
-| **Nakool** | Database & Supabase Schema | `feature/database` |
-| **Nairit Shah** | AI Agents & Real-Time Socket | `feature/ai-agents` / `feature/realtime` |
+| **Landing Page** | `http://localhost:3000/` | Public Resort 360 overview |
+| **Command Center** | `http://localhost:3000/dashboard` | Live operational dashboard with room grid, staff on duty, active incidents, and attention panel |
+| **AI Agent Swarm** | `http://localhost:3000/dashboard/agents` | 4-agent perspective visualizer with 5 benchmark scenario selectors and human approval governance |
+| **Sign In / Sign Up** | `http://localhost:3000/sign-in` | Command center authentication screens |
 
 ---
 
-## 10. Development Rules
-- **No Over-Engineering**: Keep components simple and modular.
-- **Consistency**: Follow existing folder conventions (`routes`, `controllers`, `services`, `components`).
-- **Security**: Double check that no tokens or connection strings are committed.
+## 8. Production Deployment
+
+Resort 360 is production-ready for deployment to **Render** (Backend & PostgreSQL) and **Vercel** (Frontend).
+See the comprehensive [Production Deployment Guide](docs/production.md) for full setup instructions.
+
+### Deployment Summary
+- **Frontend** $\rightarrow$ **Vercel**
+  - Build Command: `next build`
+  - Output: `.next`
+  - Environment Variables: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WS_URL`
+- **Backend** $\rightarrow$ **Render Web Service**
+  - Start Command: `node src/server.js` (or `npm start`)
+  - Environment Variables: `PORT`, `NODE_ENV=production`, `FRONTEND_URL`, `DATABASE_URL`, `XAI_API_KEY`
+  - Health Endpoint: `/health`
+- **Database** $\rightarrow$ **Render PostgreSQL**
+  - Migration: `npm run db:migrate`
+  - Canonical Seed: `npm run db:seed`
+
+---
+
+## 9. Running Automated Test Suites
+
+All backend tests run independently with self-contained test servers:
+
+```bash
+cd backend
+
+# 1. Run Complete API & Error Contract Test Suite (55 tests)
+npm test
+
+# 2. Run Manager Approval & Decision Interface Suite (10 tests)
+npm run test:manager
+
+# 3. Run Execution Engine & Task Dispatch Suite (12 tests)
+npm run test:execution
+
+# 4. Run Failure Handling & System Resilience Suite (25 tests)
+npm run test:resilience
+
+# 5. Run Context Builder & Benchmark Scenarios Verification
+node test-phase2-1.js
+
+# 6. Run JSON Schema Conformance Suite
+node test-schemas.js
+```
+
+### Production Build Verification
+```bash
+cd frontend
+npm run build
+```
+
+---
+
+## 9. Core REST Endpoints (`/api/v1`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/health` | Service health status |
+| `GET` | `/api/v1/operations/summary` | Dynamic room, incident, task, and staff counts |
+| `GET` | `/api/v1/rooms` | All rooms with optional `?status=`, `?type=`, `?floor=` |
+| `GET` | `/api/v1/incidents` | All incidents with `?status=`, `?severity=`, `?department=` |
+| `GET` | `/api/v1/tasks` | Active work orders with `?assigned_to=`, `?priority=` |
+| `GET` | `/api/v1/guests` | In-house guest profiles and VIP tier metadata |
+| `GET` | `/api/v1/staff` | On-duty staff rosters by department |
+| `POST` | `/api/v1/ai/context` | Generates verified Canonical Context from live DB state |
+| `POST` | `/api/v1/ai/analyze` | Evaluates operational context via AI Provider (Gemini / OpenAI) |
+| `POST` | `/api/v1/consensus` | Generates cross-department consensus & Action Plan |
+| `GET` | `/api/v1/consensus/action-plans` | Lists action plans with status filters |
+| `POST` | `/api/v1/consensus/action-plan/:id/approve` | Duty Manager approval with optional modifications |
+| `POST` | `/api/v1/consensus/action-plan/:id/modify` | Duty Manager plan amendment with change reason |
+| `POST` | `/api/v1/consensus/action-plan/:id/reject` | Duty Manager rejection with audit log entry |
+| `POST` | `/api/v1/consensus/action-plan/:id/execute` | Executes plan, dispatches tasks, updates room states |
+| `GET` | `/api/v1/consensus/action-plan/:id/execution-status` | Real-time task progress and department telemetry |
+
+---
+
+## 10. Development Guidelines & Safety Rules
+- **No TypeScript**: The codebase strictly uses modern JavaScript (ES6+ CommonJS for backend, ESM for frontend).
+- **Human-in-the-Loop**: The AI Agent Swarm provides advisory proposals only; operations are never dispatched automatically without Duty Manager approval.
+- **Never Commit Secrets**: Never commit `.env` files or API credentials to Git.
+
