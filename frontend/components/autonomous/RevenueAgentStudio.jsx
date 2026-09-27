@@ -12,7 +12,8 @@ import {
   Tag,
   AlertCircle,
   CheckCircle2,
-  Send
+  Send,
+  Calendar
 } from 'lucide-react';
 
 
@@ -34,6 +35,24 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
   const [flashResult, setFlashResult] = useState(null);
   const [flashLoading, setFlashLoading] = useState(false);
 
+  // Calendar State
+  const [calendarData, setCalendarData] = useState([]);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [loadingCalendar, setLoadingCalendar] = useState(false);
+
+  const fetchCalendar = async () => {
+    try {
+      setLoadingCalendar(true);
+      const data = await smartResortApi.getCalendarMonth(currentYear, currentMonth);
+      setCalendarData(data);
+    } catch (e) {
+      console.error('Failed to get calendar data:', e);
+    } finally {
+      setLoadingCalendar(false);
+    }
+  };
+
   const fetchNetRevPar = async () => {
     try {
       setLoadingMetrics(true);
@@ -49,6 +68,10 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
   useEffect(() => {
     fetchNetRevPar();
   }, []);
+
+  useEffect(() => {
+    fetchCalendar();
+  }, [currentMonth, currentYear]);
 
   const handleRecalculatePricing = async () => {
     try {
@@ -307,6 +330,94 @@ export default function RevenueAgentStudio({ onActionSuccess = () => {} }) {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Panel 3: Seasonal Demand Calendar */}
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-blue-500" />
+            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider font-mono">
+              Seasonal Demand Calendar (Indian Festivals)
+            </h3>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => {
+                if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); }
+                else setCurrentMonth(m => m - 1);
+              }} 
+              className="px-2 py-1 bg-surface-secondary hover:bg-surface border border-border rounded text-xs"
+            >&lt;</button>
+            <span className="text-xs font-bold self-center w-32 text-center">
+              {new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}
+            </span>
+            <button 
+              onClick={() => {
+                if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); }
+                else setCurrentMonth(m => m + 1);
+              }} 
+              className="px-2 py-1 bg-surface-secondary hover:bg-surface border border-border rounded text-xs"
+            >&gt;</button>
+          </div>
+        </div>
+        
+        {loadingCalendar ? (
+          <div className="flex justify-center items-center py-8">
+            <RefreshCw className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-7 gap-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="text-center text-[10px] font-mono text-muted-foreground uppercase py-1">{day}</div>
+            ))}
+            
+            {Array.from({ length: new Date(currentYear, currentMonth, 1).getDay() }).map((_, i) => (
+              <div key={`blank-${i}`} className="p-2"></div>
+            ))}
+            
+            {calendarData.map(day => {
+               let bgColor = 'bg-surface-secondary';
+               let textColor = 'text-foreground';
+               let border = 'border-transparent';
+               
+               if (day.status === 'on-season') {
+                 bgColor = 'bg-rose-500/10 hover:bg-rose-500/20';
+                 textColor = 'text-rose-600';
+                 border = 'border-rose-500/30';
+               } else if (day.status === 'off-season') {
+                 bgColor = 'bg-blue-500/10 hover:bg-blue-500/20';
+                 textColor = 'text-blue-600';
+                 border = 'border-blue-500/30';
+               } else {
+                 bgColor = 'bg-surface-secondary hover:bg-surface';
+                 border = 'border-border';
+               }
+               
+               return (
+                 <div 
+                   key={day.date} 
+                   onClick={() => {
+                     setDemandSignal(day.demand);
+                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                   }}
+                   className={`p-2 rounded-lg border ${border} ${bgColor} flex flex-col items-center justify-center cursor-pointer transition-colors min-h-[60px] relative overflow-hidden`}
+                   title={day.event ? `${day.event} (Click to set demand)` : `Click to set demand to ${day.demand}`}
+                 >
+                   <span className={`text-sm font-bold ${textColor}`}>{day.day}</span>
+                   {day.event && <span className={`text-[9px] font-bold leading-tight text-center mt-1 truncate w-full px-1 ${textColor}`}>{day.event}</span>}
+                   {!day.event && day.status !== 'neutral' && <span className={`text-[8px] font-mono leading-tight text-center mt-1 capitalize ${textColor}`}>{day.status}</span>}
+                 </div>
+               )
+            })}
+          </div>
+        )}
+        
+        <div className="flex gap-4 items-center justify-end text-[10px] font-mono text-muted-foreground mt-2 border-t border-border pt-3">
+          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-rose-500/20 border border-rose-500/40"></div> On-Season / Festival</div>
+          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-blue-500/20 border border-blue-500/40"></div> Off-Season / Monsoon</div>
+          <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-surface-secondary border border-border"></div> Regular</div>
         </div>
       </div>
     </div>

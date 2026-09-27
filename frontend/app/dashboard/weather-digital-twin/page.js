@@ -2,8 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import DashboardShell from '../../../components/dashboard/DashboardShell';
 import { weatherDigitalTwinApi } from '../../../lib/api';
+
+// Dynamically import WeatherMap (uses window.google, must be client-only)
+const WeatherMap = dynamic(() => import('../../../components/weather/WeatherMap'), { ssr: false });
 import {
   CloudSun,
   CloudRain,
@@ -41,7 +45,7 @@ import {
 } from 'lucide-react';
 import HelpDocsModal from '../../../components/common/HelpDocsModal';
 
-// Geographic Nodes for Geospatial Map (Goa Coordinates)
+// Geographic Nodes (mirrored from WeatherMap for the Node Inspector panel)
 const GEO_NODES = [
   {
     id: 'resort',
@@ -50,8 +54,6 @@ const GEO_NODES = [
     coords: '15.2993° N, 74.1240° E',
     lat: 15.2993,
     lng: 74.124,
-    x: 48,
-    y: 62,
     icon: '🏨',
     status: 'Core Property',
     description: '45 inventory keys, 4 VIP villas, central HVAC system, outdoor infinity pool & beach bar.',
@@ -63,8 +65,6 @@ const GEO_NODES = [
     coords: '15.3808° N, 73.8312° E',
     lat: 15.3808,
     lng: 73.8312,
-    x: 28,
-    y: 38,
     icon: '✈️',
     status: 'Inbound Transit',
     description: 'Primary guest arrival conduit (32 km). Subject to NH66 coastal highway waterlogging in heavy monsoon bursts.',
@@ -76,8 +76,6 @@ const GEO_NODES = [
     coords: '15.4989° N, 73.8278° E',
     lat: 15.4989,
     lng: 73.8278,
-    x: 26,
-    y: 18,
     icon: '🏛️',
     status: 'Logistics Route',
     description: 'Specialist HVAC contractor dispatch point and linen vendor central depot.',
@@ -89,8 +87,6 @@ const GEO_NODES = [
     coords: '15.2500° N, 73.9100° E',
     lat: 15.25,
     lng: 73.91,
-    x: 38,
-    y: 72,
     icon: '🏖️',
     status: 'Outdoor Recreation',
     description: 'Beach cabanas, watersports & outdoor dining. High vulnerability to squall and rainfall events.',
@@ -502,137 +498,76 @@ export default function WeatherDigitalTwinPage() {
             </div>
           </div>
 
-          {/* Column 2: Geospatial Map Visualization (7 cols) */}
-          <div className="lg:col-span-7 bg-white p-5 rounded-xl border border-gray-200/80 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-teal-600" />
-                  <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
-                    Geospatial Weather & Operational Corridor Map
-                  </h2>
-                </div>
-                <span className="text-xs text-gray-500 font-mono">South Goa Zone (15.29°N, 74.12°E)</span>
+          {/* Column 2: Google Maps + OpenWeatherMap Tile Overlay (7 cols) */}
+          <div className="lg:col-span-7 bg-white p-5 rounded-xl border border-gray-200/80 shadow-sm flex flex-col">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-teal-600" />
+                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+                  Live Geospatial Weather Map — South Goa
+                </h2>
               </div>
-
-              {/* Interactive Vector GIS Map Canvas */}
-              <div className="relative w-full h-[280px] bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-inner select-none">
-                {/* Coastal Line SVG Graphic */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  {/* Arabian Sea Water Background */}
-                  <rect x="0" y="0" width="35" height="100" fill="#0f172a" opacity="0.6" />
-                  {/* Coastline Path */}
-                  <path
-                    d="M 32,0 Q 28,25 35,50 T 40,80 Q 42,95 44,100"
-                    fill="none"
-                    stroke="#1e293b"
-                    strokeWidth="1.5"
-                  />
-                  {/* Transit Corridor Path (Airport to Resort) */}
-                  <path
-                    d="M 28,38 Q 38,48 48,62"
-                    fill="none"
-                    stroke={currentViewWeather?.severity === 'EXTREME' || currentViewWeather?.severity === 'HIGH' ? '#f59e0b' : '#0d9488'}
-                    strokeWidth="1.2"
-                    strokeDasharray={currentViewWeather?.severity === 'HIGH' ? '2,2' : 'none'}
-                    className={currentViewWeather?.severity === 'HIGH' ? 'animate-pulse' : ''}
-                  />
-                  {/* Weather Radar Cell Overlay */}
-                  <circle
-                    cx="42"
-                    cy="55"
-                    r={currentViewWeather?.current?.precipitation > 15 ? 28 : 14}
-                    fill={currentViewWeather?.current?.precipitation > 20 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(20, 184, 166, 0.12)'}
-                    stroke={currentViewWeather?.current?.precipitation > 20 ? 'rgba(239, 68, 68, 0.5)' : 'rgba(20, 184, 166, 0.3)'}
-                    strokeWidth="1"
-                    strokeDasharray="3,3"
-                  />
-                </svg>
-
-                {/* Radar Sweep Effect for Live Telemetry */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-teal-500/5 to-transparent pointer-events-none animate-pulse"></div>
-
-                {/* Map Grid Coordinates */}
-                <div className="absolute top-2 left-2 text-[10px] text-slate-500 font-mono">
-                  ARABIAN SEA (WEST)
-                </div>
-                <div className="absolute top-2 right-2 text-[10px] text-slate-500 font-mono">
-                  WESTERN GHATS (EAST)
-                </div>
-
-                {/* Geo Nodes */}
-                {GEO_NODES.map((node) => {
-                  const isSelected = selectedNode?.id === node.id;
-                  const isResort = node.id === 'resort';
-                  return (
-                    <button
-                      key={node.id}
-                      onClick={() => setSelectedNode(node)}
-                      style={{ top: `${node.y}%`, left: `${node.x}%` }}
-                      className={`absolute -translate-x-1/2 -translate-y-1/2 group z-10 transition-all ${
-                        isSelected ? 'scale-110' : 'hover:scale-105'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-lg transition-all ${
-                            isResort
-                              ? 'bg-teal-600 text-white ring-4 ring-teal-400/30'
-                              : isSelected
-                              ? 'bg-amber-500 text-white ring-2 ring-white'
-                              : 'bg-slate-800 text-slate-200 border border-slate-700'
-                          }`}
-                        >
-                          {node.icon}
-                        </div>
-                        <span
-                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded shadow mt-1 whitespace-nowrap ${
-                            isSelected
-                              ? 'bg-white text-gray-900 border border-amber-300 font-extrabold'
-                              : 'bg-slate-900/90 text-slate-300 border border-slate-800'
-                          }`}
-                        >
-                          {node.name.split(' ')[0]}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-
-                {/* Weather Cell Radar Badge */}
-                <div className="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur px-2.5 py-1.5 rounded border border-slate-800 text-[10px] text-slate-400 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping"></span>
-                  <span>Rain Cell Radius: {currentViewWeather?.current?.precipitation > 15 ? '35 km (Active)' : '10 km (Trace)'}</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 font-mono">15.29°N 74.12°E</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 font-medium">Google Maps + OWM Tiles</span>
               </div>
+            </div>
 
-              {/* Node Inspector Box */}
-              {selectedNode && (
-                <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100 flex items-start justify-between gap-4 text-xs">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-gray-900">{selectedNode.name}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-white text-gray-600 border border-gray-200">
-                        {selectedNode.category}
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-mono">{selectedNode.coords}</span>
-                    </div>
-                    <p className="text-gray-600 mt-1 text-[11px] leading-relaxed">
-                      {selectedNode.description}
-                    </p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <span className="text-[10px] uppercase font-bold text-gray-400 block">Corridor Status</span>
-                    <span className="text-xs font-bold text-teal-700">
-                      {currentViewWeather?.severity === 'EXTREME'
-                        ? 'Severe Delay Risk'
-                        : currentViewWeather?.severity === 'HIGH'
-                        ? '30-45m Slowdown'
-                        : 'Normal Transit'}
+            {/* Google Maps Embed — fixed height */}
+            <div className="relative w-full rounded-xl overflow-hidden border border-gray-200" style={{ height: 340 }}>
+              <WeatherMap
+                weather={currentViewWeather}
+                severity={currentViewWeather?.severity || 'LOW'}
+                onNodeSelect={(node) => setSelectedNode(node)}
+                selectedNodeId={selectedNode?.id}
+              />
+            </div>
+
+            {/* Node Inspector Box */}
+            {selectedNode && (
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100 flex items-start justify-between gap-4 text-xs">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">{selectedNode.icon}</span>
+                    <span className="font-bold text-gray-900">{selectedNode.name}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-white text-gray-600 border border-gray-200">
+                      {selectedNode.category}
                     </span>
+                    <span className="text-[10px] text-gray-400 font-mono">{selectedNode.coords}</span>
                   </div>
+                  <p className="text-gray-600 mt-1 text-[11px] leading-relaxed">
+                    {selectedNode.description}
+                  </p>
                 </div>
-              )}
+                <div className="text-right flex-shrink-0">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Corridor Status</span>
+                  <span className="text-xs font-bold text-teal-700">
+                    {currentViewWeather?.severity === 'EXTREME'
+                      ? '🔴 Severe Delay Risk'
+                      : currentViewWeather?.severity === 'HIGH'
+                      ? '🟡 30-45m Slowdown'
+                      : '🟢 Normal Transit'}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Geo Node Quick-Select Pills */}
+            <div className="flex gap-2 mt-3 flex-wrap">
+              {GEO_NODES.map((node) => (
+                <button
+                  key={node.id}
+                  onClick={() => setSelectedNode(node)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-all ${
+                    selectedNode?.id === node.id
+                      ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  <span>{node.icon}</span>
+                  <span className="font-medium">{node.name.split(' ')[0]}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>

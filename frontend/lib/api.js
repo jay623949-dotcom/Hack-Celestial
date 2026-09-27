@@ -401,6 +401,8 @@ export const smartResortApi = {
   getCurrentPricing: (category) => smartApiRequest(`/api/revenue/pricing/current/${category}`),
   getNetRevPar: () => smartApiRequest('/api/revenue/net-revpar'),
   createFlashSale: (data) => smartApiRequest('/api/revenue/flash-sale', 'POST', data),
+  getCalendarMonth: (year, month) => smartApiRequest(`/api/calendar/month?year=${year}&month=${month}`),
+  getCalendarDate: (date) => smartApiRequest(`/api/calendar/date/${date}`),
 
   // Intelligence Engine
   guestIntake: (data) => smartApiRequest('/api/engine/guest-intake', 'POST', data),
