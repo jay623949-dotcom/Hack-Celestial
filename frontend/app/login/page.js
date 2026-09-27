@@ -53,18 +53,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 flex flex-col items-center justify-center p-4 py-8 selection:bg-teal-500/20 selection:text-teal-900">
+    <div className="min-h-screen w-full bg-slate-50 relative flex flex-col items-center justify-center p-4 py-8 selection:bg-[#714B67]/20 selection:text-[#714B67] overflow-hidden">
+      {/* Ambient Deep Plum Purple Radial Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-b from-[#714B67]/15 via-[#714B67]/5 to-transparent blur-3xl pointer-events-none rounded-full" />
+      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#714B67]/10 blur-3xl pointer-events-none rounded-full" />
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#714B67]/10 blur-3xl pointer-events-none rounded-full" />
+
       {/* Centered Crisp Pure White Login Card */}
-      <div className="bg-white rounded-3xl p-6 sm:p-10 max-w-lg w-full shadow-2xl border border-slate-200 space-y-6 relative animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-3xl p-6 sm:p-10 max-w-lg w-full shadow-2xl border border-slate-200/80 space-y-6 relative z-10 animate-in fade-in zoom-in-95 duration-200">
         
         {/* Top Center Logo & Title */}
         <div className="text-center space-y-2 flex flex-col items-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-teal-600 text-white font-black text-xl shadow-md">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#714B67] text-white font-black text-xl shadow-md shadow-[#714B67]/30 ring-4 ring-[#714B67]/10">
             360
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tight text-slate-900">
-              Resort 360 <span className="text-teal-600 font-extrabold">Command Center</span>
+              Resort 360 <span className="text-[#714B67] font-extrabold">Command Center</span>
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
               Autonomous Hospitality Operations &amp; AI Swarm Intelligence
@@ -87,7 +92,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="operator@resort360.demo"
-                className="w-full bg-slate-50 border border-slate-300 focus:border-teal-600 focus:bg-white focus:outline-none px-3.5 py-2.5 rounded-xl text-sm text-slate-900 font-semibold transition-all placeholder:text-slate-400"
+                className="w-full bg-slate-50 border border-slate-300 focus:border-[#714B67] focus:ring-2 focus:ring-[#714B67]/20 focus:bg-white focus:outline-none px-3.5 py-2.5 rounded-xl text-sm text-slate-900 font-semibold transition-all placeholder:text-slate-400"
               />
             </div>
           </div>
@@ -98,7 +103,7 @@ export default function LoginPage() {
               <label className="text-xs font-bold text-slate-700 uppercase font-mono tracking-wider block">
                 Access Password
               </label>
-              <span className="text-[11px] text-teal-700 font-semibold cursor-pointer">
+              <span className="text-[11px] text-[#714B67] font-semibold cursor-pointer hover:underline">
                 Demo Auth Active
               </span>
             </div>
@@ -108,7 +113,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 focus:border-teal-600 focus:bg-white focus:outline-none px-3.5 py-2.5 rounded-xl text-sm text-slate-900 font-semibold transition-all"
+                className="w-full bg-slate-50 border border-slate-300 focus:border-[#714B67] focus:ring-2 focus:ring-[#714B67]/20 focus:bg-white focus:outline-none px-3.5 py-2.5 rounded-xl text-sm text-slate-900 font-semibold transition-all"
               />
             </div>
           </div>
@@ -119,7 +124,7 @@ export default function LoginPage() {
               <label className="text-xs font-bold text-slate-800 uppercase font-mono tracking-wider block">
                 Choose Department Persona
               </label>
-              <span className="text-[10px] font-mono text-teal-600 font-bold bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+              <span className="text-[10px] font-mono text-[#714B67] font-bold bg-[#714B67]/10 px-2 py-0.5 rounded-full border border-[#714B67]/20">
                 1-Click Sign In
               </span>
             </div>
@@ -139,13 +144,13 @@ export default function LoginPage() {
                     }}
                     className={`p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-2.5 cursor-pointer ${
                       isSelected
-                        ? 'bg-teal-50 border-teal-600 ring-2 ring-teal-600/30 text-teal-950 shadow-sm'
+                        ? 'bg-[#714B67]/10 border-[#714B67] ring-2 ring-[#714B67]/30 text-slate-900 shadow-sm'
                         : 'bg-slate-50/80 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${
-                        isSelected ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-600 border-slate-200'
+                        isSelected ? 'bg-[#714B67] text-white border-[#714B67]' : 'bg-white text-slate-600 border-slate-200'
                       }`}>
                         <Icon className="w-4 h-4" />
                       </div>
@@ -156,7 +161,7 @@ export default function LoginPage() {
                     </div>
 
                     {isSelected && (
-                      <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-[#714B67] shrink-0" />
                     )}
                   </button>
                 );
@@ -168,7 +173,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 active:scale-98 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 group disabled:opacity-50 cursor-pointer"
+            className="w-full py-3.5 rounded-2xl bg-[#714B67] hover:bg-[#5D3D55] active:scale-98 text-white font-bold text-sm shadow-md shadow-[#714B67]/25 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 cursor-pointer"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
@@ -191,7 +196,7 @@ export default function LoginPage() {
             onClick={() => {
               try { localStorage.setItem('resort360_demo_role', 'admin'); } catch (_) {}
             }}
-            className="text-xs font-bold text-teal-700 hover:text-teal-900 transition-colors inline-flex items-center gap-1.5"
+            className="text-xs font-bold text-[#714B67] hover:text-[#5D3D55] transition-colors inline-flex items-center gap-1.5"
           >
             <span>Direct Access: Open Command Center without Sign In →</span>
           </Link>
@@ -199,7 +204,7 @@ export default function LoginPage() {
 
         {/* Card Footer Security Badge */}
         <div className="pt-2 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-400 font-mono">
-          <ShieldCheck className="w-4 h-4 text-teal-600" />
+          <ShieldCheck className="w-4 h-4 text-[#714B67]" />
           <span>Resort 360 Enterprise Multi-Agent OS</span>
         </div>
       </div>

@@ -300,18 +300,17 @@ async function updatePlanStatus(req, res, next) {
 }
 
 /**
- * POST /api/v1/ai/nugen/analyze
- * Direct Nugen Domain-Aligned Operational Analysis
+ * POST /api/v1/ai/nugen/analyze (Compatibility endpoint)
+ * Direct Domain-Aligned Operational Analysis via Grok/Gemma
  */
 async function analyzeWithNugen(req, res, next) {
-  const nugenService = require('../services/nugen/nugenService');
   try {
     let context = req.body.context;
     if (!context) {
       const trigger = req.body.trigger || (req.body.type ? req.body : { type: 'vip_early_arrival', incident_id: 'INC-401-AC' });
       context = await contextBuilder.buildContext(trigger);
     }
-    const result = await nugenService.analyzeOperationalIncident(context);
+    const result = await openAIService.analyzeContext(context);
     return res.status(200).json({
       success: true,
       data: {
@@ -323,30 +322,34 @@ async function analyzeWithNugen(req, res, next) {
     return res.status(error.status || 500).json({
       success: false,
       error: {
-        code: error.code || 'NUGEN_ANALYSIS_ERROR',
-        message: error.message || 'An error occurred during Nugen domain analysis.',
+        code: error.code || 'AI_ANALYSIS_ERROR',
+        message: error.message || 'An error occurred during domain analysis.',
       },
     });
   }
 }
 
 /**
- * GET /api/v1/ai/nugen/status
- * Check Nugen platform & model readiness
+ * GET /api/v1/ai/nugen/status (Compatibility endpoint)
+ * Check AI platform & model readiness
  */
 async function getNugenStatus(req, res, next) {
-  const nugenService = require('../services/nugen/nugenService');
   try {
-    const status = await nugenService.getStatus();
+    const provider = openAIService.getActiveProvider();
     return res.status(200).json({
       success: true,
-      data: status,
+      data: {
+        provider,
+        model: provider === 'grok' ? (config.ai?.grok?.model || 'grok-2-latest') : (config.ai?.gemma?.model || 'gemma2:2b'),
+        configured: Boolean(config.ai?.grok?.apiKey || config.ai?.gemma?.apiKey || config.ai?.provider === 'local'),
+        status: 'ready',
+      },
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
       error: {
-        code: 'NUGEN_STATUS_ERROR',
+        code: 'AI_STATUS_ERROR',
         message: error.message,
       },
     });

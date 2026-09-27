@@ -217,10 +217,25 @@ function AgentSwarmPageContent() {
     };
   };
 
+  const getMappedScenario = (scen) => {
+    const id = scen?.id || '';
+    if (id === 'SCENARIO-001' || id === 'SCENARIO-002') {
+      return { scenarioId: 'vip_arrival', planId: 'plan-vip-arrival' };
+    }
+    if (id === 'SCENARIO-004') {
+      return { scenarioId: 'group_arrival', planId: 'plan-group-arrival' };
+    }
+    if (id === 'SCENARIO-003' || id === 'SCENARIO-006') {
+      return { scenarioId: 'multiple_incidents', planId: 'plan-multiple-incidents' };
+    }
+    return { scenarioId: 'vip_arrival', planId: 'plan-vip-arrival' };
+  };
+
   const frontDeskData = getDepartmentalPerspective('front_desk');
   const housekeepingData = getDepartmentalPerspective('housekeeping');
   const maintenanceData = getDepartmentalPerspective('maintenance');
   const revenueData = getDepartmentalPerspective('revenue');
+  const mappedScenario = getMappedScenario(selectedScenario);
 
   return (
     <DashboardShell>
@@ -263,10 +278,10 @@ function AgentSwarmPageContent() {
           {/* Help & Guide Button */}
           <button
             onClick={() => setHelpOpen(true)}
-            className="px-3.5 py-2 rounded-2xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-2xl bg-[#714B67]/10 hover:bg-[#714B67] hover:text-white text-[#714B67] border border-[#714B67]/30 text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
             title="Multi-Agent OS & Swarm Documentation"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <HelpCircle className="w-3.5 h-3.5 text-[#714B67]" />
             <span>Help &amp; Guide</span>
           </button>
 
@@ -524,6 +539,30 @@ function AgentSwarmPageContent() {
                   </div>
                 </div>
               )}
+
+              {/* Dedicated Human Approval Quick Action Card */}
+              <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-[#714B67]/10 via-purple-500/5 to-slate-50 border border-[#714B67]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#714B67] text-white flex items-center justify-center font-bold shadow-xs shrink-0">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-foreground block">
+                      Case Ready for Human Approval: {selectedScenario.name || selectedScenario.id}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Deliberation complete. Duty Manager must authorize before tasks execute.
+                    </span>
+                  </div>
+                </div>
+                <Link
+                  href={`/dashboard/consensus?scenario=${mappedScenario.scenarioId}&planId=${mappedScenario.planId}&action=review#decision-controls`}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#714B67] hover:bg-[#5D3D55] text-white font-bold text-xs shadow-sm transition-all shrink-0 cursor-pointer"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Review in Consensus &amp; Approve Case →</span>
+                </Link>
+              </div>
             </div>
           )}
 
@@ -592,10 +631,10 @@ function AgentSwarmPageContent() {
               </div>
             </div>
             <Link
-              href="/dashboard/consensus"
+              href={`/dashboard/consensus?scenario=${mappedScenario.scenarioId}&planId=${mappedScenario.planId}&action=review#decision-controls`}
               className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-xs hover:bg-primary/90 transition-colors shrink-0 shadow-xs"
             >
-              <span>Review in Consensus Report</span>
+              <span>Review in Consensus Report ({selectedScenario.name || 'Active Case'})</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

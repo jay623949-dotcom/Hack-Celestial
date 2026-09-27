@@ -1,3 +1,5 @@
+const config = require('../config');
+
 let ioInstance = null;
 const eventHistoryBuffer = [];
 const MAX_HISTORY = 100;
@@ -8,22 +10,37 @@ const MAX_HISTORY = 100;
 function init(server) {
   try {
     const { Server } = require('socket.io');
+
+    const allowedOrigins = [config.clientUrl, config.frontendUrl].filter(Boolean).map((u) => u.replace(/\/+$/, ''));
+
     ioInstance = new Server(server, {
       cors: {
-        origin: '*', // Allow all origins in dev environment
+        origin: (origin, callback) => {
+          if (!origin) return callback(null, true);
+          const normalized = origin.replace(/\/+$/, '');
+          if (
+            allowedOrigins.includes(normalized) ||
+            config.nodeEnv !== 'production' ||
+            (process.env.ALLOW_VERCEL_PREVIEWS === 'true' && /^https:\/\/[a-z0-9-]+.*\.vercel\.app$/.test(normalized))
+          ) {
+            return callback(null, true);
+          }
+          console.warn(`[SOCKET] Blocked connection from origin: ${origin}`);
+          return callback(new Error(`[SOCKET] Origin ${origin} not allowed by CORS policy`));
+        },
         methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
-        credentials: false,
+        credentials: true,
       },
       transports: ['websocket', 'polling'],
     });
 
     ioInstance.on('connection', (socket) => {
-      console.log(`[Socket.IO] Client connected: ${socket.id}`);
+      console.log(`[SOCKET] Client connected: ${socket.id}`);
 
       // Support subscribing to specific action plans or execution runs
       const handleJoin = (planId) => {
         socket.join(`plan:${planId}`);
-        console.log(`[Socket.IO] ${socket.id} joined room plan:${planId}`);
+        console.log(`[SOCKET] ${socket.id} joined room plan:${planId}`);
       };
 
       socket.on('subscribe:plan', handleJoin);
@@ -34,14 +51,14 @@ function init(server) {
       });
 
       socket.on('disconnect', () => {
-        console.log(`[Socket.IO] Client disconnected: ${socket.id}`);
+        console.log(`[SOCKET] Client disconnected: ${socket.id}`);
       });
     });
 
-    console.log('[Socket.IO] Service initialized successfully.');
+    console.log('[SOCKET] Service initialized successfully.');
     return ioInstance;
   } catch (error) {
-    console.warn('[Socket.IO] Warning: Failed to initialize socket.io:', error.message);
+    console.warn('[SOCKET] Warning: Failed to initialize socket.io:', error.message);
     return null;
   }
 }
@@ -77,13 +94,13 @@ function emitEvent(eventName, payload) {
       if (planId) {
         ioInstance.to(`plan:${planId}`).emit(eventName, eventRecord);
       }
-      console.log(`[Socket.IO Emit] ${eventName} -> ${planId || 'global'}`);
+      console.log(`[SOCKET] Execution event dispatched: ${eventName} -> ${planId || 'global'}`);
     } catch (err) {
-      console.warn(`[Socket.IO] Emit failed for ${eventName}:`, err.message);
+      console.warn(`[SOCKET] Emit failed for ${eventName}:`, err.message);
     }
   } else {
     // In headless test mode or when socket.io is offline
-    console.log(`[Socket.IO Local Log] ${eventName}:`, payload?.task_id || payload?.title || '');
+    console.log(`[SOCKET] Event logged (offline): ${eventName}:`, payload?.task_id || payload?.title || '');
   }
 
   return eventRecord;

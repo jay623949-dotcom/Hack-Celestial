@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
   Clock,
   Sparkles,
   CheckCircle2,
+  Check,
   X,
   ArrowRight,
   Filter,
@@ -27,9 +28,14 @@ const DEPT_ICONS = {
 
 export default function IncidentOverview({ incidents = [], loading = false, onIncidentUpdated = () => {} }) {
   const router = useRouter();
+  const [itemsList, setItemsList] = useState(incidents);
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [resolving, setResolving] = useState(false);
   const [actionFeedback, setActionFeedback] = useState(null);
+
+  useEffect(() => {
+    setItemsList(incidents);
+  }, [incidents]);
 
   // Filters
   const [deptFilter, setDeptFilter] = useState('all');
@@ -76,7 +82,7 @@ export default function IncidentOverview({ incidents = [], loading = false, onIn
   // Sort incidents: critical first, then high, medium, low
   const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
 
-  const filteredIncidents = incidents.filter((i) => {
+  const filteredIncidents = itemsList.filter((i) => {
     if (deptFilter !== 'all') {
       const matchAff = (i.affected_department || i.department || '').toLowerCase() === deptFilter.toLowerCase();
       const matchRep = (i.reporting_department || '').toLowerCase() === deptFilter.toLowerCase();
@@ -98,22 +104,30 @@ export default function IncidentOverview({ incidents = [], loading = false, onIn
   });
 
   const handleResolveIncident = async (incidentId) => {
+    // 1. Instant Optimistic Local UI Update
+    setItemsList((prev) =>
+      prev.map((item) => (item.id === incidentId ? { ...item, status: 'resolved' } : item))
+    );
+    setSelectedIncident((prev) =>
+      prev && prev.id === incidentId ? { ...prev, status: 'resolved' } : prev
+    );
+    setActionFeedback(`Incident ${incidentId} marked as resolved ✓`);
+
     try {
       setResolving(true);
       await updateIncident(incidentId, { status: 'resolved' });
-      setActionFeedback(`Incident ${incidentId} resolved.`);
+      onIncidentUpdated?.(incidentId);
       setTimeout(() => {
         setActionFeedback(null);
         setSelectedIncident(null);
-        onIncidentUpdated();
-      }, 1000);
+      }, 1200);
     } catch (err) {
-      setActionFeedback(`Status updated.`);
+      console.warn('Backend update sync warning:', err.message);
+      onIncidentUpdated?.(incidentId);
       setTimeout(() => {
         setActionFeedback(null);
         setSelectedIncident(null);
-        onIncidentUpdated();
-      }, 1000);
+      }, 1200);
     } finally {
       setResolving(false);
     }
@@ -121,11 +135,12 @@ export default function IncidentOverview({ incidents = [], loading = false, onIn
 
   const handleEscalateToAI = (incident) => {
     setSelectedIncident(null);
-    router.push('/dashboard/agents?tab=consensus');
+    const incidentId = incident?.id || 'INC-401-AC';
+    router.push(`/dashboard/consensus?scenario=vip_arrival&incidentId=${incidentId}&action=review#decision-controls`);
   };
 
-  const criticalCount = incidents.filter((i) => i.severity === 'critical' && i.status !== 'resolved').length;
-  const openCount = incidents.filter((i) => i.status !== 'resolved').length;
+  const criticalCount = itemsList.filter((i) => i.severity === 'critical' && i.status !== 'resolved').length;
+  const openCount = itemsList.filter((i) => i.status !== 'resolved').length;
 
   return (
     <div id="incidents" className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden font-sans">
@@ -232,8 +247,16 @@ export default function IncidentOverview({ incidents = [], loading = false, onIn
                       {incident.id?.replace('incident-', '#INC-')}
                     </td>
                     <td className="py-2 px-3">
-                      <div className="font-semibold text-slate-900 group-hover:text-[#714B67] transition-colors leading-tight">
-                        {incident.title}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-semibold text-slate-900 group-hover:text-[#714B67] transition-colors leading-tight">
+                          {incident.title}
+                        </span>
+                        {(incident.source === 'Telegram' || incident.telegram_id || incident.reported_by?.toLowerCase().includes('telegram')) && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold font-mono bg-purple-100 text-purple-800 border border-purple-200 shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse" />
+                            📱 TELEGRAM
+                          </span>
+                        )}
                       </div>
                       <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{incident.description}</div>
                     </td>
@@ -265,16 +288,36 @@ export default function IncidentOverview({ incidents = [], loading = false, onIn
                     <td className="py-2 px-3 font-mono text-[10px] text-slate-500">
                       {incident.reported_at ? new Date(incident.reported_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '10:40 AM'}
                     </td>
-                    <td className="py-2 px-3 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedIncident(incident);
-                        }}
-                        className="px-2 py-0.5 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[10px] font-semibold transition-colors"
-                      >
-                        Inspect
-                      </button>
+                    <td className="py-2 px-3 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center gap-1.5">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedIncident(incident);
+                          }}
+                          className="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[10px] font-semibold transition-colors"
+                        >
+                          Inspect
+                        </button>
+                        {incident.status === 'resolved' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            Resolved
+                          </span>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleResolveIncident(incident.id);
+                            }}
+                            disabled={resolving}
+                            className="px-2.5 py-1 rounded bg-[#714B67] hover:bg-[#5e3d55] text-white text-[10px] font-bold transition-colors shadow-2xs disabled:opacity-50"
+                            title="Mark this incident as resolved by department staff"
+                          >
+                            Resolve
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

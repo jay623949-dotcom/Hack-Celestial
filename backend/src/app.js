@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const config = require('./config');
+const { checkDatabaseHealth } = require('./config/db');
 
 // Routes
 const healthRoutes = require('./routes/healthRoutes');
@@ -33,31 +34,80 @@ if (config.nodeEnv !== 'test') {
   app.use(morgan(config.nodeEnv === 'production' ? 'combined' : 'dev'));
 }
 
-// CORS
-const allowedOrigins = [
+// ─────────────────────────────────────────────────────────
+// CORS Configuration
+// ─────────────────────────────────────────────────────────
+const extraOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+  : [];
+
+const configuredOrigins = [
+  config.frontendUrl,
+  config.clientUrl,
+  ...extraOrigins,
+].filter(Boolean).map((u) => u.replace(/\/+$/, ''));
+
+const devOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://localhost:5000',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:3001',
+  'http://127.0.0.1:5000',
   'http://127.0.0.1:5173',
-  config.clientUrl,
-].filter(Boolean);
+];
+
+function isAllowedOrigin(origin) {
+  // Allow requests without origin (curl, mobile apps, server-to-server)
+  if (!origin) return true;
+
+  const normalized = origin.replace(/\/+$/, '');
+
+  // Exact match against configured frontend URLs
+  if (configuredOrigins.includes(normalized)) {
+    return true;
+  }
+
+  // Allow local development ports in non-production
+  if (config.nodeEnv !== 'production') {
+    if (
+      devOrigins.includes(normalized) ||
+      /^http:\/\/localhost:[0-9]+$/.test(normalized) ||
+      /^http:\/\/127\.0\.0\.1:[0-9]+$/.test(normalized)
+    ) {
+      return true;
+    }
+  }
+
+  // Allow Vercel preview or production deployments
+  if (
+    process.env.ALLOW_VERCEL_PREVIEWS === 'true' ||
+    config.frontendUrl.includes('vercel.app')
+  ) {
+    if (/^https:\/\/[a-z0-9-]+(\.vercel\.app)$/.test(normalized) || /^https:\/\/[a-z0-9-]+-.*\.vercel\.app$/.test(normalized)) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, server-to-server)
-      if (!origin) return callback(null, true);
-      if (
-        allowedOrigins.includes(origin) ||
-        (config.nodeEnv !== 'production' && /^http:\/\/localhost:[0-9]+$/.test(origin))
-      ) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
-      return callback(null, true); // Permissive in dev so all ports work
+      if (config.nodeEnv !== 'production') {
+        return callback(null, true);
+      }
+      console.warn(`[CORS] Blocked request from disallowed origin: ${origin}`);
+      return callback(new Error(`Origin ${origin} is not allowed by CORS`));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-role'],
   })
 );
 
@@ -79,12 +129,14 @@ app.get('/', (req, res) => {
 // Demo reset endpoint
 app.post(['/demo/reset', '/api/demo/reset'], performReset);
 
-// Health check endpoints
-app.get(['/health', '/api/health'], (req, res) => {
-  res.json({
+// Health check endpoint (for Render and uptime monitors)
+app.get(['/health', '/api/health'], async (req, res) => {
+  const dbHealth = await checkDatabaseHealth();
+  res.status(200).json({
     status: 'ok',
-    service: 'Smart Resort 360 API',
-    system: 'Autonomous Multi-Agent Resort Operating System',
+    service: 'resort360-backend',
+    environment: config.nodeEnv,
+    database: dbHealth.connected ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString(),
   });
 });
@@ -117,4 +169,4 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 module.exports = app;
-
+module.exports.isAllowedOrigin = isAllowedOrigin;

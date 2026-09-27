@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { BACKEND_URL } from '../config';
 
 export function useEventStream(onEvent) {
   const [isConnected, setIsConnected] = useState(false);
@@ -11,8 +12,7 @@ export function useEventStream(onEvent) {
   }, [onEvent]);
 
   useEffect(() => {
-    const backendRoot = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace(/\/api\/v1\/?$/, '');
-    const streamUrl = `${backendRoot}/api/events/stream`;
+    const streamUrl = `${BACKEND_URL}/api/events/stream`;
 
     let eventSource;
     try {

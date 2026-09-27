@@ -19,11 +19,11 @@ Resort operations frequently suffer from fragmented departmental communication. 
 
 ## 2. Technology Stack
 
-- **Frontend**: Next.js 14 (App Router), React 18, Tailwind CSS, Lucide Icons
-- **Backend**: Node.js, Express.js, CORS, Helmet, Morgan
+- **Frontend**: Next.js 14 (App Router), React 18, Tailwind CSS, Lucide Icons (Deployed on **Vercel**)
+- **Backend**: Node.js, Express.js, CORS, Helmet, Morgan, Socket.IO (Deployed on **Render**)
 - **Database / Data Layer**: PostgreSQL schema (`backend/database`) with in-memory fallback store (`phase-1/demo-data.json`)
-- **AI Integration (Universal Adapter)**: Google Gemini (`gemini-2.5-flash` with free tier API via `@google/genai`), OpenAI (`gpt-4o-mini`), and local self-hosted LLMs (Ollama, LM Studio, vLLM). Output validated with JSON Schema Draft 2020-12 & Ajv.
-- **Real-Time**: Socket.IO / WebSocket architecture
+- **AI Intelligence**: Grok AI (`grok-2-latest` via xAI API) as primary multi-agent intelligence layer, with local Gemma 2 (`gemma2:2b` via Ollama) and deterministic domain fallbacks. All keys strictly isolated to backend.
+- **Real-Time**: Socket.IO WebSocket architecture with live execution timeline telemetry
 
 ---
 
@@ -198,7 +198,27 @@ npm run dev
 
 ---
 
-## 8. Running Automated Test Suites
+## 8. Production Deployment
+
+Resort 360 is production-ready for deployment to **Render** (Backend & PostgreSQL) and **Vercel** (Frontend).
+See the comprehensive [Production Deployment Guide](docs/production.md) for full setup instructions.
+
+### Deployment Summary
+- **Frontend** $\rightarrow$ **Vercel**
+  - Build Command: `next build`
+  - Output: `.next`
+  - Environment Variables: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WS_URL`
+- **Backend** $\rightarrow$ **Render Web Service**
+  - Start Command: `node src/server.js` (or `npm start`)
+  - Environment Variables: `PORT`, `NODE_ENV=production`, `FRONTEND_URL`, `DATABASE_URL`, `XAI_API_KEY`
+  - Health Endpoint: `/health`
+- **Database** $\rightarrow$ **Render PostgreSQL**
+  - Migration: `npm run db:migrate`
+  - Canonical Seed: `npm run db:seed`
+
+---
+
+## 9. Running Automated Test Suites
 
 All backend tests run independently with self-contained test servers:
 

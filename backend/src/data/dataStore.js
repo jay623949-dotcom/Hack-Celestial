@@ -1,8 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 
-// Locate demo-data.json
-const demoDataPath = path.resolve(__dirname, '../../../phase-1/demo-data.json');
+// Locate demo-data.json (checks root phase-1/demo-data.json first, then local fallback in backend/src/data/demo-data.json)
+const candidatePaths = [
+  path.resolve(__dirname, '../../../phase-1/demo-data.json'),
+  path.resolve(__dirname, './demo-data.json'),
+  path.resolve(__dirname, '../../database/seeds/demo-data.json'),
+];
+const demoDataPath = candidatePaths.find((p) => fs.existsSync(p)) || candidatePaths[0];
 
 // In-memory data store initialized from demo-data.json
 let store = {

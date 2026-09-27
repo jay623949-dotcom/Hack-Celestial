@@ -213,6 +213,8 @@ class IncidentService {
     // Broadcast incident:created immediately to dashboard
     socketService.emitEvent('incident:created', incident);
     socketService.emit('incident:created', incident);
+    socketService.emit('incident.created', incident);
+    socketService.emit('incident.status_changed', incident);
 
     // 5. Trigger Multi-Agent Swarm Orchestration with non-blocking resilience
     const trigger = {

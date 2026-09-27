@@ -4,10 +4,10 @@ const config = require('./config');
 const socketService = require('./services/socket.service');
 
 const server = app.listen(config.port, () => {
-  console.log(`[Resort 360 Backend] Server running on port ${config.port} in ${config.nodeEnv} mode`);
-  console.log(`[Resort 360 Backend] Base API endpoint: http://localhost:${config.port}/api/v1`);
-  console.log(`[Resort 360 Backend] Health check: http://localhost:${config.port}/api/v1/health`);
-  console.log(`[Resort 360 Backend] Operations summary: http://localhost:${config.port}/api/v1/operations/summary`);
+  console.log(`[SERVER] Resort 360 Backend running on port ${config.port} (${config.nodeEnv} mode)`);
+  console.log(`[SERVER] Health endpoint: /health`);
+  console.log(`[SERVER] API v1 base: /api/v1`);
+  console.log(`[SERVER] Allowed Frontend: ${config.clientUrl}`);
 });
 
 // Attach Socket.IO

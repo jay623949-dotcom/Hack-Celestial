@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import DashboardShell from '../../../components/dashboard/DashboardShell';
 import {
   Bot, Sparkles, Play, RefreshCw, AlertCircle, CheckCircle2,
   AlertTriangle, ShieldAlert, Users, BedDouble, Wrench, TrendingUp,
   Clock, Zap, CheckSquare, XCircle, Info, ArrowRight, Layers,
   UserCheck, ShieldCheck, Edit3, ThumbsUp, ThumbsDown, History,
-  FileText, CornerDownRight, Check, HelpCircle, RotateCcw
+  FileText, CornerDownRight, Check, HelpCircle, RotateCcw, Eye, X
 } from 'lucide-react';
 import HelpDocsModal from '../../../components/common/HelpDocsModal';
 import { useRole } from '../../../lib/roleContext';
@@ -355,8 +356,14 @@ const AGENT_META = {
   revenue:      { label: 'Revenue',      dept: 'Inventory & Yield',    icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
 };
 
-export default function OperationalDecisionReviewPage() {
+function OperationalDecisionReviewContent() {
   const { role, roleData } = useRole();
+  const searchParams = useSearchParams();
+  const scenarioParam = searchParams.get('scenario');
+  const planIdParam = searchParams.get('planId');
+  const actionParam = searchParams.get('action');
+  const incidentIdParam = searchParams.get('incidentId');
+
   const [selectedScenario, setSelectedScenario] = useState(SCENARIOS[0]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -382,6 +389,18 @@ export default function OperationalDecisionReviewPage() {
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showModifyModal, setShowModifyModal] = useState(false);
+
+  // Single-Task Human-in-the-Loop Governance States
+  const [selectedTaskForDetail, setSelectedTaskForDetail] = useState(null);
+  const [selectedTaskForEdit, setSelectedTaskForEdit] = useState(null);
+  const [taskEditForm, setTaskEditForm] = useState({
+    description: '',
+    assigned_staff: '',
+    room_id: '',
+    priority: 'medium',
+    estimated_duration_minutes: 15,
+    reason: '',
+  });
 
   // Form Inputs
   const [approveComment, setApproveComment] = useState('Approved for execution. Proceed with room turnover and VIP escort.');
@@ -449,6 +468,54 @@ export default function OperationalDecisionReviewPage() {
     loadPlan(selectedScenario.planId);
     fetchNugenAnalysis(selectedScenario);
   }, [selectedScenario, loadPlan, fetchNugenAnalysis]);
+
+  // Handle incoming query params from Swarm page, Incidents log, or Telegram alert
+  useEffect(() => {
+    if (!scenarioParam && !planIdParam && !incidentIdParam) return;
+
+    let matched = null;
+    if (scenarioParam) {
+      const lower = scenarioParam.toLowerCase();
+      matched = SCENARIOS.find((s) => 
+        s.id.toLowerCase() === lower ||
+        s.planId.toLowerCase() === lower ||
+        (lower.includes('vip') && s.id === 'vip_arrival') ||
+        (lower.includes('group') && s.id === 'group_arrival') ||
+        (lower.includes('incident') && s.id === 'multiple_incidents') ||
+        (lower.includes('scen-001') && s.id === 'vip_arrival') ||
+        (lower.includes('scen-002') && s.id === 'vip_arrival') ||
+        (lower.includes('scen-003') && s.id === 'multiple_incidents') ||
+        (lower.includes('scen-004') && s.id === 'group_arrival') ||
+        (lower.includes('scen-006') && s.id === 'multiple_incidents')
+      );
+    }
+
+    if (!matched && planIdParam) {
+      matched = SCENARIOS.find((s) => s.planId === planIdParam || s.id === planIdParam);
+    }
+
+    if (!matched) {
+      matched = SCENARIOS[0];
+    }
+
+    if (matched && matched.id !== selectedScenario.id) {
+      setSelectedScenario(matched);
+      setPlan(matched.defaultPlan);
+      setEditableActions(JSON.parse(JSON.stringify(matched.defaultPlan.items)));
+      loadPlan(matched.planId);
+      fetchNugenAnalysis(matched);
+      showNotification(`Opened Case for Human Approval: ${matched.label}`);
+    }
+
+    if (actionParam === 'approve') {
+      setShowApproveModal(true);
+    } else if (actionParam === 'review') {
+      setTimeout(() => {
+        const el = document.getElementById('decision-controls');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 350);
+    }
+  }, [scenarioParam, planIdParam, actionParam, incidentIdParam, loadPlan, fetchNugenAnalysis, selectedScenario.id]);
 
   // Scenario Switcher Handler
   const handleSelectScenario = (scen) => {
@@ -715,6 +782,158 @@ export default function OperationalDecisionReviewPage() {
     }
   };
 
+  // Human-in-the-Loop: Open Task Detailed Overview
+  const handleOpenTaskDetail = (task) => {
+    setSelectedTaskForDetail(task);
+  };
+
+  // Human-in-the-Loop: Open Task Modification Modal for ONLY this task
+  const handleOpenTaskEdit = (task) => {
+    setSelectedTaskForEdit(task);
+    setTaskEditForm({
+      description: task.description || '',
+      assigned_staff: task.assigned_staff || '',
+      room_id: task.room_id || '',
+      priority: task.priority || 'medium',
+      estimated_duration_minutes: task.estimated_duration_minutes || 15,
+      reason: '',
+    });
+  };
+
+  // Human-in-the-Loop: Approve only this specific task
+  const handleApproveIndividualTask = async (taskId) => {
+    const actorId = roleData?.email || 'admin@resort360.demo';
+    const now = new Date().toISOString();
+
+    setPlan((prev) => {
+      if (!prev) return prev;
+      const updated = (prev.items || []).map((it) =>
+        it.id === taskId ? { ...it, status: 'approved', approved_by: actorId, approved_at: now } : it
+      );
+      const allApproved = updated.every(
+        (it) => it.status === 'approved' || it.status === 'completed' || it.status === 'in_progress'
+      );
+      return {
+        ...prev,
+        status: allApproved ? 'approved' : prev.status,
+        items: updated,
+      };
+    });
+
+    setAuditTrail((prev) => [
+      {
+        id: `audit-task-${Date.now()}`,
+        action_plan_id: plan.id,
+        actor_id: actorId,
+        actor_role: role || 'admin',
+        decision: 'approve_task',
+        reason: `Duty Manager approved task ${taskId} individually.`,
+        new_status: 'approved',
+        created_at: now,
+      },
+      ...prev,
+    ]);
+
+    if (selectedTaskForDetail?.id === taskId) {
+      setSelectedTaskForDetail((prev) => (prev ? { ...prev, status: 'approved' } : null));
+    }
+
+    showNotification('Task approved individually! Work order ready for dispatch.');
+
+    try {
+      await updateActionItemStatus(plan.id, taskId, 'approved');
+    } catch (err) {
+      console.warn('Backend item approval sync warning:', err.message);
+    }
+  };
+
+  // Human-in-the-Loop: Reject only this specific task
+  const handleRejectIndividualTask = async (taskId, reason = 'Rejected by Duty Manager') => {
+    const actorId = roleData?.email || 'admin@resort360.demo';
+    const now = new Date().toISOString();
+
+    setPlan((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        items: (prev.items || []).map((it) =>
+          it.id === taskId ? { ...it, status: 'rejected', rejected_reason: reason } : it
+        ),
+      };
+    });
+
+    setAuditTrail((prev) => [
+      {
+        id: `audit-task-${Date.now()}`,
+        action_plan_id: plan.id,
+        actor_id: actorId,
+        actor_role: role || 'admin',
+        decision: 'reject_task',
+        reason: reason || 'Task rejected by manager',
+        new_status: 'rejected',
+        created_at: now,
+      },
+      ...prev,
+    ]);
+
+    if (selectedTaskForDetail?.id === taskId) {
+      setSelectedTaskForDetail((prev) => (prev ? { ...prev, status: 'rejected' } : null));
+    }
+
+    showNotification('Task rejected by Duty Manager.');
+
+    try {
+      await updateActionItemStatus(plan.id, taskId, 'rejected');
+    } catch (err) {
+      console.warn('Backend item reject sync warning:', err.message);
+    }
+  };
+
+  // Human-in-the-Loop: Save edits for ONLY this specific task
+  const handleSaveTaskEdit = async () => {
+    if (!selectedTaskForEdit) return;
+    const actorId = roleData?.email || 'admin@resort360.demo';
+    const now = new Date().toISOString();
+
+    setPlan((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        items: (prev.items || []).map((it) =>
+          it.id === selectedTaskForEdit.id
+            ? {
+                ...it,
+                description: taskEditForm.description,
+                assigned_staff: taskEditForm.assigned_staff,
+                room_id: taskEditForm.room_id,
+                priority: taskEditForm.priority,
+                estimated_duration_minutes: Number(taskEditForm.estimated_duration_minutes) || 15,
+                status: 'modified_pending_approval',
+                modification_reason: taskEditForm.reason || 'Manager adjusted parameters for this task',
+              }
+            : it
+        ),
+      };
+    });
+
+    setAuditTrail((prev) => [
+      {
+        id: `audit-task-mod-${Date.now()}`,
+        action_plan_id: plan.id,
+        actor_id: actorId,
+        actor_role: role || 'admin',
+        decision: 'modify_task',
+        reason: taskEditForm.reason || `Modified task ${selectedTaskForEdit.id} parameters`,
+        new_status: 'modified_pending_approval',
+        created_at: now,
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Task updated! Ready for human approval.`);
+    setSelectedTaskForEdit(null);
+  };
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'approved':
@@ -743,8 +962,8 @@ export default function OperationalDecisionReviewPage() {
     <DashboardShell>
       {/* Toast Notification Banner */}
       {successToast && (
-        <div className="fixed top-5 right-5 z-50 p-3.5 rounded-xl border border-teal-500/30 bg-teal-50 text-teal-900 shadow-lg flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-top-2">
-          <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
+        <div className="fixed top-5 right-5 z-50 p-3.5 rounded-xl border border-[#714B67]/30 bg-[#714B67]/10 text-[#714B67] shadow-lg flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-top-2">
+          <CheckCircle2 className="w-4 h-4 text-[#714B67] shrink-0" />
           <span className="font-semibold">{successToast}</span>
         </div>
       )}
@@ -772,10 +991,10 @@ export default function OperationalDecisionReviewPage() {
           <button
             type="button"
             onClick={() => setHelpOpen(true)}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-800 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-3 py-1.5 rounded-lg text-xs font-bold border border-[#714B67]/30 bg-[#714B67]/10 hover:bg-[#714B67] hover:text-white text-[#714B67] transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
             title="Consensus Governance Documentation & Guide"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <HelpCircle className="w-3.5 h-3.5 text-[#714B67]" />
             <span>Help &amp; Guide</span>
           </button>
 
@@ -816,11 +1035,79 @@ export default function OperationalDecisionReviewPage() {
         </div>
       )}
 
+      {/* HUMAN-IN-THE-LOOP APPROVAL QUICK BAR */}
+      <div className="rounded-2xl border-2 border-[#714B67]/40 bg-gradient-to-r from-[#714B67]/15 via-purple-500/5 to-slate-50 p-4 sm:p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#714B67] text-white flex items-center justify-center font-bold shadow-xs shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs sm:text-sm font-bold text-foreground">
+                Human-in-the-Loop Governance: Decision Pending
+              </span>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#714B67]/15 text-[#714B67] border border-[#714B67]/30">
+                ACTIVE CASE: {selectedScenario.label}
+              </span>
+              <span className="text-[10px] font-mono text-muted-foreground">
+                {selectedScenario.eventId}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Swarm consensus deliberation completed across 4 departments. Review arbitration and authorize operational tasks for immediate dispatch.
+            </p>
+          </div>
+        </div>
+
+        {plan?.status !== 'approved' && plan?.status !== 'rejected' ? (
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            <button
+              type="button"
+              onClick={() => setShowApproveModal(true)}
+              className="px-4 py-2 rounded-lg bg-[#714B67] hover:bg-[#5D3D55] active:scale-98 text-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <ThumbsUp className="w-3.5 h-3.5" />
+              <span>Approve Plan</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowModifyModal(true)}
+              className="px-3 py-2 rounded-lg border border-border bg-surface hover:bg-surface-secondary text-foreground text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-primary" />
+              <span>Modify</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowRejectModal(true)}
+              className="px-3 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <ThumbsDown className="w-3.5 h-3.5" />
+              <span>Reject</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${plan?.status === 'approved' ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-rose-50 text-rose-800 border-rose-300'}`}>
+              {plan?.status === 'approved' ? '✅ Plan Authorized' : '❌ Plan Rejected'}
+            </span>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="px-3 py-1.5 rounded-lg border border-border bg-surface hover:bg-surface-secondary text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Review</span>
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* OPERATIONAL SCENARIOS SWITCHER */}
       <div className="rounded-2xl border border-border bg-surface p-4 shadow-soft space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-teal-600" />
+            <Layers className="w-4 h-4 text-[#714B67]" />
             <h3 className="text-xs sm:text-sm font-bold text-foreground">
               Select Operational Problem / Incident Scenario
             </h3>
@@ -832,7 +1119,7 @@ export default function OperationalDecisionReviewPage() {
             type="button"
             onClick={handleRunDeliberation}
             disabled={nugenLoading}
-            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 active:scale-98 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#714B67] hover:bg-[#5D3D55] active:scale-98 text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
           >
             <Play className="w-3 h-3 fill-current" />
             <span>{nugenLoading ? 'Deliberating Swarm...' : 'Run Swarm Deliberation'}</span>
@@ -849,13 +1136,13 @@ export default function OperationalDecisionReviewPage() {
                 onClick={() => handleSelectScenario(scen)}
                 className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
                   isSelected
-                    ? 'border-teal-500 bg-teal-50/70 shadow-sm ring-2 ring-teal-500/20'
+                    ? 'border-[#714B67] bg-[#714B67]/5 shadow-sm ring-2 ring-[#714B67]/20'
                     : 'border-border bg-surface hover:bg-surface-secondary/70 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${
-                    isSelected ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'
+                    isSelected ? 'bg-[#714B67] text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'
                   }`}>
                     {scen.tag}
                   </span>
@@ -863,7 +1150,7 @@ export default function OperationalDecisionReviewPage() {
                     {scen.eventId}
                   </span>
                 </div>
-                <div className={`text-xs font-bold ${isSelected ? 'text-teal-950 font-extrabold' : 'text-foreground'}`}>
+                <div className={`text-xs font-bold ${isSelected ? 'text-[#714B67] font-extrabold' : 'text-foreground'}`}>
                   {scen.label}
                 </div>
                 <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
@@ -909,7 +1196,7 @@ export default function OperationalDecisionReviewPage() {
             </div>
             <div className="p-2 rounded-lg bg-surface-secondary/70 border border-border">
               <div className="text-[10px] font-mono uppercase text-muted-foreground">Departments</div>
-              <div className="text-xs font-bold text-teal-600 mt-0.5">4 Active</div>
+              <div className="text-xs font-bold text-[#714B67] mt-0.5">4 Active</div>
             </div>
           </div>
         </div>
@@ -1299,75 +1586,156 @@ export default function OperationalDecisionReviewPage() {
               </div>
             </div>
 
+            <div className="p-3 bg-surface-secondary/40 border-b border-border text-[11px] text-muted-foreground flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#714B67] shrink-0" />
+              <span>
+                <strong>Human-in-the-Loop Governance:</strong> Duty Manager reviews and controls each task individually. Click <span className="font-semibold text-foreground">Overview</span> for AI reasoning, or <span className="font-semibold text-[#714B67]">Approve</span> / <span className="font-semibold text-amber-600">Modify</span> / <span className="font-semibold text-rose-600">Reject</span> that specific task.
+              </span>
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-border bg-surface-secondary/50 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                    <th className="py-2.5 px-4 font-semibold">Priority</th>
-                    <th className="py-2.5 px-4 font-semibold">Action Description</th>
-                    <th className="py-2.5 px-4 font-semibold">Department</th>
-                    <th className="py-2.5 px-4 font-semibold">Assigned Staff</th>
-                    <th className="py-2.5 px-4 font-semibold">Location / Room</th>
-                    <th className="py-2.5 px-4 font-semibold text-right">Status &amp; Control</th>
+                    <th className="py-2.5 px-3 font-semibold">Priority</th>
+                    <th className="py-2.5 px-3 font-semibold">Proposed Action</th>
+                    <th className="py-2.5 px-3 font-semibold">Department</th>
+                    <th className="py-2.5 px-3 font-semibold">Assigned Staff</th>
+                    <th className="py-2.5 px-3 font-semibold">Location</th>
+                    <th className="py-2.5 px-3 font-semibold">Status</th>
+                    <th className="py-2.5 px-3 font-semibold text-right">Human-in-the-Loop Controls</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
-                  {items.map((it) => (
-                    <tr key={it.id} className="hover:bg-surface-secondary/40 transition-colors">
-                      <td className="py-3 px-4">
-                        <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${
-                          it.priority === 'critical'
-                            ? 'bg-rose-50 text-rose-700 border-rose-200'
-                            : it.priority === 'high'
-                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                            : 'bg-blue-50 text-blue-700 border-blue-200'
-                        }`}>
-                          {it.priority}
-                        </span>
-                      </td>
+                  {items.map((it, idx) => {
+                    const isApproved = it.status === 'approved';
+                    const isRejected = it.status === 'rejected';
+                    const isModified = it.status === 'modified_pending_approval';
+                    const isDone = it.status === 'completed';
+                    const isInProgress = it.status === 'in_progress';
 
-                      <td className="py-3 px-4 font-medium text-foreground max-w-xs">
-                        {it.description}
-                      </td>
+                    return (
+                      <tr key={it.id || idx} className="hover:bg-surface-secondary/40 transition-colors">
+                        <td className="py-3 px-3">
+                          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${
+                            it.priority === 'critical'
+                              ? 'bg-rose-50 text-rose-700 border-rose-200'
+                              : it.priority === 'high'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-blue-50 text-blue-700 border-blue-200'
+                          }`}>
+                            {it.priority}
+                          </span>
+                        </td>
 
-                      <td className="py-3 px-4 capitalize text-muted-foreground">
-                        {it.department?.replace('_', ' ')}
-                      </td>
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-mono text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                              Task #{idx + 1}
+                            </span>
+                            <span className="font-medium text-foreground">
+                              {it.description}
+                            </span>
+                          </div>
+                          {it.modification_reason && (
+                            <div className="text-[10px] text-amber-700 italic mt-0.5">
+                              Note: {it.modification_reason}
+                            </div>
+                          )}
+                        </td>
 
-                      <td className="py-3 px-4 font-mono text-[11px] text-foreground">
-                        {it.assigned_staff || 'Floor Attendant'}
-                      </td>
+                        <td className="py-3 px-3 capitalize text-muted-foreground font-medium">
+                          {it.department?.replace('_', ' ')}
+                        </td>
 
-                      <td className="py-3 px-4 font-mono font-bold text-foreground">
-                        {it.room_id ? it.room_id.replace('room-', 'Room ') : '—'}
-                      </td>
+                        <td className="py-3 px-3 font-mono text-[11px] text-foreground">
+                          {it.assigned_staff || 'Floor Attendant'}
+                        </td>
 
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          type="button"
-                          onClick={() => handleItemStatusToggle(it.id, it.status)}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all cursor-pointer ${
-                            it.status === 'completed'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
-                              : it.status === 'in_progress'
-                              ? 'bg-blue-100 text-blue-800 border border-blue-300 animate-pulse hover:bg-blue-200'
-                              : 'bg-surface-secondary text-foreground border border-border hover:bg-slate-200'
-                          }`}
-                          title="Click to advance status"
-                        >
-                          {it.status === 'completed' && <Check className="w-3 h-3 text-emerald-700" />}
-                          {it.status?.toUpperCase() || 'PENDING'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="py-3 px-3 font-mono font-bold text-foreground">
+                          {it.room_id ? it.room_id.replace('room-', 'Room ') : '—'}
+                        </td>
+
+                        <td className="py-3 px-3">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${
+                            isDone
+                              ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                              : isApproved
+                              ? 'bg-[#714B67]/15 text-[#714B67] border border-[#714B67]/30'
+                              : isModified
+                              ? 'bg-amber-100 text-amber-800 border-amber-300'
+                              : isRejected
+                              ? 'bg-rose-100 text-rose-800 border-rose-300'
+                              : isInProgress
+                              ? 'bg-blue-100 text-blue-800 border-blue-300 animate-pulse'
+                              : 'bg-surface-secondary text-muted-foreground border-border'
+                          }`}>
+                            {isApproved && <Check className="w-2.5 h-2.5 text-[#714B67]" />}
+                            {isDone && <Check className="w-2.5 h-2.5 text-emerald-700" />}
+                            {it.status?.replace('_', ' ')?.toUpperCase() || 'PENDING'}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-3 text-right whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1.5">
+                            {/* Detailed Overview Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenTaskDetail(it)}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded border border-border bg-surface hover:bg-surface-secondary text-foreground text-[10px] font-semibold transition-colors cursor-pointer"
+                              title="Inspect AI observation and rationale for this specific task"
+                            >
+                              <Eye className="w-3 h-3 text-primary" />
+                              <span>Overview</span>
+                            </button>
+
+                            {/* Approve Individual Task */}
+                            {!isApproved && !isDone && (
+                              <button
+                                type="button"
+                                onClick={() => handleApproveIndividualTask(it.id)}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#714B67] hover:bg-[#5D3D55] text-white text-[10px] font-bold transition-colors cursor-pointer shadow-2xs"
+                                title="Approve only this specific task"
+                              >
+                                <Check className="w-3 h-3" />
+                                <span>Approve</span>
+                              </button>
+                            )}
+
+                            {/* Modify Individual Task */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenTaskEdit(it)}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-[10px] font-bold transition-colors cursor-pointer"
+                              title="Modify room, staff, or parameters for only this task"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                              <span>Modify</span>
+                            </button>
+
+                            {/* Reject Individual Task */}
+                            {!isRejected && (
+                              <button
+                                type="button"
+                                onClick={() => handleRejectIndividualTask(it.id)}
+                                className="inline-flex items-center gap-1 px-1.5 py-1 rounded border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold transition-colors cursor-pointer"
+                                title="Reject this specific task"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </section>
 
           {/* SECTION 8: APPROVAL CONTROLS */}
-          <section className="rounded-xl border border-border bg-surface p-5 shadow-soft">
+          <section id="decision-controls" className="rounded-xl border-2 border-[#714B67]/40 bg-surface p-5 shadow-soft scroll-mt-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
@@ -1388,7 +1756,7 @@ export default function OperationalDecisionReviewPage() {
                     </div>
                     <Link
                       href={`/dashboard/execution/${plan.id}`}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#714B67] hover:bg-[#5D3D55] text-white text-xs font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
                     >
                       <Zap className="w-3.5 h-3.5" />
                       <span>View Live Execution &amp; Dispatch →</span>
@@ -1445,7 +1813,7 @@ export default function OperationalDecisionReviewPage() {
                       type="button"
                       onClick={() => setShowApproveModal(true)}
                       disabled={loading}
-                      className="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-teal-600 text-white hover:bg-teal-700 active:scale-98 text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-[#714B67] text-white hover:bg-[#5D3D55] active:scale-98 text-xs font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
                     >
                       <ThumbsUp className="w-3.5 h-3.5" />
                       Approve Plan
@@ -1463,7 +1831,7 @@ export default function OperationalDecisionReviewPage() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-surface border border-border rounded-xl shadow-xl max-w-lg w-full p-5 space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-border">
-              <ShieldCheck className="w-5 h-5 text-teal-600" />
+              <ShieldCheck className="w-5 h-5 text-[#714B67]" />
               <h3 className="text-base font-bold text-foreground">Approve Operational Action Plan?</h3>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -1503,7 +1871,7 @@ export default function OperationalDecisionReviewPage() {
                 type="button"
                 onClick={handleApprove}
                 disabled={loading}
-                className="px-4 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 text-xs font-bold cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-[#714B67] text-white hover:bg-[#5D3D55] text-xs font-bold cursor-pointer"
               >
                 {loading ? 'Approving...' : 'Confirm Approval'}
               </button>
@@ -1674,7 +2042,7 @@ export default function OperationalDecisionReviewPage() {
                 type="button"
                 onClick={handleModify}
                 disabled={loading || !modifyReason.trim()}
-                className="px-4 py-1.5 rounded-lg bg-teal-600 text-white hover:bg-teal-700 text-xs font-bold disabled:opacity-50 cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-[#714B67] text-white hover:bg-[#5D3D55] text-xs font-bold disabled:opacity-50 cursor-pointer"
               >
                 {loading ? 'Saving...' : 'Save Changes & Await Approval'}
               </button>
@@ -1682,6 +2050,284 @@ export default function OperationalDecisionReviewPage() {
           </div>
         </div>
       )}
+
+      {/* TASK DETAILED OVERVIEW MODAL (Human-in-the-Loop per-task inspection) */}
+      {selectedTaskForDetail && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-surface border border-border rounded-xl shadow-2xl max-w-xl w-full p-6 space-y-4 text-xs">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-border pb-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${
+                    selectedTaskForDetail.priority === 'critical'
+                      ? 'bg-rose-50 text-rose-700 border-rose-200'
+                      : selectedTaskForDetail.priority === 'high'
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                      : 'bg-blue-50 text-blue-700 border-blue-200'
+                  }`}>
+                    {selectedTaskForDetail.priority} PRIORITY
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-secondary text-muted-foreground uppercase border border-border">
+                    ID: {selectedTaskForDetail.id}
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-foreground">
+                  Task Overview: {selectedTaskForDetail.description}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedTaskForDetail(null)}
+                className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-surface-secondary cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* AI Multi-Agent Rationale & Perspective */}
+            <div className="p-3.5 rounded-lg bg-surface-secondary/60 border border-border space-y-2">
+              <div className="flex items-center gap-2 text-primary font-bold text-xs">
+                <Bot className="w-4 h-4" />
+                <span>Multi-Agent Swarm Operational Rationale</span>
+              </div>
+              {(() => {
+                const persp = selectedScenario.perspectives?.find(
+                  (p) => p.dept.toLowerCase() === (selectedTaskForDetail.department || '').toLowerCase()
+                );
+                return (
+                  <div className="space-y-1.5 text-xs text-muted-foreground leading-relaxed">
+                    <p>
+                      <strong className="text-foreground">Agent Observation: </strong>
+                      {persp?.obs || selectedScenario.justification?.rootCause || 'Detected operational constraint requiring action.'}
+                    </p>
+                    <p>
+                      <strong className="text-foreground">Agent Recommendation: </strong>
+                      {persp?.rec || selectedTaskForDetail.description}
+                    </p>
+                    <p className="pt-1 text-[11px] text-muted-foreground border-t border-border/60">
+                      <strong>Target Department: </strong>
+                      <span className="capitalize text-foreground font-semibold">
+                        {selectedTaskForDetail.department?.replace('_', ' ')}
+                      </span>
+                    </p>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Task Operational Parameters */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="p-2.5 rounded-lg border border-border bg-surface">
+                <div className="text-[10px] font-mono uppercase text-muted-foreground">Assigned Staff</div>
+                <div className="font-bold text-foreground mt-0.5 text-xs">{selectedTaskForDetail.assigned_staff || 'Floor Lead'}</div>
+              </div>
+              <div className="p-2.5 rounded-lg border border-border bg-surface">
+                <div className="text-[10px] font-mono uppercase text-muted-foreground">Location</div>
+                <div className="font-bold text-foreground mt-0.5 text-xs font-mono">{selectedTaskForDetail.room_id ? selectedTaskForDetail.room_id.replace('room-', 'Room ') : 'Property Wide'}</div>
+              </div>
+              <div className="p-2.5 rounded-lg border border-border bg-surface">
+                <div className="text-[10px] font-mono uppercase text-muted-foreground">Est. Duration</div>
+                <div className="font-bold text-foreground mt-0.5 text-xs font-mono">{selectedTaskForDetail.estimated_duration_minutes || 20} mins</div>
+              </div>
+              <div className="p-2.5 rounded-lg border border-border bg-surface">
+                <div className="text-[10px] font-mono uppercase text-muted-foreground">Task Status</div>
+                <div className="font-bold text-xs mt-0.5 capitalize">
+                  <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+                    selectedTaskForDetail.status === 'approved'
+                      ? 'bg-[#714B67]/15 text-[#714B67]'
+                      : selectedTaskForDetail.status === 'rejected'
+                      ? 'bg-rose-100 text-rose-800'
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {selectedTaskForDetail.status?.replace('_', ' ') || 'Pending'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Governance Actions for This Specific Task */}
+            <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedTaskForDetail(null)}
+                className="px-3.5 py-1.5 rounded-lg border border-border text-xs font-semibold hover:bg-surface-secondary cursor-pointer"
+              >
+                Close
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const taskToEdit = selectedTaskForDetail;
+                    setSelectedTaskForDetail(null);
+                    handleOpenTaskEdit(taskToEdit);
+                  }}
+                  className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Modify This Task</span>
+                </button>
+
+                {selectedTaskForDetail.status !== 'rejected' && (
+                  <button
+                    type="button"
+                    onClick={() => handleRejectIndividualTask(selectedTaskForDetail.id)}
+                    className="px-3 py-1.5 rounded-lg border border-rose-300 text-rose-700 bg-rose-50 hover:bg-rose-100 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Reject Task</span>
+                  </button>
+                )}
+
+                {selectedTaskForDetail.status !== 'approved' && selectedTaskForDetail.status !== 'completed' && (
+                  <button
+                    type="button"
+                    onClick={() => handleApproveIndividualTask(selectedTaskForDetail.id)}
+                    className="px-4 py-1.5 rounded-lg bg-[#714B67] hover:bg-[#5D3D55] text-white text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Approve This Task</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SINGLE TASK MODIFICATION DIALOG (Modify ONLY this task, not 4 at once) */}
+      {selectedTaskForEdit && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-surface border border-border rounded-xl shadow-2xl max-w-lg w-full p-5 space-y-4 text-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-bold text-foreground">
+                  Modify Specific Task ({selectedTaskForEdit.id})
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedTaskForEdit(null)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Modify operational parameters for <strong className="text-foreground">this individual task only</strong>. Original AI rationale is preserved in the audit log.
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-mono text-muted-foreground uppercase font-semibold">Action Description</label>
+                <input
+                  type="text"
+                  value={taskEditForm.description}
+                  onChange={(e) => setTaskEditForm({ ...taskEditForm, description: e.target.value })}
+                  className="w-full text-xs p-2 rounded-lg border border-border bg-surface text-foreground mt-1"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-mono text-muted-foreground uppercase font-semibold">Assigned Staff</label>
+                  <input
+                    type="text"
+                    value={taskEditForm.assigned_staff}
+                    onChange={(e) => setTaskEditForm({ ...taskEditForm, assigned_staff: e.target.value })}
+                    className="w-full text-xs p-2 rounded-lg border border-border bg-surface text-foreground mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-mono text-muted-foreground uppercase font-semibold">Location / Room</label>
+                  <input
+                    type="text"
+                    value={taskEditForm.room_id}
+                    onChange={(e) => setTaskEditForm({ ...taskEditForm, room_id: e.target.value })}
+                    className="w-full text-xs p-2 rounded-lg border border-border bg-surface text-foreground mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-mono text-muted-foreground uppercase font-semibold">Priority</label>
+                  <select
+                    value={taskEditForm.priority}
+                    onChange={(e) => setTaskEditForm({ ...taskEditForm, priority: e.target.value })}
+                    className="w-full text-xs p-2 rounded-lg border border-border bg-surface text-foreground mt-1"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-mono text-muted-foreground uppercase font-semibold">Est. Duration (Mins)</label>
+                  <input
+                    type="number"
+                    value={taskEditForm.estimated_duration_minutes}
+                    onChange={(e) => setTaskEditForm({ ...taskEditForm, estimated_duration_minutes: e.target.value })}
+                    className="w-full text-xs p-2 rounded-lg border border-border bg-surface text-foreground mt-1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono text-muted-foreground uppercase font-semibold">
+                  Reason for Adjustment <span className="text-rose-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Reassigned to attendant on duty; modified timeline."
+                  value={taskEditForm.reason}
+                  onChange={(e) => setTaskEditForm({ ...taskEditForm, reason: e.target.value })}
+                  className="w-full text-xs p-2 rounded-lg border border-border bg-surface text-foreground mt-1"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+              <button
+                type="button"
+                onClick={() => setSelectedTaskForEdit(null)}
+                className="px-3.5 py-1.5 rounded-lg border border-border text-xs font-semibold hover:bg-surface-secondary cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveTaskEdit}
+                disabled={!taskEditForm.description.trim()}
+                className="px-4 py-1.5 rounded-lg bg-[#714B67] text-white hover:bg-[#5D3D55] text-xs font-bold disabled:opacity-50 cursor-pointer shadow-2xs"
+              >
+                Save Single Task Adjustment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardShell>
+  );
+}
+
+export default function OperationalDecisionReviewPage() {
+  return (
+    <Suspense
+      fallback={
+        <DashboardShell>
+          <div className="py-20 text-center text-xs text-muted-foreground font-mono">
+            Loading Operational Decision Review...
+          </div>
+        </DashboardShell>
+      }
+    >
+      <OperationalDecisionReviewContent />
+    </Suspense>
   );
 }

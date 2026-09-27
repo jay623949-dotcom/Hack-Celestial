@@ -1,12 +1,7 @@
 import { io } from 'socket.io-client';
+import { SOCKET_URL } from './config';
 
 let socket = null;
-
-const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SOCKET_URL ||
-  (process.env.NEXT_PUBLIC_API_URL
-    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '')
-    : 'http://localhost:5000');
 
 /**
  * Get or initialize the singleton Socket.IO client instance

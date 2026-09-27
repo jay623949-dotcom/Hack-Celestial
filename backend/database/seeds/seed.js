@@ -8,9 +8,14 @@ async function seedDatabase() {
     process.exit(1);
   }
 
-  const demoDataPath = path.resolve(__dirname, '../../../phase-1/demo-data.json');
-  if (!fs.existsSync(demoDataPath)) {
-    console.error(`❌ Error: demo-data.json not found at ${demoDataPath}`);
+  const candidatePaths = [
+    path.resolve(__dirname, '../../../phase-1/demo-data.json'),
+    path.resolve(__dirname, '../../src/data/demo-data.json'),
+    path.resolve(__dirname, './demo-data.json'),
+  ];
+  const demoDataPath = candidatePaths.find((p) => fs.existsSync(p));
+  if (!demoDataPath) {
+    console.error('❌ Error: demo-data.json not found in candidate paths:', candidatePaths);
     process.exit(1);
   }
 
