@@ -1,5 +1,6 @@
 /**
  * Centralized error handling middleware.
+ * Ensures zero sensitive information or stack traces leak in production.
  */
 function errorHandler(err, req, res, next) {
   let statusCode = err.statusCode || err.status || 500;
@@ -35,19 +36,25 @@ function errorHandler(err, req, res, next) {
     else errorCode = 'INTERNAL_SERVER_ERROR';
   }
 
-  console.error(`[Error] ${req.method} ${req.originalUrl} - ${statusCode} [${errorCode}]: ${message}`);
+  // Server-side logging with [SERVER] prefix
+  console.error(`[SERVER] Error: ${req.method} ${req.originalUrl} - ${statusCode} [${errorCode}]: ${message}`);
   if (err.stack && process.env.NODE_ENV !== 'production' && statusCode >= 500) {
     console.error(err.stack);
   }
 
+  const isProduction = process.env.NODE_ENV === 'production';
+  const clientMessage = isProduction && statusCode >= 500
+    ? 'Unable to process request'
+    : message;
+
   res.status(statusCode).json({
     success: false,
+    message: clientMessage,
     error: {
       code: errorCode,
-      message,
-      ...(err.details ? { details: err.details } : {}),
+      message: clientMessage,
+      ...(!isProduction && err.details ? { details: err.details } : {}),
       timestamp: new Date().toISOString(),
-      path: req.originalUrl,
     },
   });
 }
@@ -58,6 +65,7 @@ function errorHandler(err, req, res, next) {
 function notFoundHandler(req, res, next) {
   res.status(404).json({
     success: false,
+    message: 'Endpoint not found',
     error: {
       code: 'ROUTE_NOT_FOUND',
       message: `Endpoint not found: ${req.method} ${req.originalUrl}`,

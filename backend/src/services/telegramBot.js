@@ -6,6 +6,7 @@ const taskService = require('./taskService');
 const socketService = require('./socket.service');
 const weatherService = require('./weather.service');
 const staffService = require('./staffService');
+const config = require('../config');
 
 // In-memory session tracking: chatId -> { step, roomNumber, guestName, roomType, isVip }
 const sessions = {};
@@ -131,6 +132,89 @@ function triageIncident(description = '') {
 }
 
 /**
+ * Intelligent Natural Language Concern Detection
+ */
+function detectGuestConcern(text) {
+  if (!text || typeof text !== 'string') return null;
+  const lower = text.toLowerCase().trim();
+
+  // Exclude known navigation commands / greetings
+  const excluded = [
+    '/start', 'hello', 'hi', 'hey', 'help', 'menu', 'book a room',
+    'my booking details', 'weather', 'forecast', 'resort weather',
+    'back to menu', 'back', '1', '2', '3', 'ok', 'yes', 'no'
+  ];
+  if (excluded.includes(lower)) return null;
+
+  const concernPatterns = [
+    /\b(leak|leaking|leakage|water|flood|flooding|dripping|pipe|burst|tap|faucet|drain|clog|clogged)\b/i,
+    /\b(ac|air\s*condition(?:ing|er)?|hvac|compressor|cooling|heater|heating|cold|hot\s*water|freeze|freezing)\b/i,
+    /\b(broken|not\s*working|doesn't\s*work|wont\s*work|damaged|damage|defective|failed|breakdown|repaired?|fix)\b/i,
+    /\b(light|bulb|electricity|power|spark|sparking|short\s*circuit|switch|socket|tv|television|remote|wifi|internet)\b/i,
+    /\b(dirty|smell|smelly|odor|trash|garbage|stain|dust|cockroach|bug|insect|pest|clean|cleaning|housekeeping|linen|bedsheet|towel)\b/i,
+    /\b(toilet|flush|shower|bathroom|washroom|geyser)\b/i,
+    /\b(door|lock|key|keycard|jammed|stuck|cannot\s*open)\b/i,
+    /\b(noise|loud|party|disturb|shouting|music|complaint|complain|issue|concern|problem)\b/i,
+    /\b(fire|smoke|hazard|danger|urgent|emergency|assist(?:ance)?)\b/i,
+    /\b(delay|slow|rude|waiting\s*too\s*long|unacceptable|poor\s*service)\b/i,
+  ];
+
+  const isMatched = concernPatterns.some((pattern) => pattern.test(lower));
+  if (!isMatched) {
+    const hasRoomMention = /\b(?:room|suite|rm|villa|#)\s*([0-9]{2,4})\b/i.test(lower);
+    if (!hasRoomMention) return null;
+  }
+
+  const roomMatch = text.match(/\b(?:room|suite|rm|villa|#)\s*([0-9]{2,4})\b/i) || text.match(/\b([0-9]{3,4})\b/);
+  const detectedRoom = roomMatch ? roomMatch[1] : null;
+
+  const { department, severity } = triageIncident(text);
+
+  return {
+    isConcern: true,
+    detectedRoom,
+    department,
+    severity,
+  };
+}
+
+/**
+ * Notifies Resort 360 Duty Manager / Authorities on Telegram
+ */
+async function notifyAuthoritiesOfIncident(incident, result, reportingChatId) {
+  const bot = botInstance;
+  if (!bot) return;
+
+  const authorityChatId = process.env.TELEGRAM_AUTHORITY_CHAT_ID;
+  if (!authorityChatId) return;
+
+  try {
+    const isVip = Boolean(incident.vip);
+    const alertText = [
+      '🚨 *[RESORT 360 DUTY MANAGER ALERT]*',
+      '*New Guest Concern Reported via Telegram*',
+      '',
+      `📋 *Incident ID:* \`#${incident.id}\``,
+      `📍 *Location:* Room ${incident.room_number || incident.room_id || 'Property Wide'}`,
+      `👤 *Guest:* ${incident.guest_name || 'Guest'} ${isVip ? '⭐ *(VIP)*' : ''}`,
+      `⚡ *Severity:* ${incident.severity?.toUpperCase() || 'MEDIUM'}`,
+      `🏢 *Dept:* ${(incident.department || 'Operations').toUpperCase()}`,
+      '',
+      `📝 *Concern:* "${incident.description}"`,
+      '',
+      `🤖 *AI Swarm Action:* ${result?.planSummary || 'Operations team dispatched.'}`,
+      '',
+      `🖥️ *Review & Human Approval on Dashboard:*`,
+      `${config.clientUrl || 'http://localhost:3000'}/dashboard/consensus?scenario=vip_arrival&incidentId=${incident.id}&action=review`,
+    ].join('\n');
+
+    await bot.sendMessage(authorityChatId, alertText, { parse_mode: 'Markdown' });
+  } catch (err) {
+    console.warn('[Telegram Bot] Failed to send authority Telegram notification:', err.message);
+  }
+}
+
+/**
  * Creates an incident in Resort 360 backend from Telegram guest report
  * and triggers the multi-agent AI Swarm / consensus orchestrator.
  * Accepts payload { room_number, description, source: 'Telegram', guest_name, vip, telegram_id }
@@ -152,10 +236,22 @@ async function createIncidentFromTelegram({
     telegram_id,
   });
 
+  const incident = result.incident || result;
+
+  // Broadcast real-time Socket.IO events for dashboard and duty managers
+  try {
+    socketService.emit('incident:created', incident);
+    socketService.emit('incident.created', incident);
+    socketService.emit('incident.status_changed', incident);
+    socketService.emit('incident:updated', incident);
+  } catch (socketErr) {
+    console.warn('[Telegram Bot] Socket emit failed for incident:', socketErr.message);
+  }
+
   return {
-    ...result.incident,
+    ...incident,
     ...result,
-    incident: result.incident,
+    incident,
   };
 }
 
@@ -921,40 +1017,79 @@ async function processIncomingText({ chatId, text, sendMessage }) {
     return;
   }
 
-  // 11. Receiving the Complaint
-  if (session.step === 'AWAITING_COMPLAINT') {
+  // Authority / Duty Manager self-registration command for hackathon demo
+  if (lowerText === '/duty_manager' || lowerText === '/admin' || lowerText === '/staff' || lowerText === '/authority') {
+    process.env.TELEGRAM_AUTHORITY_CHAT_ID = String(chatId);
+    console.log(`[Telegram Bot] Duty Manager chat registered: ${chatId}`);
+    await sendMessage(
+      chatId,
+      '🎖️ Verified as Resort 360 Duty Manager!\n\nYou will now receive instant push alerts whenever guests raise concerns or incidents occur on property.'
+    );
+    return;
+  }
+
+  // 11. Receiving Complaint (Explicit mode or Intelligent Natural Language Concern Detection)
+  const detectedConcern = detectGuestConcern(rawText);
+  if (session.step === 'AWAITING_COMPLAINT' || detectedConcern) {
     const complaintText = rawText;
+
+    // Resolve room number: from detection, from session, from guest database, or fallback
+    let resolvedRoom = (detectedConcern && detectedConcern.detectedRoom) || session.roomNumber;
+    let resolvedGuestName = session.guestName;
+    let resolvedIsVip = session.isVip;
+
+    if (!resolvedRoom) {
+      const linkedGuest = guestService.findByTelegramId(chatId);
+      if (linkedGuest) {
+        resolvedRoom = linkedGuest.room_number || linkedGuest.room_id?.replace(/^room-/i, '');
+        resolvedGuestName = resolvedGuestName || linkedGuest.name;
+        resolvedIsVip = resolvedIsVip || Boolean(linkedGuest.vip);
+      }
+    }
+
+    if (!resolvedRoom) {
+      resolvedRoom = '401'; // Default for demo if unassigned
+    }
+
     const result = await createIncidentFromTelegram({
-      room_number: session.roomNumber,
+      room_number: resolvedRoom,
       description: complaintText,
       source: 'Telegram',
-      guest_name: session.guestName,
-      vip: session.isVip,
+      guest_name: resolvedGuestName || 'Telegram Guest',
+      vip: resolvedIsVip,
       telegram_id: chatId,
     });
 
     const incident = result.incident || result;
-    const effectiveSeverity = incident.severity || result.priority || 'high';
-    const isVip = Boolean(result.vip || session.isVip);
+    const effectiveSeverity = incident.severity || detectedConcern?.severity || result.priority || 'high';
+    const isVip = Boolean(result.vip || session.isVip || resolvedIsVip);
     const priorityText = isVip
       ? `${effectiveSeverity.toUpperCase()} (VIP Priority)`
       : effectiveSeverity.charAt(0).toUpperCase() + effectiveSeverity.slice(1);
     const consensusSummary = result.planSummary || 'Operations team dispatched to resolve your request.';
+    const deptDisplay = (incident.department || detectedConcern?.department || 'maintenance').toUpperCase();
+
+    // Alert Duty Manager / Authorities on Telegram
+    await notifyAuthoritiesOfIncident(incident, result, chatId);
 
     const replyCard = [
-      '🛎 Incident Logged & Triaged!',
+      '🛎 Incident Registered & Triaged!',
       '',
       `📋 Ticket: #${incident.id}`,
-      `📍 Room: ${session.roomNumber || 'Unknown'}`,
+      `📍 Room: Room ${resolvedRoom}`,
       `⚡ Priority: ${priorityText}`,
-      `🤖 AI Consensus: ${consensusSummary}`,
+      `🏢 Department: ${deptDisplay}`,
+      `🤖 AI Swarm Action: ${consensusSummary}`,
       '',
-      'Our staff has been notified and is attending to this now. You will receive an automatic update here once the work is complete.',
+      'Our staff and duty manager have been notified in real time on the Resort 360 dashboard. You will receive an automatic update here once the work is complete.',
     ].join('\n');
 
     await sendMessage(chatId, replyCard);
 
     // Reset session state to VERIFIED
+    session.roomNumber = resolvedRoom;
+    session.guestName = resolvedGuestName || session.guestName;
+    session.isVip = isVip;
     session.step = 'VERIFIED';
 
     // Send guest menu keyboard again for any follow-up needs
@@ -1190,9 +1325,9 @@ function initBot(token = process.env.TELEGRAM_BOT_TOKEN) {
       const description = error.response?.body?.description || error.message || error.code || 'Telegram polling error';
       if (description.includes('409 Conflict') || error.code === 'ETELEGRAM') {
         const now = Date.now();
-        if (now - lastPollingConflict > 20000) {
+        if (now - lastPollingConflict > 60000) {
           lastPollingConflict = now;
-          console.warn(`[Telegram Bot] Polling notice: ${description}. (Occurs when multiple backend workers or nodemon restarts poll @${botInstance?.options?.username || 'Telegram'} concurrently).`);
+          console.log('[Telegram Bot] Telegram polling session syncing (auto-reconnecting)...');
         }
         return;
       }

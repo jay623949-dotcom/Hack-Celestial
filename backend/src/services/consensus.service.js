@@ -159,6 +159,7 @@ class ConsensusService {
       recommendations: allRecs,
       action_plan: {
         action_plan_id: `plan-${timestamp}`,
+        plan_id: `plan-${timestamp}`,
         summary: 'Execute sequential guest recovery, express housekeeping clean, and mechanical dispatch.',
         actions: actions.length > 0 ? actions : [
           {
@@ -233,19 +234,14 @@ class ConsensusService {
 
     let parsedConsensus = null;
 
-    if (context.nugen_domain_intelligence && !process.env.NUGEN_API_KEY && !openAIService.geminiClient && !openAIService.openaiClient) {
-      console.log('[ConsensusService] Synthesizing consensus grounded in Nugen domain intelligence...');
+    try {
+      parsedConsensus = await openAIService.executeCompletion(
+        userPrompt,
+        consensusPrompt.SYSTEM_INSTRUCTIONS
+      );
+    } catch (err) {
+      console.warn('[AI] Consensus synthesis encountered error, engaging deterministic fallback:', err.message);
       parsedConsensus = this.buildFallbackConsensus(context, validResponses, agentStatusMap);
-    } else {
-      try {
-        parsedConsensus = await openAIService.executeCompletion(
-          userPrompt,
-          consensusPrompt.SYSTEM_INSTRUCTIONS
-        );
-      } catch (err) {
-        console.warn('[ConsensusService] AI consensus synthesis encountered an error. Engaging deterministic fallback:', err.message);
-        parsedConsensus = this.buildFallbackConsensus(context, validResponses, agentStatusMap);
-      }
     }
 
     // 3. Post-Process & Normalize Consensus Output
@@ -260,6 +256,9 @@ class ConsensusService {
     // Strictly enforce human approval lock
     parsedConsensus.requires_human_approval = true;
     if (parsedConsensus.action_plan) {
+      const planId = parsedConsensus.action_plan.action_plan_id || parsedConsensus.action_plan.plan_id || `plan-${Date.now()}`;
+      parsedConsensus.action_plan.action_plan_id = planId;
+      parsedConsensus.action_plan.plan_id = planId;
       parsedConsensus.action_plan.requires_human_approval = true;
       parsedConsensus.action_plan.status = 'pending_approval';
     }

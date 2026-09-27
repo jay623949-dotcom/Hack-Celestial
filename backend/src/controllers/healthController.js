@@ -8,7 +8,7 @@ const config = require('../config');
 async function getHealth(req, res) {
   const dbHealth = await checkDatabaseHealth();
   const aiConfigured = Boolean(
-    config.ai.gemini.apiKey || config.ai.openai.apiKey || config.ai.provider === 'local'
+    config.ai?.grok?.apiKey || config.ai?.gemma?.apiKey || config.ai?.openai?.apiKey || config.ai?.provider === 'local'
   );
 
   res.status(200).json({

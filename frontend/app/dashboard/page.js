@@ -36,6 +36,7 @@ import {
   UserCheck,
   HelpCircle,
   PlusCircle,
+  Radio,
 } from 'lucide-react';
 import HelpDocsModal from '../../components/common/HelpDocsModal';
 import ReportConcernModal from '../../components/common/ReportConcernModal';
@@ -50,6 +51,7 @@ export default function DashboardPage() {
   const [incidents, setIncidents] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [staff, setStaff] = useState([]);
+  const [telegramAlert, setTelegramAlert] = useState(null);
 
   const [activeRoomFilter, setActiveRoomFilter] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ export default function DashboardPage() {
       const results = await Promise.allSettled([
         getOperationsSummary(),
         getRooms({ status: roomFilter }),
-        getIncidents({ status: 'open' }),
+        getIncidents(),
         getTasks(),
         getGuests(),
         getStaff(),
@@ -108,21 +110,54 @@ export default function DashboardPage() {
       fetchDashboardData();
     };
 
+    const handleIncidentCreated = (evt) => {
+      fetchDashboardData();
+      const data = evt?.data || evt || {};
+      if (
+        data.source === 'Telegram' ||
+        data.telegram_id ||
+        data.title?.toLowerCase().includes('telegram') ||
+        data.title?.toLowerCase().includes('guest report')
+      ) {
+        setTelegramAlert({
+          id: data.id || `inc-${Date.now()}`,
+          room: data.room_number || data.room_id?.replace(/^room-/i, '') || '401',
+          description: data.description || data.title || 'Guest concern reported via Telegram',
+          severity: data.severity || 'high',
+          source: 'Telegram',
+          guest: data.guest_name || 'Valued Guest',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        });
+      }
+    };
+
+    socket.on('incident:created', handleIncidentCreated);
+    socket.on('incident.created', handleIncidentCreated);
+    socket.on('incident:updated', handleRefresh);
+    socket.on('incident.status_changed', handleRefresh);
+    socket.on('task:created', handleRefresh);
     socket.on('task.created', handleRefresh);
     socket.on('task.dispatched', handleRefresh);
+    socket.on('task:dispatched', handleRefresh);
     socket.on('task.completed', handleRefresh);
     socket.on('room.status_changed', handleRefresh);
-    socket.on('incident.status_changed', handleRefresh);
+    socket.on('room:updated', handleRefresh);
     socket.on('staff.status_changed', handleRefresh);
     socket.on('execution.started', handleRefresh);
     socket.on('execution.completed', handleRefresh);
 
     return () => {
+      socket.off('incident:created', handleIncidentCreated);
+      socket.off('incident.created', handleIncidentCreated);
+      socket.off('incident:updated', handleRefresh);
+      socket.off('incident.status_changed', handleRefresh);
+      socket.off('task:created', handleRefresh);
       socket.off('task.created', handleRefresh);
       socket.off('task.dispatched', handleRefresh);
+      socket.off('task:dispatched', handleRefresh);
       socket.off('task.completed', handleRefresh);
       socket.off('room.status_changed', handleRefresh);
-      socket.off('incident.status_changed', handleRefresh);
+      socket.off('room:updated', handleRefresh);
       socket.off('staff.status_changed', handleRefresh);
       socket.off('execution.started', handleRefresh);
       socket.off('execution.completed', handleRefresh);
@@ -207,10 +242,10 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setHelpOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#714B67]/30 bg-[#714B67]/10 hover:bg-[#714B67] hover:text-white text-xs font-bold text-[#714B67] transition-colors shadow-xs"
             title="Operations Console Help & Guide"
           >
-            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <HelpCircle className="w-3.5 h-3.5" />
             <span>Help &amp; Guide</span>
           </button>
 
@@ -248,6 +283,50 @@ export default function DashboardPage() {
           >
             Retry
           </button>
+        </div>
+      )}
+
+      {/* LIVE TELEGRAM GUEST CONCERN ALERT (Real-time Socket Notification) */}
+      {telegramAlert && (
+        <div className="rounded-xl border-2 border-purple-500 bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 p-4 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-start sm:items-center gap-3">
+            <span className="p-2 rounded-xl bg-purple-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm shrink-0">
+              <Radio className="w-4 h-4 animate-pulse" />
+              <span>LIVE TELEGRAM</span>
+            </span>
+            <div className="space-y-0.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold text-slate-900">
+                  Guest Issue Received via Telegram — Room {telegramAlert.room}
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-rose-600 text-white">
+                  {telegramAlert.severity} PRIORITY
+                </span>
+                <span className="text-[10px] font-mono text-slate-500">
+                  {telegramAlert.time}
+                </span>
+              </div>
+              <p className="text-xs text-slate-700 font-medium leading-relaxed">
+                &ldquo;{telegramAlert.description}&rdquo; — <span className="font-semibold text-purple-900">Logged in Incident Registry &amp; Assigned to Department</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            <a
+              href="#incidents"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+            >
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>View in Incident Log →</span>
+            </a>
+            <button
+              onClick={() => setTelegramAlert(null)}
+              className="p-1.5 rounded-lg border border-slate-300 text-slate-500 hover:text-slate-800 hover:bg-white text-xs"
+              title="Dismiss notification"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -331,8 +410,8 @@ export default function DashboardPage() {
         >
           <div>
             <div className="flex items-center justify-between">
-              <div className="p-2.5 rounded-xl bg-teal-50 text-primary border border-teal-100 group-hover:scale-105 transition-transform">
-                <BedDouble className="w-5 h-5" />
+              <div className="p-2.5 rounded-xl bg-[#714B67]/10 text-primary border border-[#714B67]/20 group-hover:scale-105 transition-transform">
+                <BedDouble className="w-5 h-5 text-[#714B67]" />
               </div>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
                 {rooms.length} ROOMS
@@ -439,7 +518,18 @@ export default function DashboardPage() {
       {/* Incidents & Operational Pressure Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <div className="lg:col-span-2">
-          <IncidentOverview incidents={incidents} loading={loading} />
+          <IncidentOverview
+            incidents={incidents}
+            loading={loading}
+            onIncidentUpdated={(id) => {
+              if (id) {
+                setIncidents((prev) =>
+                  prev.map((inc) => (inc.id === id ? { ...inc, status: 'resolved' } : inc))
+                );
+              }
+              fetchDashboardData();
+            }}
+          />
         </div>
         <div className="space-y-6">
           <AttentionPanel />
@@ -549,7 +639,7 @@ export default function DashboardPage() {
               <button
                 onClick={handleAnalyzeWithAI}
                 disabled={isAnalyzing}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-teal-700 text-white font-bold text-xs shadow-md transition-all disabled:opacity-60"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#714B67] hover:bg-[#5D3D55] text-white font-bold text-xs shadow-md transition-all disabled:opacity-60 cursor-pointer"
               >
                 <Sparkles className={`w-4 h-4 ${isAnalyzing ? 'animate-spin' : ''}`} />
                 <span>{isAnalyzing ? 'Arbitrating with 4 AI Agents...' : 'Analyze with AI Swarm →'}</span>

@@ -492,6 +492,9 @@ class AIPersistenceService {
       source_type: 'ai_generated',
     };
     inMemoryStore.plans.set(planId, planObj);
+    if (plan.plan_id && plan.plan_id !== planId) {
+      inMemoryStore.plans.set(plan.plan_id, planObj);
+    }
 
     // Save individual action items
     const items = [];
@@ -516,6 +519,9 @@ class AIPersistenceService {
       items.push(itemObj);
     }
     inMemoryStore.items.set(planId, items);
+    if (plan.plan_id && plan.plan_id !== planId) {
+      inMemoryStore.items.set(plan.plan_id, items);
+    }
 
     // Initial audit entry
     const auditEntry = {

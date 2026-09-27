@@ -8,9 +8,14 @@ async function seedDatabase() {
     process.exit(1);
   }
 
-  const demoDataPath = path.resolve(__dirname, '../../../phase-1/demo-data.json');
-  if (!fs.existsSync(demoDataPath)) {
-    console.error(`❌ Error: demo-data.json not found at ${demoDataPath}`);
+  const candidatePaths = [
+    path.resolve(__dirname, '../../../phase-1/demo-data.json'),
+    path.resolve(__dirname, '../../src/data/demo-data.json'),
+    path.resolve(__dirname, './demo-data.json'),
+  ];
+  const demoDataPath = candidatePaths.find((p) => fs.existsSync(p));
+  if (!demoDataPath) {
+    console.error('❌ Error: demo-data.json not found in candidate paths:', candidatePaths);
     process.exit(1);
   }
 
@@ -51,7 +56,9 @@ async function seedDatabase() {
     );
 
     // 2. Seed Rooms
+    const validRoomStatuses = ['available', 'occupied', 'maintenance', 'reserved', 'dirty'];
     for (const room of demoData.rooms || []) {
+      const roomStatus = validRoomStatuses.includes(room.status) ? room.status : 'available';
       await client.query(
         `INSERT INTO rooms (id, resort_id, number, floor, type, status, features, last_cleaned)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -69,7 +76,7 @@ async function seedDatabase() {
           room.number,
           room.floor || 1,
           room.type,
-          room.status || 'available',
+          roomStatus,
           JSON.stringify(room.features || []),
           room.last_cleaned ? new Date(room.last_cleaned) : null,
         ]
@@ -110,7 +117,11 @@ async function seedDatabase() {
     }
 
     // 4. Seed Staff
+    const staffStatusMap = { available: 'on_duty', active: 'on_duty', idle: 'on_duty', working: 'busy' };
     for (const member of demoData.staff || []) {
+      const staffStatus = ['on_duty', 'busy', 'off_duty'].includes(member.status)
+        ? member.status
+        : (staffStatusMap[member.status] || 'on_duty');
       await client.query(
         `INSERT INTO staff (id, resort_id, name, department, role, status, current_task)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -127,14 +138,18 @@ async function seedDatabase() {
           member.name,
           member.department,
           member.role,
-          member.status || 'on_duty',
+          staffStatus,
           member.current_task || 'Standby',
         ]
       );
     }
 
     // 5. Seed Incidents
+    const validIncidentSeverities = ['low', 'medium', 'high', 'critical'];
+    const validIncidentStatuses = ['open', 'investigating', 'in_progress', 'resolved', 'closed'];
     for (const incident of demoData.incidents || []) {
+      const incSeverity = validIncidentSeverities.includes(incident.severity) ? incident.severity : 'medium';
+      const incStatus = validIncidentStatuses.includes(incident.status) ? incident.status : 'open';
       await client.query(
         `INSERT INTO incidents (id, resort_id, title, description, severity, status, department, room_id, guest_id, reported_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -153,8 +168,8 @@ async function seedDatabase() {
           resort.id,
           incident.title,
           incident.description || '',
-          incident.severity || 'medium',
-          incident.status || 'open',
+          incSeverity,
+          incStatus,
           incident.department || 'general',
           incident.room_id || null,
           incident.guest_id || null,
@@ -164,7 +179,18 @@ async function seedDatabase() {
     }
 
     // 6. Seed Tasks
+    const validTaskPriorities = ['low', 'medium', 'high', 'critical'];
+    const validTaskStatuses = ['pending', 'in_progress', 'completed', 'cancelled'];
+    const validIncidentIds = new Set((demoData.incidents || []).map((i) => i.id));
     for (const task of demoData.tasks || []) {
+      const taskPriority = validTaskPriorities.includes(task.priority) ? task.priority : 'medium';
+      const taskStatus = validTaskStatuses.includes(task.status) ? task.status : 'pending';
+      let incidentId = task.incident_id || null;
+      if (incidentId === 'incident-001' && validIncidentIds.has('INC-401-AC')) {
+        incidentId = 'INC-401-AC';
+      } else if (incidentId && !validIncidentIds.has(incidentId)) {
+        incidentId = null;
+      }
       await client.query(
         `INSERT INTO tasks (id, resort_id, title, description, department, assigned_to, room_id, incident_id, priority, status, due_time)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
@@ -187,9 +213,9 @@ async function seedDatabase() {
           task.department || 'general',
           task.assigned_to || null,
           task.room_id || null,
-          task.incident_id || null,
-          task.priority || 'medium',
-          task.status || 'pending',
+          incidentId,
+          taskPriority,
+          taskStatus,
           task.due_time || '12:00 PM',
         ]
       );

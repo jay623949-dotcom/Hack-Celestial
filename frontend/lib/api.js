@@ -1,8 +1,4 @@
-/**
- * Shared frontend API and backend communication client.
- * Base URL defaults to http://localhost:5000/api/v1
- */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+import { API_BASE_URL, BACKEND_URL } from './config';
 
 /**
  * Resilient API fetcher with timeout protection, safe non-JSON error handling,
@@ -348,7 +344,7 @@ export async function updateTaskStatus(taskId, status) {
 // ─────────────────────────────────────────────────────────────────────────────
 // SMART RESORT 360 AUTONOMOUS AGENT API WRAPPERS
 // ─────────────────────────────────────────────────────────────────────────────
-const BACKEND_ROOT = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace(/\/api\/v1\/?$/, '');
+const BACKEND_ROOT = BACKEND_URL;
 
 export async function smartApiRequest(path, method = 'GET', body = null) {
   const url = `${BACKEND_ROOT}${path.startsWith('/') ? path : `/${path}`}`;
