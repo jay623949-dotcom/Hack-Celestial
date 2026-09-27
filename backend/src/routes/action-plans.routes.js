@@ -29,5 +29,8 @@ router.post('/:id/modify', actionPlansController.modifyPlan);
 // PATCH /api/v1/action-plans/:id/items/:itemId/status
 router.patch('/:id/items/:itemId/status', actionPlansController.updateItemStatus);
 
+// POST /api/v1/action-plans/:id/reset
+router.post('/:id/reset', actionPlansController.resetPlan);
+
 module.exports = router;
 

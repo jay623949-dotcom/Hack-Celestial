@@ -347,6 +347,32 @@ async function updateItemStatus(req, res, next) {
   }
 }
 
+/**
+ * POST /api/v1/action-plans/:id/reset
+ */
+async function resetPlan(req, res, next) {
+  try {
+    const { id } = req.params;
+    const auth = authorizeManager(req);
+
+    const result = await aiPersistence.resetPlan(id, {
+      actorId: auth.actorId,
+      actorRole: auth.role,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Action plan ${id} reset back to reviewable state.`,
+      data: result,
+    });
+  } catch (error) {
+    if (error.code === 'PLAN_NOT_FOUND') {
+      return res.status(404).json({ success: false, error: { code: error.code, message: error.message } });
+    }
+    next(error);
+  }
+}
+
 module.exports = {
   getActionPlan,
   getAuditTrail,
@@ -357,5 +383,6 @@ module.exports = {
   rejectPlan,
   modifyPlan,
   updateItemStatus,
+  resetPlan,
 };
 

@@ -115,6 +115,193 @@ const inMemoryStore = {
       source_type: 'ai_generated',
     }
   ]);
+
+  // Seed Scenario 2: Multiple Incidents & Turnover Squeeze
+  const plan2Id = 'plan-multiple-incidents';
+  const items2 = [
+    {
+      id: 'item-mi-1',
+      action_plan_id: plan2Id,
+      action_type: 'expedite_turnover',
+      description: 'Deploy 25m express cleaning on Suite 505 by Maria Santos for VIP reassignment',
+      department: 'housekeeping',
+      assigned_staff: 'staff-003',
+      room_id: 'room-505',
+      priority: 'critical',
+      status: 'pending_review',
+      estimated_duration_minutes: 25,
+      sequence_order: 0,
+    },
+    {
+      id: 'item-mi-2',
+      action_plan_id: plan2Id,
+      action_type: 'priority_hvac_repair',
+      description: 'Dispatch HVAC lead Bob Miller for Suite 401 compressor capacitor diagnosis & swap',
+      department: 'maintenance',
+      assigned_staff: 'staff-005',
+      room_id: 'room-401',
+      priority: 'critical',
+      status: 'pending_review',
+      estimated_duration_minutes: 30,
+      sequence_order: 1,
+    },
+    {
+      id: 'item-mi-3',
+      action_plan_id: plan2Id,
+      action_type: 'guest_recovery',
+      description: 'Escort VIP Alexander Vance to Private Club Lounge with amenity courtesy service',
+      department: 'front_desk',
+      assigned_staff: 'staff-001',
+      room_id: 'room-505',
+      guest_id: 'guest-001',
+      priority: 'high',
+      status: 'pending_review',
+      estimated_duration_minutes: 10,
+      sequence_order: 2,
+    },
+    {
+      id: 'item-mi-4',
+      action_plan_id: plan2Id,
+      action_type: 'inventory_protection',
+      description: 'Preserve Floor 4 rooms 402-415 block integrity for 14:00 wedding group arrival',
+      department: 'revenue',
+      assigned_staff: 'staff-007',
+      room_id: 'floor-4',
+      priority: 'medium',
+      status: 'pending_review',
+      estimated_duration_minutes: 5,
+      sequence_order: 3,
+    },
+  ];
+
+  inMemoryStore.plans.set(plan2Id, {
+    id: plan2Id,
+    analysis_run_id: 'run-multiple-incidents',
+    consensus_id: 'consensus-multiple-incidents',
+    context_id: 'ctx-scen-004',
+    summary: 'Reassign VIP Alexander Vance to Suite 505 with 25m express clean by attendant Maria Santos, dispatch Bob Miller for Suite 401 capacitor replacement, and preserve Floor 4 group block.',
+    priority: 'critical',
+    requires_human_approval: true,
+    status: 'pending_review',
+    original_plan: JSON.parse(JSON.stringify(items2)),
+    modified_plan: null,
+    modification_reason: null,
+    approved_by: null,
+    approved_at: null,
+    rejected_reason: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    source_type: 'ai_generated',
+  });
+  inMemoryStore.items.set(plan2Id, items2);
+  inMemoryStore.auditTrail.set(plan2Id, [
+    {
+      id: `audit-${Date.now()}-mi-init`,
+      action_plan_id: plan2Id,
+      actor_id: 'system_ai_orchestrator',
+      actor_role: 'system',
+      decision: 'create',
+      reason: 'AI Consensus Engine synthesized cross-departmental incident plan.',
+      previous_status: 'none',
+      new_status: 'pending_review',
+      changes: {},
+      created_at: new Date().toISOString(),
+      source_type: 'ai_generated',
+    }
+  ]);
+
+  // Seed Scenario 3: Large Group Check-in & Inventory Lock
+  const plan3Id = 'plan-group-arrival';
+  const items3 = [
+    {
+      id: 'item-grp-1',
+      action_plan_id: plan3Id,
+      action_type: 'satellite_reception',
+      description: 'Establish North Ballroom satellite reception desk for 50-guest batch check-in',
+      department: 'front_desk',
+      assigned_staff: 'staff-001',
+      room_id: 'ballroom-north',
+      priority: 'critical',
+      status: 'pending_review',
+      estimated_duration_minutes: 15,
+      sequence_order: 0,
+    },
+    {
+      id: 'item-grp-2',
+      action_plan_id: plan3Id,
+      action_type: 'batch_inspection',
+      description: 'Execute final rapid quality inspection across 12 Floor 4 group rooms (402-415)',
+      department: 'housekeeping',
+      assigned_staff: 'staff-004',
+      room_id: 'floor-4',
+      priority: 'high',
+      status: 'pending_review',
+      estimated_duration_minutes: 20,
+      sequence_order: 1,
+    },
+    {
+      id: 'item-grp-3',
+      action_plan_id: plan3Id,
+      action_type: 'luggage_staging',
+      description: 'Pre-tag and stage 50 pieces of group luggage in staging salon for batch porterage',
+      department: 'front_desk',
+      assigned_staff: 'staff-002',
+      room_id: 'staging-salon',
+      priority: 'high',
+      status: 'pending_review',
+      estimated_duration_minutes: 25,
+      sequence_order: 2,
+    },
+    {
+      id: 'item-grp-4',
+      action_plan_id: plan3Id,
+      action_type: 'folio_settlement',
+      description: 'Verify master account billing credit authorization and lock room keys in batch',
+      department: 'revenue',
+      assigned_staff: 'staff-007',
+      room_id: 'front-desk-1',
+      priority: 'medium',
+      status: 'pending_review',
+      estimated_duration_minutes: 10,
+      sequence_order: 3,
+    },
+  ];
+
+  inMemoryStore.plans.set(plan3Id, {
+    id: plan3Id,
+    analysis_run_id: 'run-group-arrival',
+    consensus_id: 'consensus-group-arrival',
+    context_id: 'ctx-scen-003',
+    summary: 'Activate North Ballroom batch check-in satellite desk for 50-guest wedding party, inspect Floor 4 rooms, pre-stage luggage, and verify master folio settlement.',
+    priority: 'high',
+    requires_human_approval: true,
+    status: 'pending_review',
+    original_plan: JSON.parse(JSON.stringify(items3)),
+    modified_plan: null,
+    modification_reason: null,
+    approved_by: null,
+    approved_at: null,
+    rejected_reason: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    source_type: 'ai_generated',
+  });
+  inMemoryStore.items.set(plan3Id, items3);
+  inMemoryStore.auditTrail.set(plan3Id, [
+    {
+      id: `audit-${Date.now()}-grp-init`,
+      action_plan_id: plan3Id,
+      actor_id: 'system_ai_orchestrator',
+      actor_role: 'system',
+      decision: 'create',
+      reason: 'AI Consensus Engine generated logistics surge plan.',
+      previous_status: 'none',
+      new_status: 'pending_review',
+      changes: {},
+      created_at: new Date().toISOString(),
+      source_type: 'ai_generated',
+    }
+  ]);
 })();
 
 class AIPersistenceService {
@@ -931,6 +1118,86 @@ class AIPersistenceService {
         completed: items.filter(i => i.status === 'completed').length,
         total: items.length,
       }
+    };
+  }
+
+  /**
+   * Reset an action plan back to pending_review state for testing/demo workflows.
+   */
+  async resetPlan(planId, { actorId = 'admin@resort360.demo', actorRole = 'admin' } = {}) {
+    const plan = inMemoryStore.plans.get(planId);
+    if (!plan) {
+      const error = new Error(`Action plan not found: ${planId}`);
+      error.code = 'PLAN_NOT_FOUND';
+      error.status = 404;
+      throw error;
+    }
+
+    const previousStatus = plan.status;
+    const now = new Date().toISOString();
+
+    plan.status = 'pending_review';
+    plan.approved_by = null;
+    plan.approved_at = null;
+    plan.rejected_reason = null;
+    plan.rejected_by = null;
+    plan.rejected_at = null;
+    plan.updated_at = now;
+
+    // Reset items to pending_review
+    const items = inMemoryStore.items.get(planId) || [];
+    items.forEach((it) => {
+      it.status = 'pending_review';
+    });
+
+    const auditRecord = {
+      id: `audit-${Date.now()}-reset`,
+      action_plan_id: planId,
+      actor_id: actorId,
+      actor_role: actorRole,
+      decision: 'reset',
+      reason: 'Plan reset back to reviewable state for operational re-evaluation.',
+      previous_status: previousStatus,
+      new_status: 'pending_review',
+      changes: {},
+      created_at: now,
+      source_type: 'human_decision',
+    };
+
+    const trail = inMemoryStore.auditTrail.get(planId) || [];
+    trail.push(auditRecord);
+    inMemoryStore.auditTrail.set(planId, trail);
+
+    try {
+      await db.query(`
+        UPDATE ai_action_plans SET
+          status = 'pending_review',
+          approved_by = NULL,
+          approved_at = NULL,
+          rejected_reason = NULL,
+          rejected_by = NULL,
+          rejected_at = NULL,
+          updated_at = NOW()
+        WHERE id = $1
+      `, [planId]);
+
+      await db.query(`
+        UPDATE ai_action_plan_items SET status = 'pending_review' WHERE action_plan_id = $1
+      `, [planId]);
+
+      await db.query(`
+        INSERT INTO ai_action_plan_decisions
+          (id, action_plan_id, actor_id, actor_role, decision, reason, previous_status, new_status, changes, source_type)
+        VALUES ($1, $2, $3, $4, 'reset', $5, $6, 'pending_review', '{}', 'human_decision')
+      `, [auditRecord.id, planId, actorId, actorRole, auditRecord.reason, previousStatus]);
+    } catch (_) {}
+
+    return {
+      success: true,
+      action_plan_id: planId,
+      status: 'pending_review',
+      items,
+      audit_record: auditRecord,
     };
   }
 

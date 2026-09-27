@@ -312,6 +312,12 @@ export async function updateActionItemStatus(planId, itemId, status) {
   });
 }
 
+export async function resetActionPlan(id) {
+  return fetchFromApi(`/action-plans/${id}/reset`, {
+    method: 'POST',
+  });
+}
+
 /**
  * Phase 5 Execution APIs
  */
