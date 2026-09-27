@@ -869,9 +869,27 @@ function initBot(token = process.env.TELEGRAM_BOT_TOKEN) {
     });
 
     // Handle polling errors safely without crashing process
+    let lastPollingConflict = 0;
     botInstance.on('polling_error', (error) => {
-      console.error('[Telegram Bot Polling Error]:', error.code || error.message);
+      const description = error.response?.body?.description || error.message || error.code || 'Telegram polling error';
+      if (description.includes('409 Conflict') || error.code === 'ETELEGRAM') {
+        const now = Date.now();
+        if (now - lastPollingConflict > 20000) {
+          lastPollingConflict = now;
+          console.warn(`[Telegram Bot] Polling notice: ${description}. (Occurs when multiple backend workers or nodemon restarts poll @${botInstance?.options?.username || 'Telegram'} concurrently).`);
+        }
+        return;
+      }
+      console.error('[Telegram Bot Polling Error]:', description);
     });
+
+    const handleShutdown = () => {
+      if (botInstance && typeof botInstance.stopPolling === 'function') {
+        botInstance.stopPolling().catch(() => {});
+      }
+    };
+    process.once('SIGINT', handleShutdown);
+    process.once('SIGTERM', handleShutdown);
 
     return botInstance;
   } catch (error) {
