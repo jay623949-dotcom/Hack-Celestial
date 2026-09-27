@@ -1322,8 +1322,12 @@ function initBot(token = process.env.TELEGRAM_BOT_TOKEN) {
     // Handle polling errors safely without crashing process
     botInstance.on('polling_error', (error) => {
       const description = error.response?.body?.description || error.message || error.code || 'Telegram polling error';
-      if (description.includes('409') || description.includes('Conflict') || error.code === 'ETELEGRAM') {
-        // Transient 409 Conflict during dev server restarts will auto-recover as soon as previous session releases
+      if (description.includes('409 Conflict') || error.code === 'ETELEGRAM') {
+        const now = Date.now();
+        if (now - lastPollingConflict > 60000) {
+          lastPollingConflict = now;
+          console.log('[Telegram Bot] Telegram polling session syncing (auto-reconnecting)...');
+        }
         return;
       }
       console.error('[Telegram Bot Polling Error]:', description);
