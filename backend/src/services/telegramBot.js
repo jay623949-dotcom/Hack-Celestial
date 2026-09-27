@@ -1325,9 +1325,9 @@ function initBot(token = process.env.TELEGRAM_BOT_TOKEN) {
       const description = error.response?.body?.description || error.message || error.code || 'Telegram polling error';
       if (description.includes('409 Conflict') || error.code === 'ETELEGRAM') {
         const now = Date.now();
-        if (now - lastPollingConflict > 20000) {
+        if (now - lastPollingConflict > 60000) {
           lastPollingConflict = now;
-          console.warn(`[Telegram Bot] Polling notice: ${description}. (Occurs when multiple backend workers or nodemon restarts poll @${botInstance?.options?.username || 'Telegram'} concurrently).`);
+          console.log('[Telegram Bot] Telegram polling session syncing (auto-reconnecting)...');
         }
         return;
       }
