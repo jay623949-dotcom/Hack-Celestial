@@ -164,6 +164,28 @@ function updateIncident(req, res, next) {
       });
     }
 
+    // Real-Time Socket.IO Synchronization
+    const socketService = require('../services/socket.service');
+    socketService.emitEvent('incident:updated', updated);
+    socketService.emitEvent('incident.status_changed', updated);
+
+    // If incident reached resolved / completed / closed, notify guest via Telegram
+    if (updates.status && ['resolved', 'completed', 'closed'].includes(String(updates.status).toLowerCase())) {
+      try {
+        const telegramBot = require('../services/telegramBot');
+        const roomNum = updated.room_number || (updated.room_id ? String(updated.room_id).replace(/^room-/i, '') : null);
+        telegramBot.notifyGuestTaskCompleted({
+          roomNumber: roomNum,
+          title: updated.title || updated.description,
+          assignedStaff: updated.assigned_to,
+          resolutionNotes: updates.resolution_notes || updates.notes,
+          guestId: updated.guest_id,
+        });
+      } catch (botErr) {
+        console.error('[Incidents Controller] Telegram notification trigger failed:', botErr.message);
+      }
+    }
+
     return res.status(200).json({
       success: true,
       data: updated,

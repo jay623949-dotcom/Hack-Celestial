@@ -4,6 +4,8 @@ const roomService = require('./roomService');
 const guestService = require('./guestService');
 const taskService = require('./taskService');
 const socketService = require('./socket.service');
+const weatherService = require('./weather.service');
+const staffService = require('./staffService');
 
 // In-memory session tracking: chatId -> { step, roomNumber, guestName, roomType, isVip }
 const sessions = {};
@@ -49,6 +51,7 @@ const guestMenuKeyboard = {
       [{ text: '⚠️ Report an Issue', callback_data: 'report_issue' }],
       [{ text: '🛎 Request Amenities', callback_data: 'request_amenities' }],
       [{ text: '🕒 Late Checkout', callback_data: 'late_checkout' }],
+      [{ text: '☀️ Resort Weather & Forecast', callback_data: 'resort_weather' }],
     ],
   },
 };
@@ -129,56 +132,31 @@ function triageIncident(description = '') {
 
 /**
  * Creates an incident in Resort 360 backend from Telegram guest report
- * Accepts payload { room_number, description, source: 'Telegram' }
+ * and triggers the multi-agent AI Swarm / consensus orchestrator.
+ * Accepts payload { room_number, description, source: 'Telegram', guest_name, vip, telegram_id }
  */
-async function createIncidentFromTelegram({ room_number, description, source = 'Telegram', guest_name }) {
-  const rooms = roomService.getAll();
-  const room = rooms.find(
-    (r) => String(r.number) === String(room_number) || r.id === room_number || r.id === `room-${room_number}`
-  );
-  const roomId = room ? room.id : `room-${room_number}`;
-
-  // If the room doesn't exist in dataStore yet, register it so relationships hold
-  if (!roomService.getById(roomId)) {
-    roomService.create({
-      id: roomId,
-      number: String(room_number),
-      type: 'Deluxe Suite',
-      status: 'occupied',
-    });
-  }
-
-  // Lookup active guest if available
-  const guest = guestService.findByRoom(room_number);
-  const guestId = guest ? guest.id : null;
-
-  const { department, severity } = triageIncident(description);
-  const summarySnippet = description.length > 40 ? `${description.slice(0, 40)}...` : description;
-  const title = `Guest Report (Room ${room_number}): ${summarySnippet}`;
-
-  const incident = incidentService.create({
-    title,
+async function createIncidentFromTelegram({
+  room_number,
+  description,
+  source = 'Telegram',
+  guest_name,
+  vip,
+  telegram_id,
+}) {
+  const result = await incidentService.createWithSwarm({
+    room_number,
     description,
-    severity,
-    status: 'open',
-    department,
-    room_id: roomId,
-    guest_id: guestId,
-    guest_name: guest_name || (guest ? guest.name : undefined),
     source,
-    reported_at: new Date().toISOString(),
+    guest_name,
+    vip,
+    telegram_id,
   });
 
-  console.log(`[Telegram Bot] Incident logged for Room ${room_number}: ID ${incident.id} (${severity}/${department})`);
-
-  // Broadcast to realtime operations dashboard via Socket.IO
-  try {
-    socketService.emit('incident:created', incident);
-  } catch (err) {
-    // Socket emit failure should not crash bot response
-  }
-
-  return incident;
+  return {
+    ...result.incident,
+    ...result,
+    incident: result.incident,
+  };
 }
 
 /**
@@ -318,6 +296,309 @@ async function handleLateCheckoutRequest({ chatId, choice, sendMessage }) {
       guestMenuKeyboard
     );
     session.step = 'VERIFIED';
+  }
+}
+
+/**
+ * Formats raw weather data into a clean, mobile-friendly Telegram card
+ */
+function formatWeatherCard(weatherData) {
+  if (!weatherData) {
+    return [
+      '☀️ Resort 360 Weather & Forecast 🌴',
+      '',
+      '🌡 Current Conditions: 28°C • Pleasant',
+      '🌤 Forecast: Clear skies throughout the day • High: 31°C / Low: 22°C',
+      '💡 Concierge Note: Perfect conditions for outdoor amenities today!',
+    ].join('\n');
+  }
+
+  const current = weatherData.current || {};
+  const tempStr = current.temperature !== undefined ? `${current.temperature}°C` : '28°C';
+  const condStr = current.condition || 'Clear Sky';
+  const humidity = current.humidity !== undefined ? `${current.humidity}%` : '75%';
+  const wind = current.windSpeed !== undefined ? `${current.windSpeed} km/h` : '10 km/h';
+
+  let forecastOutlook = 'Sunny with calm coastal breezes';
+  if (Array.isArray(weatherData.forecast) && weatherData.forecast.length > 0) {
+    const validTemps = weatherData.forecast
+      .map((f) => f.temperature)
+      .filter((t) => typeof t === 'number' && !isNaN(t));
+    if (typeof current.temperature === 'number') {
+      validTemps.push(current.temperature);
+    }
+
+    const high = validTemps.length > 0 ? Math.round(Math.max(...validTemps)) : 31;
+    const low = validTemps.length > 0 ? Math.round(Math.min(...validTemps)) : 22;
+
+    const rainExpected = weatherData.forecast.some(
+      (f) => (f.precipitation && f.precipitation > 0.5) || (f.weatherCode >= 50 && f.weatherCode <= 99)
+    );
+
+    const outlookDesc = rainExpected ? 'Scattered showers expected later' : 'Sunny with calm coastal breezes';
+    forecastOutlook = `${outlookDesc} • High: ${high}°C / Low: ${low}°C • Wind: ${wind}`;
+  } else {
+    forecastOutlook = `High: 31°C / Low: 22°C • Humidity: ${humidity} • Wind: ${wind}`;
+  }
+
+  let conciergeNote = 'Perfect conditions for outdoor amenities today!';
+  if (weatherData.severity === 'EXTREME' || (current.precipitation && current.precipitation > 15)) {
+    conciergeNote = 'Heavy weather alert: Indoor lounges, cinema, and spa are ready to welcome you.';
+  } else if (weatherData.severity === 'HIGH' || (current.precipitation && current.precipitation > 5)) {
+    conciergeNote = 'Passing rain expected: Complimentary umbrellas available at the concierge desk.';
+  } else if (current.temperature && current.temperature > 35) {
+    conciergeNote = 'Warm sunny day: Enjoy poolside refreshments and shaded cabanas!';
+  }
+
+  return [
+    '☀️ Resort 360 Weather & Forecast 🌴',
+    '',
+    `🌡 Current Conditions: ${tempStr} • ${condStr}`,
+    `🌤 Forecast: ${forecastOutlook}`,
+    `💡 Concierge Note: ${conciergeNote}`,
+  ].join('\n');
+}
+
+/**
+ * Handles guest request for current resort weather & forecast
+ */
+async function handleWeatherRequest({ chatId, sendMessage }) {
+  const session = sessions[chatId] || { step: 'IDLE' };
+  if (session.roomNumber) {
+    session.step = 'VERIFIED';
+  }
+
+  try {
+    const weatherData = await weatherService.getCurrentWeather();
+    if (!weatherData) {
+      throw new Error('Weather data unavailable');
+    }
+    const cardText = formatWeatherCard(weatherData);
+    await sendMessage(chatId, cardText, cancelToMenuKeyboard);
+  } catch (error) {
+    console.error(`[Telegram Bot] Error fetching weather for chatId ${chatId}:`, error.message);
+    await sendMessage(
+      chatId,
+      '⚠️ Weather service is temporarily updating. Please try again in a few moments.',
+      cancelToMenuKeyboard
+    );
+  }
+}
+
+/**
+ * Proactively broadcasts predictive weather updates to all active guests with a registered telegram_id
+ */
+async function sendWeatherUpdateToGuests(overrideBot = null) {
+  const bot = overrideBot || botInstance;
+  let weatherData = null;
+  try {
+    weatherData = await weatherService.getCurrentWeather();
+  } catch (err) {
+    console.error('[Telegram Bot Broadcast] Failed to fetch weather for broadcast:', err.message);
+  }
+
+  const weatherSummary = formatWeatherCard(weatherData);
+  const allGuests = guestService.getAll() || [];
+
+  // Filter active guests with non-empty telegram_id
+  const activeGuests = allGuests.filter((g) => {
+    const hasTelegram = g.telegram_id && String(g.telegram_id).trim() !== '';
+    const notCheckedOut = !g.status || g.status.toLowerCase() !== 'checked_out';
+    return hasTelegram && notCheckedOut;
+  });
+
+  const results = {
+    totalEligible: activeGuests.length,
+    sent: 0,
+    failed: 0,
+    recipients: [],
+    errors: [],
+  };
+
+  if (!bot) {
+    console.warn('[Telegram Bot Broadcast] Telegram bot instance is not initialized.');
+    results.message = 'Telegram bot not initialized';
+    return results;
+  }
+
+  for (const guest of activeGuests) {
+    const guestName = guest.name || 'Valued Guest';
+    const roomNumber = guest.room_number || (guest.room_id ? String(guest.room_id).replace(/^room-/i, '') : 'Suite');
+    const personalizedMessage = `Good morning, ${guestName}! 🌴 Here is today's predictive weather update for your stay in Room ${roomNumber}:\n\n${weatherSummary}`;
+
+    try {
+      await bot.sendMessage(guest.telegram_id, personalizedMessage, cancelToMenuKeyboard);
+      results.sent += 1;
+      results.recipients.push({
+        guestId: guest.id,
+        guestName,
+        roomNumber,
+        telegramId: guest.telegram_id,
+        status: 'delivered',
+      });
+      console.log(`[Telegram Bot Broadcast] Weather update delivered to ${guestName} (Room ${roomNumber}, Chat ID: ${guest.telegram_id})`);
+    } catch (err) {
+      results.failed += 1;
+      results.errors.push({
+        guestId: guest.id,
+        guestName,
+        telegramId: guest.telegram_id,
+        error: err.message,
+      });
+      console.error(`[Telegram Bot Broadcast] Delivery failed for ${guestName} (${guest.telegram_id}):`, err.message);
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Proactively dispatches an outbound Telegram push notification to the guest
+ * when a task or incident reaches a resolved/completed status.
+ */
+async function notifyGuestTaskCompleted({
+  roomNumber,
+  taskId,
+  title,
+  assignedStaff,
+  resolutionNotes,
+  guestId,
+  overrideBot = null,
+}) {
+  const bot = overrideBot || botInstance;
+  if (!bot) {
+    console.log('[Telegram Bot] Bot instance not initialized. Skipping guest notification.');
+    return { success: false, reason: 'Bot not initialized' };
+  }
+
+  try {
+    let resolvedRoomNumber = roomNumber;
+    let resolvedTitle = title;
+    let resolvedStaffName = assignedStaff;
+    let targetGuest = null;
+
+    // 1. If taskId is provided, attempt to enrich details from task
+    if (taskId) {
+      const task = taskService.getById(taskId);
+      if (task) {
+        if (!resolvedRoomNumber) {
+          resolvedRoomNumber = task.room_number || (task.room_id ? String(task.room_id).replace(/^room-/i, '') : null);
+        }
+        if (!resolvedTitle) {
+          resolvedTitle = task.title;
+        }
+        if (!resolvedStaffName) {
+          resolvedStaffName = task.assigned_to;
+        }
+        if (!guestId && task.guest_id) {
+          guestId = task.guest_id;
+        }
+      }
+    }
+
+    // 2. Resolve staff member name if staff ID was provided
+    if (resolvedStaffName && String(resolvedStaffName).startsWith('staff-')) {
+      const staffMember = staffService.getById(resolvedStaffName);
+      if (staffMember && staffMember.name) {
+        resolvedStaffName = staffMember.name;
+      }
+    }
+
+    if (!resolvedStaffName || String(resolvedStaffName).trim() === '') {
+      resolvedStaffName = 'Our Operations Team';
+    }
+
+    if (!resolvedTitle || String(resolvedTitle).trim() === '') {
+      resolvedTitle = resolutionNotes || 'Service Request';
+    }
+
+    // 3. Find guest by guestId or roomNumber
+    if (guestId) {
+      targetGuest = guestService.getById(guestId);
+    }
+
+    if (!targetGuest && resolvedRoomNumber) {
+      const allGuests = guestService.getAll() || [];
+      // Prioritize active guest in this room who has a registered telegram_id
+      targetGuest = allGuests.find(
+        (g) =>
+          (String(g.room_number) === String(resolvedRoomNumber) ||
+            String(g.room_id) === `room-${resolvedRoomNumber}` ||
+            String(g.room_id) === String(resolvedRoomNumber)) &&
+          g.telegram_id &&
+          String(g.telegram_id).trim() !== '' &&
+          (!g.status || g.status.toLowerCase() !== 'checked_out')
+      );
+
+      // Fallback: any guest registered to this room
+      if (!targetGuest) {
+        targetGuest = guestService.findByRoom(resolvedRoomNumber);
+      }
+    }
+
+    // 4. Validate telegram_id
+    if (!targetGuest || !targetGuest.telegram_id || String(targetGuest.telegram_id).trim() === '') {
+      console.log(
+        `[Telegram Bot] No registered Telegram ID found for Room ${resolvedRoomNumber || 'N/A'} (Guest: ${
+          targetGuest?.name || 'Unknown'
+        }). Skipping notification.`
+      );
+      return { success: false, reason: 'No registered telegram_id' };
+    }
+
+    const guestTelegramId = String(targetGuest.telegram_id).trim();
+    const guestName = targetGuest.name || 'Valued Guest';
+    const roomDisplay = resolvedRoomNumber || targetGuest.room_number || 'your room';
+
+    const escapeMarkdown = (t) => (t ? String(t).replace(/[_*[\]`]/g, '\\$&') : '');
+
+    // 5. Format notification message
+    const messageMarkdown = [
+      `*✅ Service Update for Room ${escapeMarkdown(roomDisplay)}*`,
+      '',
+      `Hello ${escapeMarkdown(guestName)}, our team has completed your request:`,
+      `🔧 *Task:* ${escapeMarkdown(resolvedTitle)}`,
+      `👤 *Completed By:* ${escapeMarkdown(resolvedStaffName)}`,
+      '',
+      'Everything is operating normally and verified. Please let us know if you need anything else to make your stay comfortable!',
+    ].join('\n');
+
+    const messagePlain = [
+      `✅ Service Update for Room ${roomDisplay}`,
+      '',
+      `Hello ${guestName}, our team has completed your request:`,
+      `🔧 Task: ${resolvedTitle}`,
+      `👤 Completed By: ${resolvedStaffName}`,
+      '',
+      'Everything is operating normally and verified. Please let us know if you need anything else to make your stay comfortable!',
+    ].join('\n');
+
+    // 6. Safe dispatch with markdown fallback
+    try {
+      await bot.sendMessage(guestTelegramId, messageMarkdown, {
+        parse_mode: 'Markdown',
+        reply_markup: guestMenuKeyboard.reply_markup,
+      });
+    } catch (parseErr) {
+      await bot.sendMessage(guestTelegramId, messagePlain, {
+        reply_markup: guestMenuKeyboard.reply_markup,
+      });
+    }
+
+    console.log(
+      `[Telegram Bot] Outbound service completion notification sent to ${guestName} (Room ${roomDisplay}, Telegram ID: ${guestTelegramId})`
+    );
+
+    return {
+      success: true,
+      guestName,
+      roomNumber: roomDisplay,
+      telegramId: guestTelegramId,
+      task: resolvedTitle,
+    };
+  } catch (error) {
+    console.error('[Telegram Bot] Error dispatching task completion notification:', error.message);
+    return { success: false, error: error.message };
   }
 }
 
@@ -627,20 +908,51 @@ async function processIncomingText({ chatId, text, sendMessage }) {
     return;
   }
 
+  // 10.5 Action: Resort Weather & Forecast
+  if (
+    session.step !== 'AWAITING_COMPLAINT' &&
+    (lowerText === 'weather' ||
+      lowerText === 'forecast' ||
+      lowerText === 'resort weather' ||
+      lowerText === '☀️ resort weather & forecast' ||
+      lowerText === 'resort 360 weather')
+  ) {
+    await handleWeatherRequest({ chatId, sendMessage });
+    return;
+  }
+
   // 11. Receiving the Complaint
   if (session.step === 'AWAITING_COMPLAINT') {
     const complaintText = rawText;
-    await createIncidentFromTelegram({
+    const result = await createIncidentFromTelegram({
       room_number: session.roomNumber,
       description: complaintText,
       source: 'Telegram',
       guest_name: session.guestName,
+      vip: session.isVip,
+      telegram_id: chatId,
     });
 
-    await sendMessage(
-      chatId,
-      '✅ Ticket logged! Our AI Swarm is analyzing your report and assigning the appropriate staff. We will resolve this as quickly as possible.'
-    );
+    const incident = result.incident || result;
+    const effectiveSeverity = incident.severity || result.priority || 'high';
+    const isVip = Boolean(result.vip || session.isVip);
+    const priorityText = isVip
+      ? `${effectiveSeverity.toUpperCase()} (VIP Priority)`
+      : effectiveSeverity.charAt(0).toUpperCase() + effectiveSeverity.slice(1);
+    const consensusSummary = result.planSummary || 'Operations team dispatched to resolve your request.';
+
+    const replyCard = [
+      '🛎 Incident Logged & Triaged!',
+      '',
+      `📋 Ticket: #${incident.id}`,
+      `📍 Room: ${session.roomNumber || 'Unknown'}`,
+      `⚡ Priority: ${priorityText}`,
+      `🤖 AI Consensus: ${consensusSummary}`,
+      '',
+      'Our staff has been notified and is attending to this now. You will receive an automatic update here once the work is complete.',
+    ].join('\n');
+
+    await sendMessage(chatId, replyCard);
 
     // Reset session state to VERIFIED
     session.step = 'VERIFIED';
@@ -788,6 +1100,10 @@ async function processCallbackQuery({ queryId, chatId, data, answerCallback, sen
       await handleLateCheckoutRequest({ chatId, choice: data, sendMessage });
       break;
 
+    case 'resort_weather':
+      await handleWeatherRequest({ chatId, sendMessage });
+      break;
+
     case 'back_to_menu':
       if (session.roomNumber) {
         session.step = 'VERIFIED';
@@ -903,4 +1219,8 @@ module.exports = {
   verificationFailedKeyboard,
   handleAmenityRequest,
   handleLateCheckoutRequest,
+  handleWeatherRequest,
+  formatWeatherCard,
+  sendWeatherUpdateToGuests,
+  notifyGuestTaskCompleted,
 };

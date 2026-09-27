@@ -71,7 +71,7 @@ async function runGuestServicesTests() {
 
   assert.strictEqual(telegramBot.sessions[chatId].step, 'VERIFIED');
   const msg1Confirm = messagesSent[messagesSent.length - 2];
-  assert(msg1Confirm.text.includes('Ticket logged! Our AI Swarm is analyzing your report'));
+  assert(msg1Confirm.text.includes('Incident Logged & Triaged!') || msg1Confirm.text.includes('Ticket logged! Our AI Swarm is analyzing your report'));
   const incident = incidentService.getAll().find((i) => i.description === issueText);
   assert(incident, 'Incident was not saved in incidentService!');
   assert.strictEqual(incident.room_id, 'room-305');

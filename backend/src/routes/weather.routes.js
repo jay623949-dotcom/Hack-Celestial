@@ -56,6 +56,24 @@ router.get('/weather/refresh', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────
+// POST /weather/broadcast
+// Proactively sends personalized weather update to all active guests with telegram_id
+// ─────────────────────────────────────────────────────────
+router.post('/weather/broadcast', async (req, res) => {
+  try {
+    const telegramBot = require('../services/telegramBot');
+    const result = await telegramBot.sendWeatherUpdateToGuests();
+    res.json({
+      success: true,
+      message: 'Weather update broadcast processed successfully.',
+      data: result,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+});
+
+// ─────────────────────────────────────────────────────────
 // GET /digital-twin/weather/context
 // Full weather + impact + signals + resort state
 // ─────────────────────────────────────────────────────────

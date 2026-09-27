@@ -380,6 +380,11 @@ class ExecutionService {
             title: incident.title,
             status: 'resolved',
           });
+          socketService.emitEvent('incident:updated', {
+            incident_id: incident.id,
+            title: incident.title,
+            status: 'resolved',
+          });
         }
       }
     }
@@ -409,6 +414,28 @@ class ExecutionService {
       room_id: task.room_id,
       updated_at: now,
     });
+    socketService.emitEvent('task:updated', updatedTask);
+    if (newStatus === 'completed') {
+      socketService.emitEvent('task.completed', updatedTask);
+    }
+
+    // ── 5.5 NOTIFY GUEST VIA TELEGRAM UPON COMPLETION ─────────────────────────
+    if (newStatus === 'completed' || newStatus === 'resolved' || newStatus === 'closed') {
+      try {
+        const telegramBot = require('./telegramBot');
+        const roomNum = updatedTask.room_number || (updatedTask.room_id ? String(updatedTask.room_id).replace(/^room-/i, '') : null);
+        telegramBot.notifyGuestTaskCompleted({
+          taskId,
+          roomNumber: roomNum,
+          title: updatedTask.title,
+          assignedStaff: updatedTask.assigned_to,
+          resolutionNotes: options.resolutionNotes || options.notes || updatedTask.notes,
+          guestId: updatedTask.guest_id,
+        });
+      } catch (botErr) {
+        console.error('[ExecutionService] Telegram notification trigger failed:', botErr.message);
+      }
+    }
 
     // ── 6. UPDATE EXECUTION PROGRESS & COMPLETION ────────────────────────────
     if (execution) {

@@ -267,13 +267,40 @@ class ContextBuilderService {
       });
 
     } else {
-      // Default: multiple_incidents / multiple_simultaneous_incidents
-      trigger.severity = 'critical';
-      trigger.description = trigger.description || 'Multiple simultaneous operational incidents requiring cross-departmental coordination.';
+      // Default: multiple_incidents / guest_complaint / multiple_simultaneous_incidents
+      trigger.severity = triggerOptions.severity || 'critical';
+      trigger.description = triggerOptions.description || trigger.description || 'Multiple simultaneous operational incidents requiring cross-departmental coordination.';
+
+      if (triggerOptions.incident_id) {
+        trigger.incident_id = triggerOptions.incident_id;
+      }
 
       // Open incidents
       const openIncidents = allIncidents.filter((i) => i.status === 'open' || i.status === 'in_progress');
       selectedIncidents = (openIncidents.length > 0 ? openIncidents : allIncidents).slice(0, 5).map(mapIncident);
+
+      // If specific incident_id was provided (e.g. from Telegram guest complaint), prioritize it
+      if (triggerOptions.incident_id) {
+        const targetInc = allIncidents.find((i) => i.id === triggerOptions.incident_id);
+        if (targetInc) {
+          const mappedTarget = mapIncident(targetInc);
+          if (!selectedIncidents.some((si) => si.id === mappedTarget.id)) {
+            selectedIncidents.unshift(mappedTarget);
+          }
+          if (targetInc.room_id) {
+            const rm = allRooms.find((r) => r.id === targetInc.room_id || String(r.number) === String(targetInc.room_number));
+            if (rm && !selectedRooms.some((sr) => sr.id === rm.id)) {
+              selectedRooms.unshift(mapRoom(rm));
+            }
+          }
+          if (targetInc.guest_id) {
+            const gst = allGuests.find((g) => g.id === targetInc.guest_id);
+            if (gst && !selectedGuests.some((sg) => sg.id === gst.id)) {
+              selectedGuests.unshift(mapGuest(gst));
+            }
+          }
+        }
+      }
 
       // Rooms tied to active incidents or dirty/maintenance
       const activeRoomIds = new Set(selectedIncidents.map((i) => i.room_id).filter(Boolean));

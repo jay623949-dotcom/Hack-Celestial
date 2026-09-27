@@ -3,6 +3,7 @@ const staffService = require('../services/staffService');
 const incidentService = require('../services/incidentService');
 const roomService = require('../services/roomService');
 const executionService = require('../services/execution.service');
+const socketService = require('../services/socket.service');
 
 /**
  * Controller for Task resources
@@ -178,6 +179,7 @@ async function updateTask(req, res, next) {
         if (Object.keys(otherUpdates).length > 0) {
           finalTask = taskService.update(id, otherUpdates);
         }
+        socketService.emitEvent('task:updated', finalTask);
         return res.status(200).json({
           success: true,
           data: finalTask,
@@ -203,6 +205,26 @@ async function updateTask(req, res, next) {
           message: `Task with ID '${id}' not found`,
         },
       });
+    }
+
+    socketService.emitEvent('task:updated', updated);
+
+    // If status reached resolved / completed / closed, notify guest via Telegram
+    if (updates.status && ['resolved', 'completed', 'closed'].includes(String(updates.status).toLowerCase())) {
+      try {
+        const telegramBot = require('../services/telegramBot');
+        const roomNum = updated.room_number || (updated.room_id ? String(updated.room_id).replace(/^room-/i, '') : null);
+        telegramBot.notifyGuestTaskCompleted({
+          taskId: updated.id,
+          roomNumber: roomNum,
+          title: updated.title,
+          assignedStaff: updated.assigned_to,
+          resolutionNotes: updates.resolution_notes || updates.notes,
+          guestId: updated.guest_id,
+        });
+      } catch (botErr) {
+        console.error('[Tasks Controller] Telegram notification trigger failed:', botErr.message);
+      }
     }
 
     return res.status(200).json({

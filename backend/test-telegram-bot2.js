@@ -139,7 +139,7 @@ async function runTests() {
   });
 
   // Verify guest received confirmation
-  const confirmMsg = messagesSent.find(m => m.text.includes('Ticket logged! Our AI Swarm is analyzing your report'));
+  const confirmMsg = messagesSent.find(m => m.text.includes('Incident Logged & Triaged!') || m.text.includes('Ticket logged! Our AI Swarm is analyzing your report'));
   assert(confirmMsg, 'Guest did not receive confirmation message');
 
   // Verify session state reset to VERIFIED
@@ -203,6 +203,7 @@ async function runTests() {
   console.log(`✅ Test 7 Passed: POST /api/incidents successfully logged incident ID ${response.body.data.id}.\n`);
 
   console.log('🎉 ALL TELEGRAM BOT STATEFUL WORKFLOW & API TESTS PASSED SUCCESSFULLY!');
+  process.exit(0);
 }
 
 runTests().catch(err => {

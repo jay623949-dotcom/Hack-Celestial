@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import DashboardShell from '../../../components/dashboard/DashboardShell';
 import {
   Bot, Sparkles, Play, RefreshCw, AlertCircle, CheckCircle2,

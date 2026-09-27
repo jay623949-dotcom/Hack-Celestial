@@ -91,6 +91,7 @@ app.get(['/health', '/api/health'], (req, res) => {
 
 // Mount Smart Resort 360 routes directly on /api and /api/v1
 app.use('/api/incidents', incidentsRoutes);
+app.use('/api/tasks', tasksRoutes);
 app.use('/api', smartResortRouter);
 app.use('/api', weatherRoutes);
 
