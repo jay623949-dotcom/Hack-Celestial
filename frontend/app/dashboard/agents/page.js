@@ -40,10 +40,13 @@ import {
   Radio,
   BarChart3,
   Sliders,
-  X
+  X,
+  HelpCircle,
 } from 'lucide-react';
+import HelpDocsModal from '../../../components/common/HelpDocsModal';
 
 function AgentSwarmPageContent() {
+  const [helpOpen, setHelpOpen] = useState(false);
   const searchParams = useSearchParams();
   const initialSystem = searchParams.get('tab') === 'consensus' ? 'consensus' : 'autonomous';
 
@@ -234,6 +237,18 @@ function AgentSwarmPageContent() {
         </div>
 
         <div className="flex items-center gap-3">
+          <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard/agents" />
+
+          {/* Help & Guide Button */}
+          <button
+            onClick={() => setHelpOpen(true)}
+            className="px-3.5 py-2 rounded-2xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+            title="Multi-Agent OS & Swarm Documentation"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <span>Help &amp; Guide</span>
+          </button>
+
           {/* Governance Drawer Trigger Button */}
           <button
             onClick={() => setIsDrawerOpen(true)}

@@ -15,10 +15,19 @@ async function fetchFromApi(endpoint, options = {}) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+  let activeRole = 'admin';
+  try {
+    if (typeof window !== 'undefined') {
+      activeRole = localStorage.getItem('resort360_demo_role') || 'admin';
+    }
+  } catch (_) {}
+
   try {
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
+        'x-user-role': activeRole,
+        'x-role': activeRole,
         ...options.headers,
       },
       signal: controller.signal,
@@ -125,6 +134,16 @@ export async function getIncidents(params = {}) {
 }
 
 /**
+ * Register a new operational incident / room concern
+ */
+export async function createIncident(data) {
+  return fetchFromApi('/incidents', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
  * Active tasks
  */
 export async function getTasks(params = {}) {
@@ -160,6 +179,46 @@ export async function getStaff(params = {}) {
 
   const qs = query.toString() ? `?${query.toString()}` : '';
   return fetchFromApi(`/staff${qs}`);
+}
+
+/**
+ * Update incident status or resolution notes
+ */
+export async function updateIncident(id, updates) {
+  return fetchFromApi(`/incidents/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * Update task status or assignment
+ */
+export async function updateTask(id, updates) {
+  return fetchFromApi(`/tasks/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * Update guest record
+ */
+export async function updateGuest(id, updates) {
+  return fetchFromApi(`/guests/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+/**
+ * Update staff duty status
+ */
+export async function updateStaff(id, updates) {
+  return fetchFromApi(`/staff/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
 }
 
 /**

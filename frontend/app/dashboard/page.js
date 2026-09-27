@@ -33,10 +33,16 @@ import {
   X,
   ShieldAlert,
   UserCheck,
+  HelpCircle,
+  PlusCircle,
 } from 'lucide-react';
+import HelpDocsModal from '../../components/common/HelpDocsModal';
+import ReportConcernModal from '../../components/common/ReportConcernModal';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [summary, setSummary] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
@@ -175,6 +181,8 @@ export default function DashboardPage() {
   return (
     <DashboardShell>
       {/* Overview Greeting & Context */}
+      <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard" />
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
@@ -186,6 +194,25 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {/* Raise Operational Concern / Report Defect (Odoo ERP Style) */}
+          <button
+            onClick={() => setReportOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#714B67]/30 bg-[#714B67]/10 hover:bg-[#714B67] text-[#714B67] hover:text-white text-xs font-semibold transition-colors shadow-xs"
+            title="Log an operational problem or defect across any department"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>Report Concern</span>
+          </button>
+
+          <button
+            onClick={() => setHelpOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors shadow-xs"
+            title="Operations Console Help & Guide"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <span>Help &amp; Guide</span>
+          </button>
+
           <button
             onClick={handleDemoReset}
             disabled={isResetting}
@@ -527,6 +554,13 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Register Operational Concern / Report Defect Modal */}
+      <ReportConcernModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        onSuccess={() => fetchDashboardData(activeRoomFilter)}
+      />
     </DashboardShell>
   );
 }

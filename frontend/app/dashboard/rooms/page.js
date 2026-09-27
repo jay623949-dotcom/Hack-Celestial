@@ -17,9 +17,16 @@ import {
   ArrowLeft,
   Sparkles,
   ShieldCheck,
+  HelpCircle,
+  PlusCircle,
+  FileWarning,
 } from 'lucide-react';
+import HelpDocsModal from '../../../components/common/HelpDocsModal';
+import ReportConcernModal from '../../../components/common/ReportConcernModal';
 
 export default function RoomsPage() {
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [rooms, setRooms] = useState([]);
   const [summary, setSummary] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -96,6 +103,8 @@ export default function RoomsPage() {
 
   return (
     <DashboardShell>
+      <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard/rooms" />
+
       {/* Breadcrumb & Navigation Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
@@ -117,6 +126,25 @@ export default function RoomsPage() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          {/* Raise Operational Concern / Room Defect (Odoo ERP Style) */}
+          <button
+            onClick={() => setReportOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#714B67]/30 bg-[#714B67]/10 hover:bg-[#714B67] text-[#714B67] hover:text-white text-xs font-semibold transition-colors shadow-xs"
+            title="Log an operational problem or defect for this room inventory"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>Report Room Concern</span>
+          </button>
+
+          <button
+            onClick={() => setHelpOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-teal-200 bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-800 transition-colors shadow-xs"
+            title="Rooms Hub Documentation & Guide"
+          >
+            <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+            <span>Help &amp; Guide</span>
+          </button>
+
           <button
             onClick={() => fetchRoomsData(activeFilter)}
             disabled={loading}
@@ -185,6 +213,13 @@ export default function RoomsPage() {
         room={editingRoom}
         onClose={() => setEditingRoom(null)}
         onSaved={handleRoomSaved}
+      />
+
+      {/* Register Operational Concern / Report Defect Modal */}
+      <ReportConcernModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        onSuccess={() => fetchRoomsData(activeFilter)}
       />
     </DashboardShell>
   );

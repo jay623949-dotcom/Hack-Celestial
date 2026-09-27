@@ -37,7 +37,9 @@ import {
   Wrench,
   Activity,
   Zap,
+  HelpCircle,
 } from 'lucide-react';
+import HelpDocsModal from '../../../components/common/HelpDocsModal';
 
 // Geographic Nodes for Geospatial Map (Goa Coordinates)
 const GEO_NODES = [
@@ -130,6 +132,7 @@ export default function WeatherDigitalTwinPage() {
 
   // Injected status
   const [injectedNotification, setInjectedNotification] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   // Load Initial Telemetry
   const fetchLiveTelemetry = useCallback(async () => {
@@ -311,6 +314,17 @@ export default function WeatherDigitalTwinPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <HelpDocsModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} currentPath="/dashboard/weather-digital-twin" />
+
+            <button
+              onClick={() => setHelpOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 rounded-lg border border-teal-200 transition"
+              title="Weather Digital Twin Documentation & Guide"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-teal-600" />
+              <span>Help &amp; Guide</span>
+            </button>
+
             {isSimulationMode && (
               <button
                 onClick={handleResetToLive}

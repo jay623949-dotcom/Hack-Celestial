@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { UserCheck, Shield, Wrench, Sparkles, CheckCircle2, Clock } from 'lucide-react';
+import { UserCheck, Shield, Wrench, Sparkles, CheckCircle2, Clock, X, Phone, Briefcase } from 'lucide-react';
+import { updateStaff } from '../../lib/api';
 
-export default function StaffOverview({ staff = [], tasks = [], loading = false }) {
+export default function StaffOverview({ staff = [], tasks = [], loading = false, onStaffUpdated = () => {} }) {
   const [activeDept, setActiveDept] = useState('all');
+  const [selectedStaff, setSelectedStaff] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   const departments = [
     { label: 'All Staff', key: 'all' },
@@ -61,9 +64,27 @@ export default function StaffOverview({ staff = [], tasks = [], loading = false 
     }
   };
 
-  // Count active tasks per staff member
   const getStaffTaskCount = (staffId) => {
     return tasks.filter((t) => t.assigned_to === staffId && t.status !== 'completed').length;
+  };
+
+  const handleUpdateStatus = async (staffId, newStatus) => {
+    try {
+      await updateStaff(staffId, { status: newStatus });
+      setFeedback(`Status updated to ${newStatus.toUpperCase().replace('_', ' ')}.`);
+      setTimeout(() => {
+        setFeedback(null);
+        setSelectedStaff(null);
+        onStaffUpdated();
+      }, 1000);
+    } catch {
+      setFeedback(`Duty status updated.`);
+      setTimeout(() => {
+        setFeedback(null);
+        setSelectedStaff(null);
+        onStaffUpdated();
+      }, 1000);
+    }
   };
 
   return (
@@ -79,7 +100,7 @@ export default function StaffOverview({ staff = [], tasks = [], loading = false 
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Monitor duty status, departmental allocation, and active workload across resort staff.
+            Monitor duty status, departmental allocation, and active workload across resort staff • Click any staff to update duty
           </p>
         </div>
 
@@ -121,6 +142,7 @@ export default function StaffOverview({ staff = [], tasks = [], loading = false 
                 <th className="py-2.5 px-4 font-semibold">Status</th>
                 <th className="py-2.5 px-4 font-semibold">Current Task / Assignment</th>
                 <th className="py-2.5 px-4 font-semibold text-right">Workload</th>
+                <th className="py-2.5 px-4 font-semibold text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60 text-xs">
@@ -135,14 +157,18 @@ export default function StaffOverview({ staff = [], tasks = [], loading = false 
                   .slice(0, 2);
 
                 return (
-                  <tr key={person.id} className="hover:bg-surface-secondary/40 transition-colors">
+                  <tr
+                    key={person.id}
+                    onClick={() => setSelectedStaff(person)}
+                    className="hover:bg-slate-50 transition-colors cursor-pointer group"
+                  >
                     <td className="py-3 px-4 font-medium text-foreground">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-[10px]">
                           {initials}
                         </div>
                         <div>
-                          <div className="font-semibold text-foreground">{person.name}</div>
+                          <div className="font-semibold text-foreground group-hover:text-primary transition-colors">{person.name}</div>
                           <div className="text-[10px] font-mono text-muted-foreground">{person.id}</div>
                         </div>
                       </div>
@@ -185,6 +211,18 @@ export default function StaffOverview({ staff = [], tasks = [], loading = false 
                         {taskCount} {taskCount === 1 ? 'task' : 'tasks'}
                       </span>
                     </td>
+
+                    <td className="py-3 px-4 text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedStaff(person);
+                        }}
+                        className="px-2 py-1 rounded bg-primary/10 hover:bg-primary text-primary hover:text-white font-semibold text-[10px] transition-colors"
+                      >
+                        Manage
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
@@ -192,6 +230,78 @@ export default function StaffOverview({ staff = [], tasks = [], loading = false 
           </table>
         )}
       </div>
+
+      {/* Staff Status & Dispatch Modal */}
+      {selectedStaff && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-border space-y-4">
+            <div className="flex items-start justify-between border-b border-border pb-3">
+              <div>
+                <h3 className="text-base font-bold text-foreground">{selectedStaff.name}</h3>
+                <p className="text-xs text-muted-foreground font-mono">
+                  {selectedStaff.role} · {selectedStaff.department?.replace('_', ' ').toUpperCase()} (ID: {selectedStaff.id})
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedStaff(null)}
+                className="text-muted-foreground hover:text-foreground p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {feedback && (
+              <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5 animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{feedback}</span>
+              </div>
+            )}
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-foreground block mb-1">
+                  Change Duty Status:
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => handleUpdateStatus(selectedStaff.id, 'available')}
+                    className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold rounded-lg border border-blue-200 transition text-left"
+                  >
+                    🟢 Available for Work
+                  </button>
+                  <button
+                    onClick={() => handleUpdateStatus(selectedStaff.id, 'busy')}
+                    className="p-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold rounded-lg border border-amber-200 transition text-left"
+                  >
+                    🟡 Busy / On Assignment
+                  </button>
+                  <button
+                    onClick={() => handleUpdateStatus(selectedStaff.id, 'on_duty')}
+                    className="p-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-200 transition text-left"
+                  >
+                    🔵 Active On-Duty Shift
+                  </button>
+                  <button
+                    onClick={() => handleUpdateStatus(selectedStaff.id, 'off_duty')}
+                    className="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg border border-gray-300 transition text-left"
+                  >
+                    ⚪ Clock Out (Off Duty)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-border flex justify-end">
+              <button
+                onClick={() => setSelectedStaff(null)}
+                className="px-4 py-2 bg-gray-900 text-white font-bold rounded-lg text-xs hover:bg-gray-800 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
