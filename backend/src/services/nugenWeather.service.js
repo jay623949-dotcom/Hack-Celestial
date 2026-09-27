@@ -117,9 +117,15 @@ function callNugenApi(prompt) {
       res.on('end', () => {
         try {
           const parsed = JSON.parse(data);
-          const content = parsed?.choices?.[0]?.message?.content || parsed?.text || '';
-          // Try to extract JSON from response
-          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          if (parsed && parsed.impactLevel && parsed.confidence) {
+            return resolve(parsed);
+          }
+          const content = parsed?.choices?.[0]?.message?.content || parsed?.text || (typeof parsed === 'string' ? parsed : '');
+          let cleaned = String(content || '').trim();
+          if (cleaned.startsWith('```')) {
+            cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+          }
+          const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             resolve(JSON.parse(jsonMatch[0]));
           } else {

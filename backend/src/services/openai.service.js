@@ -38,6 +38,7 @@ class AIService {
     this.geminiClient = null;
     this.openaiClient = null;
     this.localClient = null;
+    this.gemmaClient = null;
     this.initClients();
   }
 
@@ -65,19 +66,18 @@ class AIService {
       }
     }
 
-    // 3. Initialize Local LLM Client (OpenAI-compatible client pointing to localhost/Ollama)
-    const localBaseURL = config.ai?.local?.baseURL || process.env.LOCAL_AI_BASE_URL;
-    if (localBaseURL) {
-      try {
-        this.localClient = new OpenAI({
-          apiKey: 'local-no-key-required',
-          baseURL: localBaseURL,
-          timeout: 120000, // 120s — local models like gemma2:2b can be slow
-          maxRetries: 0,   // Don't retry on local — fail fast and surface error
-        });
-      } catch (e) {
-        console.warn('[AIService] Failed to initialize Local AI client:', e.message);
-      }
+    // 3. Initialize Gemma 2 / Local LLM Client (OpenAI-compatible client pointing to localhost/Ollama or remote)
+    const gemmaBaseURL = config.ai?.gemma?.baseURL || config.ai?.local?.baseURL || process.env.LOCAL_AI_BASE_URL || 'http://localhost:11434/v1';
+    try {
+      this.gemmaClient = new OpenAI({
+        apiKey: config.ai?.gemma?.apiKey || 'local-no-key-required',
+        baseURL: gemmaBaseURL,
+        timeout: 10000, // 10s fast timeout for unreachable detection
+        maxRetries: 0,   // Don't retry on local — fail fast and fallback to NuGen
+      });
+      this.localClient = this.gemmaClient;
+    } catch (e) {
+      console.warn('[AIService] Failed to initialize Gemma 2 client:', e.message);
     }
   }
 
@@ -85,9 +85,14 @@ class AIService {
    * Determine active provider with intelligent fallback
    */
   getActiveProvider() {
-    const configured = (config.ai?.provider || process.env.AI_PROVIDER || 'nugen').toLowerCase();
+    const configured = (config.ai?.provider || process.env.AI_PROVIDER || 'gemma2').toLowerCase();
 
-    // If Nugen is configured, prioritize Nugen Domain-Aligned AI
+    // Gemma 2 is primary choice (with auto-fallback to NuGen when unreachable)
+    if (configured === 'gemma2' || configured === 'gemma' || configured === 'local') {
+      return 'gemma2';
+    }
+
+    // Direct NuGen Domain AI
     if (configured === 'nugen') {
       return 'nugen';
     }
@@ -99,19 +104,8 @@ class AIService {
     if (configured === 'openai' && (config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY)) {
       return 'openai';
     }
-    if (configured === 'local') {
-      return 'local';
-    }
 
-    // Fallback: Check if OpenAI has key when Gemini doesn't
-    if (config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY) {
-      return 'openai';
-    }
-    if (config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY) {
-      return 'gemini';
-    }
-
-    return configured;
+    return 'gemma2';
   }
 
   /**
@@ -306,16 +300,16 @@ class AIService {
   /**
    * Invoke OpenAI or Local Model via OpenAI SDK
    */
-  async callOpenAICompatible(client, model, userPrompt, providerLabel, systemInstructions = SYSTEM_INSTRUCTIONS) {
+  async callOpenAICompatible(client, model, userPrompt, providerLabel, systemInstructions = SYSTEM_INSTRUCTIONS, timeoutMs = 45000) {
     console.log(`[AIService] Calling ${providerLabel} model (${model})...`);
 
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => {
-        const err = new Error(`${providerLabel} call timed out after 45s`);
+        const err = new Error(`${providerLabel} call timed out after ${Math.round(timeoutMs / 1000)}s`);
         err.code = 'AI_TIMEOUT';
         err.status = 504;
         reject(err);
-      }, 45000);
+      }, timeoutMs);
     });
 
     try {
@@ -361,7 +355,7 @@ class AIService {
       if (err.code === 'AI_TIMEOUT') {
         throw err;
       }
-      console.error(`[AIService] ${providerLabel} API error:`, err.message);
+      console.warn(`[AIService] ${providerLabel} API error:`, err.message);
       const error = new Error(`${providerLabel} API error: ${err.message}`);
       error.code = 'AI_SERVICE_ERROR';
       error.status = err.status || 502;
@@ -370,7 +364,88 @@ class AIService {
   }
 
   /**
-   * Execute Operational Context Analysis via Universal Provider Adapter
+   * Dedicated Gemma 2 caller with fast timeout for reachability detection
+   */
+  async callGemma2(userPrompt, systemInstructions = SYSTEM_INSTRUCTIONS) {
+    if (!this.gemmaClient) this.initClients();
+    const model = config.ai?.gemma?.model || config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'gemma2:2b';
+    return await this.callOpenAICompatible(this.gemmaClient, model, userPrompt, 'Gemma 2', systemInstructions, 10000);
+  }
+
+  /**
+   * Invoke NuGen Domain Intelligence inference
+   */
+  async callNugen(context) {
+    console.log('[NUGEN] Preparing Resort 360 context for domain inference');
+    const nugenInferenceService = require('./nugen/nugenInferenceService');
+    const modelId = nugenInferenceService.getModelId();
+    console.log(`[NUGEN] Using aligned Resort 360 model (${modelId})`);
+    console.log('[NUGEN] Inference started');
+    const nugenResult = await nugenInferenceService.analyzeResortIncident(context);
+    console.log('[NUGEN] Domain intelligence inference completed');
+
+    return this.formatNugenResponse(nugenResult, context);
+  }
+
+  /**
+   * Format NuGen Domain Decision into standard agent response schema
+   */
+  formatNugenResponse(nugenResult, context) {
+    const mappedResponse = {
+      agent: 'operations',
+      schema_version: '1.0',
+      assessment: {
+        summary: nugenResult.summary,
+        priority: (nugenResult.severity || 'high').toLowerCase(),
+      },
+      observations: [
+        `Incident ${nugenResult.incident_id}: ${nugenResult.summary}`,
+        ...(nugenResult.impact || []),
+      ],
+      constraints: nugenResult.dependencies || [],
+      recommendations: (nugenResult.recommended_actions || []).map((a, idx) => ({
+        recommendation_id: `rec-nugen-${idx + 1}`,
+        action: a.action,
+        reason: a.reason,
+        priority: (a.priority || 'high').toLowerCase(),
+        affected_rooms: context.rooms?.map((r) => r.id).slice(0, 2) || ['room-401'],
+        affected_guests: context.guests?.map((g) => g.id).slice(0, 1) || ['guest-001'],
+        required_staff: context.staff?.filter((s) => s.department === a.department).map((s) => s.id) || [],
+        estimated_duration_minutes: 20,
+        risks: ['Cross-departmental coordination requirement'],
+        confidence: (nugenResult.confidence_score || 95) / 100,
+      })),
+      confidence: (nugenResult.confidence_score || 95) / 100,
+      nugen_domain_intelligence: nugenResult,
+      model_source: nugenResult.is_fallback ? 'nugen-domain-fallback' : 'nugen-aligned-model',
+    };
+
+    const outputValidation = this.validateAIOutput(mappedResponse);
+    if (!outputValidation.valid) {
+      console.warn('[AIService] NuGen output normalization schema warning:', outputValidation.errors);
+    } else {
+      console.log('[NUGEN] Structured response validated');
+    }
+    return mappedResponse;
+  }
+
+  /**
+   * Helper to clean markdown fences and parse valid JSON
+   */
+  cleanAndParseJSON(rawContent) {
+    let cleaned = String(rawContent || '').trim();
+    if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+    }
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleaned = jsonMatch[0];
+    }
+    return JSON.parse(cleaned);
+  }
+
+  /**
+   * Execute Operational Context Analysis with Gemma 2 -> NuGen Fallback
    * @param {Object} context Canonical operational context snapshot
    * @returns {Promise<Object>} Structured analysis response
    */
@@ -385,144 +460,97 @@ class AIService {
     }
 
     const provider = this.getActiveProvider();
-    // For local small models, compress context to fit within their context window
-    const contextForModel = provider === 'local' ? this.compressContextForLocalModel(context) : context;
-    const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(contextForModel, null, 2)}`;
 
-    let responseContent = null;
+    // 2. Primary Route: Gemma 2 (Auto-fallback to NuGen if Gemma API is not reachable)
+    if (provider === 'gemma2' || provider === 'gemma' || provider === 'local') {
+      try {
+        console.log(`[AIService] Routing to primary model: Gemma 2 (${config.ai?.gemma?.model || 'gemma2:2b'})...`);
+        const contextForModel = this.compressContextForLocalModel(context);
+        const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(contextForModel, null, 2)}`;
+        const gemmaRaw = await this.callGemma2(userPrompt);
+        const parsed = this.cleanAndParseJSON(gemmaRaw);
+        if (!parsed.agent) parsed.agent = 'operations';
+        if (!parsed.schema_version) parsed.schema_version = '1.0';
+        return parsed;
+      } catch (gemmaErr) {
+        console.warn(`[AIService] Gemma 2 API not reachable (${gemmaErr.message}). Seamlessly falling back to NuGen Domain Intelligence...`);
+        return await this.callNugen(context);
+      }
+    }
 
-    // 2. Route to Active Provider
+    // 3. NuGen Provider Route
     if (provider === 'nugen') {
       try {
-        console.log('[NUGEN] Preparing Resort 360 context');
-        const nugenInferenceService = require('./nugen/nugenInferenceService');
-        const modelId = nugenInferenceService.getModelId();
-        console.log(`[NUGEN] Using aligned Resort 360 model (${modelId})`);
-        console.log('[NUGEN] Inference started');
-        const nugenResult = await nugenInferenceService.analyzeResortIncident(context);
-        console.log('[NUGEN] Inference completed');
-
-        const mappedResponse = {
-          agent: 'operations',
-          schema_version: '1.0',
-          assessment: {
-            summary: nugenResult.summary,
-            priority: (nugenResult.severity || 'high').toLowerCase(),
-          },
-          observations: [
-            `Incident ${nugenResult.incident_id}: ${nugenResult.summary}`,
-            ...(nugenResult.impact || []),
-          ],
-          constraints: nugenResult.dependencies || [],
-          recommendations: (nugenResult.recommended_actions || []).map((a, idx) => ({
-            recommendation_id: `rec-nugen-${idx + 1}`,
-            action: a.action,
-            reason: a.reason,
-            priority: (a.priority || 'high').toLowerCase(),
-            affected_rooms: context.rooms?.map((r) => r.id).slice(0, 2) || ['room-401'],
-            affected_guests: context.guests?.map((g) => g.id).slice(0, 1) || ['guest-001'],
-            required_staff: context.staff?.filter((s) => s.department === a.department).map((s) => s.id) || [],
-            estimated_duration_minutes: 20,
-            risks: ['Cross-departmental coordination requirement'],
-            confidence: (nugenResult.confidence_score || 95) / 100,
-          })),
-          confidence: (nugenResult.confidence_score || 95) / 100,
-          nugen_domain_intelligence: nugenResult,
-        };
-
-        const outputValidation = this.validateAIOutput(mappedResponse);
-        if (!outputValidation.valid) {
-          console.warn('[AIService] Nugen output normalization schema warning:', outputValidation.errors);
-        } else {
-          console.log('[NUGEN] Structured response validated');
-        }
-        console.log('[AIService] Nugen analysis completed');
-        return mappedResponse;
+        return await this.callNugen(context);
       } catch (nugenErr) {
-        console.error('[NUGEN] Inference failed:', nugenErr.message);
-        console.log('[AIService] Falling back to Local LLM');
-        if (!this.localClient) this.initClients();
-        const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'gemma2:2b';
-        responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM');
+        console.warn(`[AIService] NuGen inference failed (${nugenErr.message}). Attempting Gemma 2 fallback...`);
+        try {
+          const contextForModel = this.compressContextForLocalModel(context);
+          const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(contextForModel, null, 2)}`;
+          const gemmaRaw = await this.callGemma2(userPrompt);
+          return this.cleanAndParseJSON(gemmaRaw);
+        } catch (gemmaErr) {
+          console.warn('[AIService] Gemma 2 also unreachable. Using NuGen deterministic domain fallback.');
+          const nugenInferenceService = require('./nugen/nugenInferenceService');
+          const compact = nugenInferenceService.buildPromptContext(context);
+          const fallbackResult = nugenInferenceService.getDeterministicDomainFallback(compact);
+          return this.formatNugenResponse(fallbackResult, context);
+        }
       }
-    } else if (provider === 'gemini') {
-      responseContent = await this.callGemini(userPrompt);
-    } else if (provider === 'local') {
-      if (!this.localClient) this.initClients();
-      const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'gemma2:2b';
-      responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM');
-    } else {
-      // Default: OpenAI
-      if (!this.openaiClient) this.initClients();
-      const apiKey = config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY;
-      if (!apiKey) {
-        const error = new Error('No AI provider configured. Please set GEMINI_API_KEY (free at https://aistudio.google.com) or OPENAI_API_KEY in backend/.env.');
-        error.code = 'AI_KEY_MISSING';
-        error.status = 503;
-        throw error;
+    }
+
+    // 4. Gemini Route
+    if (provider === 'gemini') {
+      try {
+        const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(context, null, 2)}`;
+        const raw = await this.callGemini(userPrompt);
+        return this.cleanAndParseJSON(raw);
+      } catch (geminiErr) {
+        console.warn(`[AIService] Gemini failed (${geminiErr.message}). Falling back to NuGen...`);
+        return await this.callNugen(context);
       }
-      const model = config.ai?.openai?.model || config.openai?.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
-      responseContent = await this.callOpenAICompatible(this.openaiClient, model, userPrompt, 'OpenAI');
     }
 
-    if (!responseContent) {
-      const error = new Error(`Empty response received from ${provider} model service`);
-      error.code = 'AI_EMPTY_RESPONSE';
-      error.status = 502;
-      throw error;
+    // 5. OpenAI Route
+    if (!this.openaiClient) this.initClients();
+    const apiKey = config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      console.warn('[AIService] No OpenAI key. Falling back to NuGen Domain Intelligence...');
+      return await this.callNugen(context);
     }
-
-    // 3. Clean and parse JSON
-    let parsedData = null;
-    try {
-      // Strip markdown code fences if model enclosed JSON in ```json ... ```
-      let cleaned = responseContent.trim();
-      if (cleaned.startsWith('```')) {
-        cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
-      }
-      parsedData = JSON.parse(cleaned);
-    } catch (parseErr) {
-      console.error('[AIService] Failed to parse model output as JSON:', responseContent);
-      const error = new Error('AI returned non-JSON or malformed output');
-      error.code = 'AI_INVALID_RESPONSE';
-      error.status = 502;
-      throw error;
-    }
-
-    // Normalize agent & version
-    if (!parsedData.agent) parsedData.agent = 'operations';
-    if (!parsedData.schema_version) parsedData.schema_version = '1.0';
-
-    // 4. Validate AI Output Schema
-    const outputValidation = this.validateAIOutput(parsedData);
-    if (!outputValidation.valid) {
-      console.error('[AIService] AI output schema validation failed:', outputValidation.errors);
-      const error = new Error(`AI returned invalid schema structure: ${outputValidation.errors.join(', ')}`);
-      error.code = 'AI_INVALID_RESPONSE';
-      error.status = 502;
-      throw error;
-    }
-
-    return parsedData;
+    const model = config.ai?.openai?.model || config.openai?.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    const userPrompt = `Analyze the following resort operational context and produce a coordinated operational assessment:\n\n${JSON.stringify(context, null, 2)}`;
+    const responseContent = await this.callOpenAICompatible(this.openaiClient, model, userPrompt, 'OpenAI');
+    return this.cleanAndParseJSON(responseContent);
   }
 
   /**
-   * Universal completion executor accepting custom prompt, system instructions, and schema validation
-   * @param {string} userPrompt 
-   * @param {string} systemInstructions 
-   * @returns {Promise<Object>} Cleaned, parsed, and validated JSON output
+   * Universal completion executor: Gemma 2 -> NuGen Fallback -> Gemini -> Domain Grounding
    */
   async executeCompletion(userPrompt, systemInstructions = SYSTEM_INSTRUCTIONS) {
     const provider = this.getActiveProvider();
     let responseContent = null;
 
-    if (provider === 'nugen') {
+    // 1. Try Gemma 2 first if requested
+    if (provider === 'gemma2' || provider === 'gemma' || provider === 'local') {
+      try {
+        console.log(`[AIService] Executing completion via Gemma 2 (${config.ai?.gemma?.model || 'gemma2:2b'})...`);
+        responseContent = await this.callGemma2(userPrompt, systemInstructions);
+      } catch (gemmaErr) {
+        console.warn(`[AIService] Gemma 2 API not reachable (${gemmaErr.message}). Seamlessly falling back to NuGen...`);
+      }
+    }
+
+    // 2. Try NuGen
+    if (!responseContent) {
       const apiKey = config.ai?.nugen?.apiKey || process.env.NUGEN_API_KEY;
       if (apiKey) {
         try {
           const baseUrl = (config.ai?.nugen?.baseURL || process.env.NUGEN_BASE_URL || 'https://api.nugen.in').replace(/\/+$/, '');
           const model = config.ai?.nugen?.modelId || process.env.NUGEN_MODEL_ID || 'resort360-hospitality-v1';
           console.log(`[NUGEN] Executing completion using aligned model: ${model}`);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 10000);
           const nugenRes = await fetch(`${baseUrl}/api/v3/inference/chat/completions`, {
             method: 'POST',
             headers: {
@@ -538,10 +566,12 @@ class AIService {
               temperature: 0.2,
               max_tokens: 1500,
             }),
+            signal: controller.signal,
           });
+          clearTimeout(timeout);
           if (nugenRes.ok) {
             const data = await nugenRes.json();
-            responseContent = data.choices?.[0]?.message?.content || '';
+            responseContent = data.choices?.[0]?.message?.content || data.text || '';
           }
         } catch (e) {
           console.warn('[NUGEN] Inference failed for completion:', e.message);
@@ -549,7 +579,8 @@ class AIService {
       }
     }
 
-    if (!responseContent && (provider === 'gemini' || (provider !== 'nugen' && (config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY)))) {
+    // 3. Try Gemini fallback
+    if (!responseContent && (config.ai?.gemini?.apiKey || process.env.GEMINI_API_KEY)) {
       try {
         responseContent = await this.callGemini(userPrompt, systemInstructions);
       } catch (e) {
@@ -557,46 +588,44 @@ class AIService {
       }
     }
 
-    if (!responseContent && (provider === 'local' || (!responseContent && process.env.LOCAL_AI_BASE_URL && provider !== 'nugen'))) {
-      if (!this.localClient) this.initClients();
-      const model = config.ai?.local?.model || process.env.LOCAL_AI_MODEL || 'gemma2:2b';
-      try {
-        responseContent = await this.callOpenAICompatible(this.localClient, model, userPrompt, 'Local LLM', systemInstructions);
-      } catch (e) {
-        console.warn('[AIService] Local LLM fallback failed:', e.message);
-      }
-    }
-
+    // 4. Try OpenAI fallback
     if (!responseContent && (config.ai?.openai?.apiKey || config.openai?.apiKey || process.env.OPENAI_API_KEY)) {
-      if (!this.openaiClient) this.initClients();
-      const model = config.ai?.openai?.model || config.openai?.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
-      responseContent = await this.callOpenAICompatible(this.openaiClient, model, userPrompt, 'OpenAI', systemInstructions);
-    }
-
-    if (!responseContent) {
-      const error = new Error(`Empty response received from ${provider} model service`);
-      error.code = 'AI_EMPTY_RESPONSE';
-      error.status = 502;
-      throw error;
-    }
-
-    // Clean and parse JSON
-    let parsedData = null;
-    try {
-      let cleaned = responseContent.trim();
-      if (cleaned.startsWith('```')) {
-        cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+      try {
+        if (!this.openaiClient) this.initClients();
+        const model = config.ai?.openai?.model || config.openai?.model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
+        responseContent = await this.callOpenAICompatible(this.openaiClient, model, userPrompt, 'OpenAI', systemInstructions);
+      } catch (e) {
+        console.warn('[AIService] OpenAI fallback failed:', e.message);
       }
-      parsedData = JSON.parse(cleaned);
-    } catch (parseErr) {
-      console.error('[AIService] Failed to parse model output as JSON:', responseContent);
-      const error = new Error('AI returned non-JSON or malformed output');
-      error.code = 'AI_INVALID_RESPONSE';
-      error.status = 502;
-      throw error;
     }
 
-    return parsedData;
+    // 5. Ultimate domain-grounded fallback (app never crashes)
+    if (!responseContent) {
+      console.warn('[AIService] All external AI APIs offline or unreachable. Returning domain-grounded operational fallback.');
+      return {
+        agent: 'operations',
+        schema_version: '1.0',
+        assessment: {
+          summary: 'Domain fallback: prioritized incident assessment and task sequencing.',
+          priority: 'high',
+        },
+        observations: ['AI live endpoint offline; domain fallback applied.'],
+        constraints: ['Verify work order before assignment.'],
+        recommendations: [
+          {
+            recommendation_id: 'rec-fallback-01',
+            action: 'Dispatch on-duty staff to inspect and report incident status.',
+            reason: 'Grounds operational continuity when external AI services are unreachable.',
+            priority: 'high',
+            confidence: 0.92,
+          }
+        ],
+        confidence: 0.92,
+        is_fallback: true,
+      };
+    }
+
+    return this.cleanAndParseJSON(responseContent);
   }
 }
 
