@@ -12,13 +12,8 @@ const server = app.listen(config.port, () => {
 
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error(`[SERVER] Port ${config.port} is busy. Retrying in 2 seconds...`);
-    setTimeout(() => {
-      try {
-        server.close();
-      } catch (_) {}
-      server.listen(config.port);
-    }, 2000);
+    console.error(`[SERVER] Port ${config.port} is already in use by another process.`);
+    process.exit(1);
   } else {
     console.error('[SERVER] Server error:', err.message);
   }
