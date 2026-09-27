@@ -9,6 +9,7 @@ const housekeepingService = require('./housekeeping.service');
 const maintenanceService = require('./maintenance.service');
 const revenueService = require('./revenue.service');
 const engineService = require('./engine.service');
+const calendarService = require('../services/calendar.service');
 const { state, resetState } = require('./smartResortStore');
 
 const router = express.Router();
@@ -164,6 +165,27 @@ router.post(['/revenue/wing-shutdown', '/revenue/wing-shutdown-simulate'], (req,
     const { wing_id } = req.body;
     const result = revenueService.simulateWingShutdown(wing_id);
     res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Calendar / Demand Endpoints ────────────────────────────────────────────
+router.get('/calendar/month', (req, res, next) => {
+  try {
+    const year = parseInt(req.query.year) || new Date().getFullYear();
+    const month = parseInt(req.query.month) !== undefined && !isNaN(parseInt(req.query.month)) ? parseInt(req.query.month) : new Date().getMonth();
+    const data = calendarService.getCalendarDataForMonth(year, month);
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/calendar/date/:date', (req, res, next) => {
+  try {
+    const data = calendarService.getSeasonalDemand(req.params.date);
+    res.json(data);
   } catch (err) {
     next(err);
   }
