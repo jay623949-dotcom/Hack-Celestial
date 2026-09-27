@@ -182,6 +182,25 @@ router.get('/calendar/month', (req, res, next) => {
   }
 });
 
+router.get('/calendar/annual', (req, res, next) => {
+  try {
+    const year = parseInt(req.query.year) || new Date().getFullYear();
+    const overview = calendarService.getAnnualOverview(year);
+    res.json(overview);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/calendar/events', (req, res, next) => {
+  try {
+    const events = calendarService.getCalendarEvents();
+    res.json(events);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get('/calendar/date/:date', (req, res, next) => {
   try {
     const data = calendarService.getSeasonalDemand(req.params.date);

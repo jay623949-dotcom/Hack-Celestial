@@ -8,6 +8,7 @@ import StatCard from '../../components/dashboard/StatCard';
 import IncidentOverview from '../../components/dashboard/IncidentOverview';
 import ActiveTasks from '../../components/dashboard/ActiveTasks';
 import AttentionPanel from '../../components/dashboard/AttentionPanel';
+import SeasonalCalendar from '../../components/dashboard/SeasonalCalendar';
 import {
   getOperationsSummary,
   getRooms,
@@ -431,6 +432,9 @@ export default function DashboardPage() {
           </div>
         </Link>
       </div>
+
+      {/* India Tourism & Seasonal Demand Calendar (Off-Season / On-Season Visualization) */}
+      <SeasonalCalendar />
 
       {/* Incidents & Operational Pressure Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">

@@ -403,6 +403,8 @@ export const smartResortApi = {
   createFlashSale: (data) => smartApiRequest('/api/revenue/flash-sale', 'POST', data),
   getCalendarMonth: (year, month) => smartApiRequest(`/api/calendar/month?year=${year}&month=${month}`),
   getCalendarDate: (date) => smartApiRequest(`/api/calendar/date/${date}`),
+  getAnnualSeasonality: (year) => smartApiRequest(`/api/calendar/annual?year=${year}`),
+  getCalendarEvents: () => smartApiRequest('/api/calendar/events'),
 
   // Intelligence Engine
   guestIntake: (data) => smartApiRequest('/api/engine/guest-intake', 'POST', data),
@@ -410,6 +412,18 @@ export const smartResortApi = {
   flashSale: (data) => smartApiRequest('/api/engine/flash-sale', 'POST', data),
   housekeepingReorder: (data) => smartApiRequest('/api/engine/housekeeping-reorder', 'POST', data),
 };
+
+export async function getCalendarMonth(year, month) {
+  return smartResortApi.getCalendarMonth(year, month);
+}
+
+export async function getAnnualSeasonality(year) {
+  return smartResortApi.getAnnualSeasonality(year);
+}
+
+export async function getCalendarEvents() {
+  return smartResortApi.getCalendarEvents();
+}
 
 export const weatherDigitalTwinApi = {
   getCurrentWeather: () => fetchFromApi('/weather/current'),
